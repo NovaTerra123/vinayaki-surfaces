@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><script>window.__SB_SURFACE="studio";</script><script src="../bridge-pages.js"></script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Spandana Studio — one-intent cinematic production</title>
+<style>
+  :root{
+    --bg:#070b16; --panel:#0d1424; --panel2:#10182b; --line:#26314d;
+    --text:#e8edf7; --muted:#93a1bd; --gold:#e6c35c; --violet:#9a6fe0;
+    --cyan:#57c7e3; --pink:#d98fd0; --green:#57b87a; --red:#e05a4e;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:radial-gradient(1200px 600px at 70% -10%,#16224a 0%,var(--bg) 55%);
+       color:var(--text);font-family:Georgia,'Times New Roman',serif;line-height:1.5}
+  .wrap{max-width:1180px;margin:0 auto;padding:28px 18px 80px}
+  h1{font-size:34px;margin:0;letter-spacing:.5px}
+  h1 .glow{color:var(--gold);text-shadow:0 0 22px rgba(230,195,92,.45)}
+  .sub{color:var(--muted);margin-top:4px;font-size:15px}
+  .tech{font-family:ui-monospace,Menlo,monospace;font-size:11px;color:var(--muted);
+        letter-spacing:.4px;text-transform:uppercase}
+  .hero{margin:30px 0 8px;background:linear-gradient(180deg,var(--panel2),var(--panel));
+        border:1px solid var(--line);border-radius:14px;padding:22px}
+  .hero label{font-size:18px}
+  .row{display:flex;gap:10px;margin-top:12px;flex-wrap:wrap}
+  textarea{flex:1;min-width:280px;min-height:64px;background:#0a0f1f;color:var(--text);
+           border:1px solid var(--line);border-radius:10px;padding:12px;font-size:16px;
+           font-family:inherit;resize:vertical}
+  button{background:linear-gradient(180deg,#f0d47a,var(--gold));color:#231a02;border:0;
+         border-radius:10px;padding:12px 22px;font-size:16px;font-weight:bold;cursor:pointer}
+  button:disabled{opacity:.5;cursor:wait}
+  .hint{color:var(--muted);font-size:13px;margin-top:8px}
+  section{margin-top:34px}
+  h2{font-size:22px;margin:0 0 4px;color:var(--text)}
+  h2 .tech{margin-left:8px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;
+        padding:16px 18px;margin-top:12px}
+  .brief-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px}
+  .brief-grid .cell{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:12px}
+  .cell .k{color:var(--gold);font-size:13px;text-transform:uppercase;letter-spacing:.6px}
+  .protect{border-color:var(--pink);background:#170f22}
+  .protect .k{color:var(--pink)}
+  ul{margin:6px 0 6px 18px;padding:0}
+  li{margin:4px 0}
+  table{width:100%;border-collapse:collapse;margin-top:12px;font-size:13.5px}
+  th,td{border:1px solid var(--line);padding:8px 9px;vertical-align:top;text-align:left}
+  th{background:var(--panel2);color:var(--gold);font-weight:normal;font-size:12.5px;
+     text-transform:uppercase;letter-spacing:.5px}
+  td.beat{white-space:nowrap;color:var(--cyan)}
+  .asset{display:inline-block;background:#1a2440;border:1px solid var(--line);
+         border-radius:6px;padding:0 6px;margin:1px 2px;font-family:ui-monospace,Menlo,monospace;
+         font-size:12px;color:var(--gold)}
+  .caps{display:grid;grid-template-columns:repeat(auto-fit,minmax(330px,1fr));gap:12px;margin-top:12px}
+  .cap{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 16px}
+  .cap .id{font-family:ui-monospace,Menlo,monospace;color:var(--gold);font-size:13px}
+  .cap .kind{float:right;color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:.5px}
+  .cap .what{font-size:15.5px;margin:6px 0 8px}
+  .cap .f{font-size:13px;color:var(--muted);margin:3px 0}
+  .cap .f b{color:var(--text);font-weight:normal}
+  .cap .why{border-left:3px solid var(--violet);padding-left:9px;color:var(--text);font-size:13.5px;margin-top:8px}
+  .sort{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px;margin-top:12px}
+  .sort .col{border-radius:12px;padding:14px 16px;border:1px solid var(--line);background:var(--panel)}
+  .sort .matters{border-color:var(--red)} .sort .fill{border-color:var(--cyan)}
+  .sort .needs{border-color:var(--gold)}
+  .sort h3{margin:0 0 6px;font-size:16px}
+  .steps{margin-top:12px}
+  .step{display:flex;gap:12px;padding:8px 10px;border-bottom:1px solid var(--line);font-size:14.5px}
+  .step .n{font-family:ui-monospace,Menlo,monospace;color:var(--muted);min-width:26px;text-align:right}
+  .step .ph{color:var(--violet);min-width:118px;font-size:12.5px;text-transform:uppercase;letter-spacing:.5px;padding-top:3px}
+  .step .st{color:var(--muted);font-size:13.5px}
+  .pkt{font-family:ui-monospace,Menlo,monospace;font-size:12.5px}
+  .st-approved{color:var(--cyan)} .st-verified{color:var(--green)}
+  .st-awaiting_ruling{color:var(--gold)} .st-failed{color:var(--red)}
+  .artifact{border:1px dashed var(--violet);border-radius:12px;padding:18px;margin-top:12px;
+            background:#120e24;text-align:center}
+  .artifact .big{font-size:17px}
+  .tag{display:inline-block;border:1px solid var(--line);border-radius:6px;padding:0 7px;
+       margin:1px 2px;font-size:12px;font-family:ui-monospace,Menlo,monospace}
+  .tag.meas{color:var(--cyan)} .tag.gram{color:var(--violet)} .tag.warn{color:var(--gold);border-color:var(--gold)}
+  .tag.unk{color:var(--muted)}
+  .trow{display:flex;gap:10px;padding:6px 10px;border-bottom:1px solid var(--line);font-size:14px;flex-wrap:wrap}
+  .trow .tw{font-family:ui-monospace,Menlo,monospace;color:var(--muted);font-size:12.5px}
+  .lvl{font-size:20px;color:var(--gold)}
+  .foot{color:var(--muted);font-size:12.5px;margin-top:40px}
+  .err{color:var(--red)}
+  .style-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:12px;margin-top:12px}
+  .style-card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 16px;cursor:pointer}
+  .style-card:hover{border-color:var(--violet)}
+  .style-card.sel{border-color:var(--gold);box-shadow:0 0 14px rgba(230,195,92,.25)}
+  .style-card .sname{font-size:17px;color:var(--text)}
+  .style-card .stag{color:var(--muted);font-size:13.5px;margin:2px 0 8px}
+  .style-icon{float:right;color:var(--gold)}
+  .arch-chip{display:inline-block;background:var(--panel2);border:1px solid var(--line);border-radius:8px;
+             padding:3px 8px;margin:2px 3px 2px 0;font-size:12.5px}
+  .arch-chip .insp{display:block;color:var(--muted);font-size:11.5px}
+  .chan{display:flex;gap:10px;padding:7px 10px;border-bottom:1px solid var(--line);font-size:14px;flex-wrap:wrap}
+  .chan .cl{min-width:150px;color:var(--gold);font-size:12.5px;text-transform:uppercase;letter-spacing:.5px;padding-top:2px}
+  .map-row{display:flex;gap:8px;align-items:center;margin:8px 0;flex-wrap:wrap}
+  .map-row input[type=number]{width:84px;background:#0a0f1f;color:var(--text);border:1px solid var(--line);
+             border-radius:8px;padding:8px;font-family:inherit;font-size:14px}
+  .map-row select{background:#0a0f1f;color:var(--text);border:1px solid var(--line);border-radius:8px;
+             padding:8px;font-family:inherit;font-size:14px;min-width:150px}
+  .btn-small{padding:7px 13px;font-size:13.5px;border-radius:8px}
+  .btn-ghost{background:var(--panel2);color:var(--text);border:1px solid var(--line)}
+  .var-chip{display:inline-block;background:var(--panel2);border:1px solid var(--violet);border-radius:10px;
+            padding:8px 12px;margin:4px 6px 4px 0;font-size:13.5px}
+  .var-chip .vid{font-family:ui-monospace,Menlo,monospace;color:var(--gold);font-size:12.5px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Spandana <span class="glow">Studio</span></h1>
+  <div class="sub">One sentence of intent — a governed cinematic production.
+    <span class="tech">intent service → director's brief → beat trace → capture list → job packets (Buddhi backend)</span></div>
+
+  <div class="hero">
+    <label for="intent">Your intent — the film, the occasion, the feeling</label>
+    <div class="row">
+      <textarea id="intent">I want my daughter to feel that she won the dance battle and Dad loved losing</textarea>
+      <button id="produce">Produce</button>
+    </div>
+    <div class="hint">Type one sentence and press Produce. The studio recovers the project,
+      compiles the director's brief, traces every important beat from the feeling to the exact
+      shot, sound, or performance that creates it — and asks you only for what only you can give,
+      each request with its reason attached.</div>
+    <div class="hint err" id="err"></div>
+  </div>
+
+  <div id="view"><div class="card">Loading the production…</div></div>
+
+  <div class="foot">Spandana Studio runs on the Buddhi agentic backend (orchestrator · bus · scheduler ·
+    cascade). Statuses shown are the job store's own — a packet is “verified” only when its receipt
+    verifies. Creative compilation is deterministic over the recovered project record; anything the
+    record cannot ground is sorted to the principal, never invented.</div>
+</div>
+
+<script>
+const EMBEDDED = __PRODUCTION_JSON__;
+let currentPid = "__DEFAULT_PID__";
+
+function esc(s){return String(s==null?"":s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]))}
+function assets(list){return (list||[]).map(a=>'<span class="asset">'+esc(a)+'</span>').join(" ")}
+
+function hm(iso){ if(!iso) return '—'; const d=new Date(iso); return isNaN(d)?iso:d.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}); }
+function annFor(p, jobId){
+  const anns = (p.step_annotations && p.step_annotations.annotations) || [];
+  return anns.find(a=>a.job_id===jobId) || null;
+}
+
+// ---- Style Deck state (kept in page variables so the 30s refresh
+// re-renders the deck from them and never loses in-progress edits) ----
+let lastProduction = null;
+let styleDeckStyles = null;        // cached /api/styles result
+let styleDeckStylesLoading = false;
+let styleDeckStylesError = '';
+let styleBrush = null;             // selected style id (the "brush")
+let styleMapRows = [];             // [{from_bar,to_bar,style_id}]
+let lastVariation = null;          // just-compiled variation record
+let styleDeckCompileError = '';
+let styleDeckCompiling = false;
+
+const STYLE_CHANNELS = [
+  ['vocal_delivery','Vocal delivery'],
+  ['music_arrangement','Music arrangement'],
+  ['choreography','Choreography'],
+  ['scene_backdrop','Scene & backdrop'],
+  ['avatar_styling','Avatar styling']
+];
+
+// Six simple original stroke glyphs in the site palette — drawn, never
+// an artist image or likeness. Keyed by the style's "icon" string.
+function styleIcon(icon){
+  const k = String(icon||'').toLowerCase();
+  const open = '<svg class="style-icon" width="44" height="44" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">';
+  let g = '';
+  if(k.indexOf('mic')>=0 || k.indexOf('microphone')>=0 || k.indexOf('vocal')>=0){
+    g = '<rect x="19" y="4" width="10" height="20" rx="5"/><path d="M13 20a11 11 0 0 0 22 0"/><path d="M24 31v9"/><path d="M16 42h16"/>';
+  } else if(k.indexOf('sun')>=0){
+    g = '<circle cx="24" cy="24" r="8"/><path d="M24 6v5M24 37v5M6 24h5M37 24h5M11 11l3.5 3.5M33.5 33.5L37 37M37 11l-3.5 3.5M14.5 33.5L11 37"/>';
+  } else if(k.indexOf('boot')>=0){
+    g = '<path d="M14 5v18l-3 9a4 4 0 0 0 4 5h19a3 3 0 0 0 3-3v-3a5 5 0 0 0-3-4l-9-4V5"/><path d="M14 12h11M14 19h11M11 37h26"/>';
+  } else if(k.indexOf('moon')>=0){
+    g = '<path d="M34 28A13 13 0 1 1 20 10a10.5 10.5 0 0 0 14 18z"/><path d="M36 8l.9 2.4L39.5 11l-2.6.9L36 14.5l-.9-2.6L32.5 11l2.6-.6z"/>';
+  } else if(k.indexOf('baton')>=0 || k.indexOf('orchestra')>=0 || k.indexOf('conductor')>=0){
+    g = '<path d="M10 38L34 14"/><circle cx="37" cy="11" r="3.2"/><circle cx="9" cy="39" r="2.6"/><path d="M8 10h14M8 17h10"/>';
+  } else {
+    // kite (default glyph)
+    g = '<path d="M24 4l11 13-11 13L13 17z"/><path d="M24 4v26M13 17h22"/><path d="M24 30c0 5-4 6 0 9 3 2.4 1 4-1 5"/>';
+  }
+  return open + g + '</svg>';
+}
+
+function ensureStyles(){
+  if(styleDeckStyles !== null || styleDeckStylesLoading) return;
+  styleDeckStylesLoading = true;
+  fetch('/api/styles').then(async r=>{
+    const data = await r.json().catch(()=>({}));
+    if(!r.ok) throw new Error(data.error || ('HTTP '+r.status));
+    styleDeckStyles = data.styles || [];
+    styleDeckStylesError = '';
+  }).catch(e=>{
+    styleDeckStyles = [];
+    styleDeckStylesError = e.message;
+  }).then(()=>{
+    styleDeckStylesLoading = false;
+    if(lastProduction) render(lastProduction);
+  });
+}
+
+function kindTag(kind){
+  if(kind === 'DECLARED_GRAMMAR') return '<span class="tag gram">DECLARED_GRAMMAR — declared grammar</span>';
+  if(kind === 'OUR_ADAPTATION') return '<span class="tag meas">OUR_ADAPTATION — our adaptation</span>';
+  return '<span class="tag unk">'+esc(kind||'')+'</span>';
+}
+
+function fmtSummary(s){
+  if(s == null) return '';
+  if(typeof s === 'string') return s;
+  try{ return JSON.stringify(s); }catch(e){ return String(s); }
+}
+
+function selectedStyle(){
+  return (styleDeckStyles||[]).find(s=>s.id===styleBrush) || null;
+}
+
+function selectBrush(id){
+  styleBrush = id;
+  if(lastProduction) render(lastProduction);
+}
+
+function styleRowChange(i, field, value){
+  if(!styleMapRows[i]) return;
+  styleMapRows[i][field] = (field === 'style_id') ? value : parseInt(value, 10);
+}
+function addStyleRow(){
+  const last = styleMapRows[styleMapRows.length-1];
+  let from = last && last.to_bar ? Math.min(116, (parseInt(last.to_bar,10)||0) + 1) : 1;
+  if(from > 116) from = 116;
+  styleMapRows.push({from_bar: from, to_bar: Math.min(116, from + 7),
+                     style_id: styleBrush || ((styleDeckStyles||[])[0]||{}).id || ''});
+  if(lastProduction) render(lastProduction);
+}
+function removeStyleRow(i){
+  styleMapRows.splice(i, 1);
+  if(lastProduction) render(lastProduction);
+}
+
+async function compileVariation(){
+  styleDeckCompileError = '';
+  styleDeckCompiling = true;
+  if(lastProduction) render(lastProduction);
+  const style_map = styleMapRows.map(r=>({from_bar: parseInt(r.from_bar,10),
+                                           to_bar: parseInt(r.to_bar,10),
+                                           style_id: r.style_id}));
+  try{
+    const r = await fetch('/api/variation', {method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({production_id: currentPid, style_map})});
+    const data = await r.json().catch(()=>({}));
+    if(!r.ok) throw new Error(data.error || ('HTTP '+r.status));
+    lastVariation = data;
+  }catch(e){
+    styleDeckCompileError = e.message;
+  }
+  styleDeckCompiling = false;
+  if(lastProduction) render(lastProduction);
+  // Pull the refreshed production view so p.variations catches up.
+  fetch('/api/production/'+currentPid).then(r=>r.ok?r.json():null)
+    .then(p=>{ if(p) render(p); }).catch(()=>{});
+}
+
+function styleDeckHTML(p){
+  setTimeout(ensureStyles, 0);
+  let h = '<section><h2>Style Deck — paint the film in another genre <span class="tech">style deck · direction, not a render</span></h2>';
+
+  // Current map + honesty
+  const sm = p.style_map || {};
+  const segs = sm.map || sm.segments || [];
+  h += '<div class="card"><div class="k" style="color:var(--gold);font-size:13px;text-transform:uppercase;letter-spacing:.6px">Current style map — what is active on this production</div>';
+  if(segs.length){
+    h += '<div style="margin-top:6px">' + segs.map(sg=>'<span class="tag">bars '+esc(sg.from_bar)+'–'+esc(sg.to_bar)+' · '+esc(sg.style_id)+'</span>').join(' ') + '</div>';
+  } else {
+    h += '<div class="hint" style="margin-top:6px">No mapped ranges on record — unmapped bars fall back to the native style.</div>';
+  }
+  h += '<div class="hint">Default map: <b>'+esc(sm.is_default===undefined?'—':String(sm.is_default))+'</b>'
+     + (sm.application_state ? ' · application state: '+esc(sm.application_state) : '') + '</div>';
+  h += '<div class="hint">'+esc(sm.playback_honesty || 'Previews are DIRECTION (instant, text/spec); a rendered variation in a new style is a production job, not an instant switch.')+'</div>';
+  h += '</div>';
+
+  // Genre cards
+  h += '<div class="style-grid">';
+  if(styleDeckStyles === null){
+    h += '<div class="card">Loading the styles…</div>';
+  } else if(styleDeckStylesError && !styleDeckStyles.length){
+    h += '<div class="card"><span class="err">The styles could not be loaded: '+esc(styleDeckStylesError)+'</span></div>';
+  } else {
+    for(const s of styleDeckStyles){
+      h += '<div class="style-card'+(s.id===styleBrush?' sel':'')+'" onclick="selectBrush(\''+esc(s.id)+'\')">'
+        + styleIcon(s.icon)
+        + '<div class="sname">'+esc(s.name)+'</div><div class="stag">'+esc(s.tagline||'')+'</div>'
+        + (s.archetypes||[]).map(a=>'<span class="arch-chip">'+esc(a.label)+'<span class="insp">inspired by '+esc(a.inspired_by)+'</span></span>').join('')
+        + '</div>';
+    }
+  }
+  h += '</div>';
+  h += '<div class="hint">Tap a card to pick it up as the brush for the bar-range map below.</div>';
+
+  // Per-channel preview
+  const sel = selectedStyle();
+  if(sel){
+    h += '<div class="card"><div class="k" style="color:var(--gold);font-size:13px;text-transform:uppercase;letter-spacing:.6px">DIRECTION preview — what would change, as production direction. Not audio, not a render.</div>';
+    h += '<div style="margin-top:6px;font-size:16px">'+esc(sel.name)+'</div>';
+    const chans = sel.channels || {};
+    for(const [key, label] of STYLE_CHANNELS){
+      const ch = chans[key] || {};
+      h += '<div class="chan"><span class="cl">'+esc(label)+'</span><span>'+esc(ch.direction||'—')+'</span>'+kindTag(ch.kind)+'</div>';
+    }
+    h += '</div>';
+  }
+
+  // Bar-range map editor
+  h += '<div class="card"><div class="k" style="color:var(--gold);font-size:13px;text-transform:uppercase;letter-spacing:.6px">Bar-range map editor — bars 1–116</div>';
+  styleMapRows.forEach((r, i)=>{
+    h += '<div class="map-row"><span class="hint">from</span>'
+      + '<input type="number" min="1" max="116" value="'+esc(r.from_bar)+'" oninput="styleRowChange('+i+',\'from_bar\',this.value)">'
+      + '<span class="hint">to</span>'
+      + '<input type="number" min="1" max="116" value="'+esc(r.to_bar)+'" oninput="styleRowChange('+i+',\'to_bar\',this.value)">'
+      + '<select onchange="styleRowChange('+i+',\'style_id\',this.value)">'
+      + (styleDeckStyles||[]).map(s=>'<option value="'+esc(s.id)+'"'+(s.id===r.style_id?' selected':'')+'>'+esc(s.name)+'</option>').join('')
+      + ((styleDeckStyles||[]).some(s=>s.id===r.style_id) ? '' : '<option value="'+esc(r.style_id)+'" selected>'+esc(r.style_id)+'</option>')
+      + '</select>'
+      + '<button type="button" class="btn-small btn-ghost" onclick="removeStyleRow('+i+')">Remove</button></div>';
+  });
+  if(!styleMapRows.length) h += '<div class="hint">No ranges yet — add one; unmapped bars fall back to the native style.</div>';
+  h += '<div class="row"><button type="button" class="btn-small btn-ghost" onclick="addStyleRow()">Add range</button>'
+     + '<button type="button" class="btn-small" id="compile-variation" onclick="compileVariation()"'+(styleDeckCompiling?' disabled':'')+'>'+(styleDeckCompiling?'Compiling…':'Compile variation')+'</button></div>';
+  if(styleDeckCompileError) h += '<div class="hint err" style="margin-top:8px">'+esc(styleDeckCompileError)+'</div>';
+  h += '</div>';
+
+  // Variations strip
+  const vars = (p.variations || []).slice();
+  if(lastVariation && lastVariation.variation_id && !vars.some(v=>v.variation_id===lastVariation.variation_id)){
+    vars.push({variation_id: lastVariation.variation_id, compiled_at: lastVariation.compiled_at,
+               map_summary: lastVariation.map_summary || fmtSummary(lastVariation.style_map || lastVariation.style_section || '')});
+  }
+  h += '<div class="card"><div class="k" style="color:var(--gold);font-size:13px;text-transform:uppercase;letter-spacing:.6px">Variations — compiled style maps on record</div><div style="margin-top:8px">';
+  if(vars.length){
+    h += vars.map(v=>'<span class="var-chip"><span class="vid">'+esc(v.variation_id)+'</span><br>compiled '+esc(v.compiled_at||'')+'<br><span class="hint">'+esc(fmtSummary(v.map_summary))+'</span></span>').join('');
+  } else {
+    h += '<span class="hint">No variations compiled yet for this production.</span>';
+  }
+  h += '</div>';
+  if(lastVariation){
+    const beats = lastVariation.beats || [];
+    let detail = '';
+    for(const bt of beats){
+      for(const st of (bt.style||[])){
+        detail += '<div class="trow"><span class="tw">'+esc(bt.id||'')+'</span><span>bars '+esc(st.bars || bt.bars || '')+'</span><span>'+esc(st.style_name || st.style_id || '')+'</span><span class="tag">'+esc(st.status||'')+'</span></div>';
+      }
+    }
+    if(detail){
+      h += '<div style="margin-top:10px"><div class="k" style="color:var(--gold);font-size:13px;text-transform:uppercase;letter-spacing:.6px">Just compiled — '+esc(lastVariation.variation_id)+' · per-beat style changes</div>'+detail+'</div>';
+    } else if(lastVariation.style_section){
+      h += '<div class="hint" style="margin-top:8px">Just compiled: '+esc(lastVariation.variation_id)+' — '+esc(fmtSummary(lastVariation.style_section))+'</div>';
+    }
+  }
+  h += '<div class="hint" style="margin-top:8px">A variation here is a compiled DIRECTION record (text/spec). A rendered variation in a new style is a production job, not an instant switch — there is no player for a variation, because nothing has been rendered yet.</div>';
+  h += '</div>';
+
+  h += '</section>';
+  return h;
+}
+
+function render(p){
+  if(!p){document.getElementById('view').innerHTML='<div class="card">No production loaded yet — type an intent and press Produce.</div>';return}
+  currentPid = p.production_id;
+  lastProduction = p;
+  const b = p.brief || {};
+  let h = '';
+
+  h += '<section><h2>The production <span class="tech">'+esc(p.production_id)+'</span></h2>';
+  h += '<div class="card"><div style="font-size:17px">“'+esc(p.intent_sentence)+'”</div>';
+  h += '<div class="hint">Compiled '+esc(p.compiled_at||'')+' · compilation: '+esc(b.compilation_mode||'')+'</div></div>';
+
+  // Commission timing (Gap 3) - from the production record itself
+  const tm = p.timing;
+  if(tm){
+    h += '<div class="card"><div class="k" style="color:var(--gold);font-size:13px;text-transform:uppercase;letter-spacing:.6px">Commission timing — the moment this production was commissioned <span class="tech">kāla register · commission-time section</span></div>';
+    if(tm.status==='COMPUTED' && tm.commission_instant){
+      const ci = tm.commission_instant;
+      h += '<div style="margin-top:6px">Commission instant classified <b>'+esc(ci.classification)+'</b> '
+         + '<span class="tag gram">DECLARED_GRAMMAR — declared grammar</span></div>'
+         + '<div class="hint">'+esc(ci.detail)+'</div>'
+         + '<div class="hint">Next clean window: '+esc(ci.next_clean_window)+' · grammar’s effect on the schedule: <b>'+esc(tm.grammar_effect_on_schedule)+'</b> — the advisory informs; it never blocks, delays, or reorders a step.</div>';
+      if(tm.nearest_sentinel){
+        h += '<div class="hint">Nearest dated exposure when commissioned: '+esc(tm.nearest_sentinel.title)+' — due '+esc(tm.nearest_sentinel.due)+', '+esc(tm.nearest_sentinel.days_remaining)+' day(s) remaining (measured calendar arithmetic).</div>';
+      }
+    } else {
+      h += '<div class="hint">Timing section '+esc(tm.status||'')+': '+esc(tm.reason||'')+'</div>';
+    }
+    h += '</div>';
+  }
+  h += '</section>';
+
+  // Director's brief
+  h += '<section><h2>Director’s brief <span class="tech">director’s brief</span></h2><div class="brief-grid">';
+  h += '<div class="cell"><div class="k">Recipient — who it is for</div>'+esc(b.recipient||'—')+'</div>';
+  h += '<div class="cell"><div class="k">Occasion</div>'+esc(b.occasion||'—')+'</div>';
+  h += '<div class="cell"><div class="k">Desired feeling</div>'+esc(b.desired_feeling||'—')+'</div>';
+  h += '<div class="cell"><div class="k">The dramatic promise</div>'+esc(b.dramatic_promise||'—')+'</div>';
+  h += '</div>';
+  if(b.protections_verbatim){
+    h += '<div class="card protect"><div class="k" style="color:var(--pink);font-size:13px;text-transform:uppercase;letter-spacing:.6px">Protections — governing every step</div><div style="margin-top:6px">'+esc(b.protections_verbatim)+'</div></div>';
+  }
+  if((b.hard_constraints||[]).length){
+    h += '<div class="card"><div class="k" style="color:var(--gold);font-size:13px;text-transform:uppercase;letter-spacing:.6px">Hard constraints — never traded away</div><ul>'
+      + b.hard_constraints.map(c=>'<li>'+esc(c)+'</li>').join("") + '</ul></div>';
+  }
+  h += '</section>';
+
+  // Beat trace
+  h += '<section><h2>Beat trace — from the feeling to the shot <span class="tech">traceable production record · §11.1</span></h2>';
+  h += '<table><tr><th>Beat</th><th>Intended feeling</th><th>Story action</th><th>Line / musical cue</th><th>Performed gesture</th><th>Framing &amp; edit</th><th>Assets</th><th>Recipient-facing check</th></tr>';
+  for(const bt of (p.beats||[])){
+    h += '<tr><td class="beat">'+esc(bt.id)+'<br><span style="color:var(--muted)">bars '+esc(bt.bars)+'</span><br>'+esc(bt.name)+'</td>'
+      + '<td>'+esc(bt.intended_feeling)+'</td><td>'+esc(bt.story_action)+'</td><td>'+esc(bt.cue)+'</td>'
+      + '<td>'+esc(bt.gesture)+'</td><td>'+esc(bt.framing_edit)+'</td><td>'+assets(bt.required_assets)+'</td>'
+      + '<td>'+esc(bt.recipient_check)+'</td></tr>';
+  }
+  h += '</table></section>';
+
+  // Style Deck (additive — rides this render / refresh)
+  h += styleDeckHTML(p);
+
+  // Captures
+  h += '<section><h2>Capture requests — only what only you can give <span class="tech">media request protocol · §0.3</span></h2><div class="caps">';
+  for(const c of (p.captures||[])){
+    h += '<div class="cap"><span class="id">'+esc(c.id)+'</span><span class="kind">'+esc(c.kind)+'</span>'
+      + '<div class="what">'+esc(c.what)+'</div>'
+      + '<div class="f"><b>Beat served:</b> '+esc(c.beat_served)+'</div>'
+      + '<div class="f"><b>Intended feeling:</b> '+esc(c.intended_feeling)+'</div>'
+      + '<div class="f"><b>Creates:</b> '+esc(c.creates)+'</div>'
+      + '<div class="f"><b>How:</b> '+esc(c.how)+'</div>'
+      + '<div class="why"><b>Why this exact capture:</b> '+esc(c.why)+'</div></div>';
+  }
+  h += '</div></section>';
+
+  // Three-way sort
+  const s = p.sort || {};
+  h += '<section><h2>Missing details — the three-way sort <span class="tech">§11.1</span></h2><div class="sort">';
+  h += '<div class="col matters"><h3>It matters — evidence or a ruling required</h3><ul>'+(s.matters||[]).map(x=>'<li>'+esc(x)+'</li>').join("")+'</ul></div>';
+  h += '<div class="col fill"><h3>Fill creatively — reversible defaults</h3><ul>'+(s.fill_creatively||[]).map(x=>'<li>'+esc(x)+'</li>').join("")+'</ul></div>';
+  h += '<div class="col needs"><h3>Needs you — your voice or judgment</h3><ul>'+(s.needs_principal||[]).map(x=>'<li>'+esc(x)+'</li>').join("")+'</ul></div>';
+  h += '</div></section>';
+
+  // Temporal layer (Gap 1) - the Kala register, typed slices
+  const tp = p.temporal;
+  if(tp){
+    h += '<section><h2>Time intelligence — today’s temporal layer <span class="tech">kāla · one register, typed slices</span></h2>';
+    if(tp.status==='UNAVAILABLE'){
+      h += '<div class="card">The temporal layer is unavailable right now: '+esc(tp.reason||'')+'</div>';
+    } else {
+      const a = tp.astronomy || {};
+      const val = r => r ? esc(r.value) : '—';
+      h += '<div class="card"><div class="k" style="color:var(--gold);font-size:13px;text-transform:uppercase;letter-spacing:.6px">Measured astronomy — facts of computation <span class="tag meas">MEASURED</span></div>'
+        + '<div class="trow"><span>Sunrise</span><span class="tw">'+hm(a.sunrise&&a.sunrise.value)+'</span><span>Sunset</span><span class="tw">'+hm(a.sunset&&a.sunset.value)+'</span><span>Solar noon</span><span class="tw">'+hm(a.solar_noon&&a.solar_noon.value)+'</span><span>Day length</span><span class="tw">'+esc(a.day_length_min?a.day_length_min.value:'—')+' min</span></div>'
+        + '<div class="trow"><span>Weekday (vara)</span><span>'+esc(a.vara?a.vara.value.name:'—')+' — '+esc(a.vara?a.vara.value.ruler:'')+'</span>'
+        + (a.at_noon ? '<span>At noon:</span><span class="tw">lunar day (tithi) '+esc(a.at_noon.tithi.name)+' · lunar mansion (nakshatra) '+esc(a.at_noon.nakshatra.name)+' · combination (yoga) '+esc(a.at_noon.yoga.name)+' · half-day (karana) '+esc(a.at_noon.karana.name)+'</span>' : '')
+        + '</div>'
+        + '<div class="hint">Register verification: '+esc(tp.register_verification||'')+' · '+esc(tp.location_label||'')+' · register date '+esc(tp.date||'')+'</div></div>';
+
+      h += '<div class="card"><div class="k" style="color:var(--gold);font-size:13px;text-transform:uppercase;letter-spacing:.6px">Grammar windows — the tradition’s declared scheduling grammar <span class="tag gram">DECLARED_GRAMMAR</span></div>';
+      for(const w of (tp.grammar_windows||[])){
+        h += '<div class="trow"><span>'+esc(w.plain_label)+'</span><span class="tw">'+hm(w.start)+'–'+hm(w.end)+'</span><span class="tag gram">'+esc(w.status_type)+'</span><span class="hint">efficacy claim: none — binding because adopted, never because measured</span></div>';
+      }
+      if(tp.classification_now){
+        h += '<div class="hint">Right now: <b>'+esc(tp.classification_now.classification)+'</b> — '+esc(tp.classification_now.detail)+'</div>';
+      }
+      h += '</div>';
+
+      h += '<div class="card"><div class="k" style="color:var(--gold);font-size:13px;text-transform:uppercase;letter-spacing:.6px">Dated exposures — hard dates, surfaced as facts <span class="tag meas">MEASURED</span></div>';
+      for(const e of (tp.sentinel||[])){
+        h += '<div class="trow"><span>'+esc(e.title)+'</span><span class="tw">due '+esc(e.due)+' · '+esc(e.days_remaining)+' day(s) remaining</span>'
+          + (e.in_warning_band ? '<span class="tag warn">IN WARNING BAND</span>' : '') + '</div>';
+      }
+      h += '<div class="hint">'+esc(tp.sentinel_law||'')+'</div></div>';
+
+      const bd = tp.body || {};
+      h += '<div class="card"><div class="k" style="color:var(--gold);font-size:13px;text-transform:uppercase;letter-spacing:.6px">Body layer — circadian state</div>'
+        + '<div style="margin-top:6px">Status: <b>'+esc(bd.status||'')+'</b> <span class="tag unk">sleep input: '+esc(bd.sleep_input_status||'')+'</span></div>'
+        + '<div class="hint">'+esc(bd.note||'')+'</div></div>';
+
+      h += '<div class="hint">'+esc(tp.advisory_law||'')+'</div>';
+    }
+    h += '</section>';
+  }
+
+  // Steps + live packets
+  h += '<section><h2>Production steps &amp; live jobs <span class="tech">pipeline steps · orchestrator packets</span></h2>';
+  h += '<div class="card steps">';
+  for(const st of (p.steps||[])){
+    h += '<div class="step"><span class="n">'+esc(st.n)+'</span><span class="ph">'+esc(st.phase)+'</span><span>'+esc(st.name)+'<div class="st">'+esc(st.status)+'</div></span></div>';
+  }
+  h += '</div>';
+  const pkts = p.live_packets && p.live_packets.length ? p.live_packets : (p.packets||[]);
+  if(pkts.length){
+    h += '<div class="card"><div class="k" style="color:var(--gold);font-size:13px;text-transform:uppercase;letter-spacing:.6px">Job packets — live from the job store</div>';
+    for(const pk of pkts){
+      const ann = annFor(p, pk.id);
+      h += '<div class="step"><span class="pkt">'+esc(pk.id)+'</span><span class="st-'+esc(pk.state)+'">'+esc(pk.state)+'</span><span class="st">lane '+esc(pk.lane||'')+' · desk '+esc(pk.desk||'')
+        + (ann ? '<br>⏱ schedule timing (the scheduler’s own annotation): classification <b>'+esc(ann.classification)+'</b>'
+              + (ann.windows_present && ann.windows_present.length ? ' · windows present today: '+ann.windows_present.map(w=>esc(w.plain_label)).join(', ') : '')
+              + ' · hard constraint: '+esc(String(ann.hard_constraint))+' — annotation only, never a constraint' : '')
+        + '</span></div>';
+    }
+    h += '<div class="hint">Delivery waits at the gate (awaiting_ruling) — it is the principal’s act, never the studio’s.</div></div>';
+  }
+  h += '</section>';
+
+  // RSI/CDT learning loop (Gap 4) - readings, not upgrades
+  const vl = p.verdict_label, pe = p.prediction_error, cp = p.cost_per_approved_second, lb = p.lane_beliefs;
+  if(vl || pe || cp || lb){
+    h += '<section><h2>Learning loop — what the system predicted, and what happened <span class="tech">RSI/CDT readings</span></h2>';
+    if(vl && vl.rsi_level){
+      h += '<div class="card"><span class="lvl">'+esc(vl.rsi_level)+'</span> <b>honesty label</b> — '+esc((vl.reasons||[]).join('; '))
+        + '<div class="hint">'+esc(vl.evidence_basis||'')+'</div>'
+        + (vl.missing_for_next && vl.missing_for_next.length ? '<div class="hint">Missing for the next level: '+vl.missing_for_next.map(esc).join('; ')+'</div>' : '')
+        + '</div>';
+    }
+    if(pe){
+      h += '<div class="card"><div class="k" style="color:var(--gold);font-size:13px;text-transform:uppercase;letter-spacing:.6px">Prediction errors — predicted vs observed dispatch outcomes</div>';
+      const recs = pe.records_for_this_production || [];
+      if(recs.length){
+        for(const r of recs){
+          h += '<div class="trow"><span class="tw">'+esc(r.job_id)+'</span><span>divergence '+esc(r.divergence)+'</span><span class="hint">per-field: '+esc(Object.entries(r.per_field||{}).map(([k,v])=>k+' '+v).join(' · '))+'</span>'
+            + (r.brier_score!==null && r.brier_score!==undefined ? '<span>Brier score '+esc(r.brier_score)+'</span>' : '') + '</div>';
+        }
+      } else {
+        h += '<div class="hint">No scored outcomes yet for this production — packets that have not dispatched have no outcome, and no record is written for them.</div>';
+      }
+      h += '<div class="hint">Stream: '+esc(pe.stream||'')+' · drained '+esc(pe.drained_at||'')+' · total records drained this compile: '+esc(pe.records_drained_total)+'</div></div>';
+    }
+    if(cp){
+      h += '<div class="card"><div class="k" style="color:var(--gold);font-size:13px;text-transform:uppercase;letter-spacing:.6px">Cost per approved second</div>'
+        + '<div style="margin-top:6px"><b>'+esc(cp.status||'')+'</b> — '+(cp.reasons||[]).map(esc).join('; ')+'</div>'
+        + '<div class="hint">Approved seconds on record: '+esc(cp.approved_seconds)+' · released entries: '+esc(cp.released_entries)+' · compute basis: '+esc(cp.compute_basis||'')+'</div></div>';
+    }
+    if(lb){
+      h += '<div class="card"><div class="k" style="color:var(--gold);font-size:13px;text-transform:uppercase;letter-spacing:.6px">Lane beliefs — which lanes the evidence trusts</div>'
+        + '<div style="margin-top:6px">Mode: <b>'+esc(lb.mode||'')+'</b> · belief pairs on record: '+esc(lb.belief_pairs_on_record)+' · shadow comparisons: '+esc(lb.shadow_comparisons_on_record)+'</div>'
+        + '<div class="hint">'+esc(lb.gate||'')+'</div></div>';
+    }
+    h += '</section>';
+  }
+
+  // Artifact slot
+  const a = p.artifact_slot || {};
+  h += '<section><h2>'+esc(a.label||'Current playable artifact')+' <span class="tech">frame of reception</span></h2>'
+     + '<div class="artifact"><div class="big">'+esc(a.state||'—')+'</div></div></section>';
+
+  document.getElementById('view').innerHTML = h;
+}
+
+async function produce(){
+  const btn = document.getElementById('produce');
+  const err = document.getElementById('err');
+  err.textContent = '';
+  btn.disabled = true; btn.textContent = 'Producing…';
+  try{
+    const r = await fetch('/api/intent',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({intent:document.getElementById('intent').value})});
+    const data = await r.json();
+    if(!r.ok) throw new Error(data.error||('HTTP '+r.status));
+    render(data);
+  }catch(e){ err.textContent = 'The studio could not compile that intent: '+e.message; }
+  btn.disabled = false; btn.textContent = 'Produce';
+}
+document.getElementById('produce').addEventListener('click', produce);
+
+if(EMBEDDED){ render(EMBEDDED); }
+else{
+  fetch('/api/production/'+currentPid).then(r=>r.ok?r.json():null).then(render)
+    .catch(()=>render(null));
+}
+setInterval(()=>{ fetch('/api/production/'+currentPid).then(r=>r.ok?r.json():null)
+  .then(p=>{ if(p) render(p); }).catch(()=>{}); }, 30000);
+</script>
+</body>
+</html>
