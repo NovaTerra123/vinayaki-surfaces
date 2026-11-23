@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><script>window.__SB_SURFACE="dashboard";</script><script src="../bridge-pages.js"></script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Śrī Yantra — Dashboard V4</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="pageGlow" aria-hidden="true"></div>
+
+<header class="topbar">
+  <div class="brand">
+    <span class="brand-mark" aria-hidden="true">✦</span>
+    <div>
+      <h1>Śrī Yantra</h1>
+      <p class="sub">The nine veils, the seven centres, one point of light.</p>
+    </div>
+  </div>
+  <div class="top-actions">
+    <button id="calmToggle" class="chip" aria-pressed="false">Calm</button>
+    <button id="schemeToggle" class="chip" aria-pressed="false">Colours: Traditional</button>
+  </div>
+</header>
+
+<p id="quietNote" class="quiet-note" hidden>Quiet hours — the house is resting. Sound waits for your tap, as always; nothing plays on its own.</p>
+<p id="degradeNote" class="degrade-note" role="status" hidden></p>
+
+<main>
+  <!-- ============ THE FIGURE ============ -->
+  <section class="panel hero" id="sec-figure" data-chat="The Yantra">
+    <h2>The Yantra <span class="h2sub">— the whole figure</span></h2>
+    <p class="glance">Nine interlaced triangles around one still point. Choose a voice, press play, and watch the light climb and return.</p>
+
+    <div id="stage" class="stage sanctuary">
+      <canvas id="lightCanvas" width="750" height="750" aria-hidden="true"></canvas>
+      <svg id="figure" viewBox="-125 -125 250 250" role="img" aria-label="Śrī Yantra figure"></svg>
+      <div id="sanctuaryVeil" class="sanctuary-veil">
+        <p class="veil-title">The point is still.</p>
+        <p class="veil-body" id="veilBody">The full figure enters only when the sound is ready — all nine recordings decoded, the schedule armed — so it can never appear silent or out of step.</p>
+      </div>
+    </div>
+
+    <div class="voice-row" role="group" aria-label="Choose a recording">
+      <button class="voice-btn" data-voice="sadhguru">Sadhguru</button>
+      <button class="voice-btn" data-voice="trishul">Trishul</button>
+      <button class="voice-btn" data-voice="merged">Merged</button>
+    </div>
+    <div class="transport">
+      <button id="playBtn" class="primary" disabled>Preparing the sound…</button>
+      <button id="meruToggle" class="chip" aria-pressed="false">See it as a mountain (Meru)</button>
+    </div>
+    <p id="decodeState" class="state-line">Decoding the recordings… 0 of 9 ready.</p>
+    <p id="nowState" class="state-line" aria-live="polite"></p>
+    <div class="sync-health" aria-label="Synchronisation health">
+      <span>Sync health:</span> <span id="syncHealth">not measured yet</span>
+      <span id="driftWarn" class="drift-warn" hidden>⚠ drift — the light is lagging the sound; try wired sound.</span>
+      <span id="btWarn" class="drift-warn" hidden>Bluetooth sound can lag by more than 150&nbsp;ms — wired sound keeps the light honest.</span>
+    </div>
+    <div id="meruWrap" class="meru-wrap" hidden>
+      <div id="meru" class="meru" aria-label="Meru — the yantra as a five-tiered mountain"></div>
+      <p class="meru-hint">Drag to turn it. Height is half the width, as the tradition builds it. This is a tiered study model; the measured mountain render lives in the Blender seat.</p>
+    </div>
+    <details class="deep">
+      <summary>Go deeper — how the sync works</summary>
+      <p>One clock rules everything: the audio clock. Cues are scheduled ahead on that clock (a 25&nbsp;ms lookahead, 125&nbsp;ms horizon) — never polled, never guessed. Each recording's own first breath of sound was measured from the file itself and the map re-zeroed to it, so the light answers the sound you actually hear. Two listeners watch the sound: a fast one (0.05 smoothing) drives flashes and brightness; a slow one (0.30) drives only the ambient glow — the single smeared listener was V2's delay. At the navel, heart and brow the sweep pauses for about a third of a second at the knot — that pause is meaning, not lag, and the panel names it when it happens.</p>
+    </details>
+  </section>
+
+  <!-- ============ NINE VEILS ============ -->
+  <section class="panel" id="sec-v1" data-chat="The Outer Walls">
+    <h2>1 · The Outer Walls <span class="h2sub">— bhūpura, the earth square</span></h2>
+    <p class="glance">A square wall with four gates — the threshold between the world outside and the world within.</p>
+    <details class="deep"><summary>More</summary>
+      <p>The bhūpura (earth-square) is the outermost veil: three lines, four T-shaped gates at the middle of each side. In this figure it is drawn in gold tracery only — gold is edging here, never paint. The wall carries no letters.</p>
+    </details>
+  </section>
+
+  <section class="panel" id="sec-v2" data-chat="The Sixteen Petals">
+    <h2>2 · The Sixteen Petals <span class="h2sub">— ṣoḍaśadala</span></h2>
+    <p class="glance">Sixteen petals carrying the sixteen vowels of Sanskrit, beginning at the east and running counter-clockwise.</p>
+    <details class="deep"><summary>More</summary>
+      <p>अ आ इ ई उ ऊ ऋ ॠ ऌ ॡ ए ऐ ओ औ अं अः — the vowels (svara) are read as the energies of the moon's sixteen digits. Each glyph sits at its petal's centre; the first stands due east. Read them aloud at arm's length — that is one of this build's acceptance tests, and it is run on the real phone, not in a sandbox.</p>
+    </details>
+  </section>
+
+  <section class="panel" id="sec-v3" data-chat="The Eight Petals">
+    <h2>3 · The Eight Petals <span class="h2sub">— aṣṭadala</span></h2>
+    <p class="glance">Eight petals, deliberately bare.</p>
+    <details class="deep"><summary>Why are they bare?</summary>
+      <p>Honest answer: the sources disagree. Some traditions place letters on these eight petals; others leave them empty, and the council's scholarship could not settle it. So this ring carries <strong>no letters</strong>, and says why, rather than inventing an answer. The ring stays blank in every state of the figure — rest, ascent, descent, crown, all three voices.</p>
+    </details>
+  </section>
+
+  <section class="panel" id="sec-v4" data-chat="The Fourteen Points">
+    <h2>4 · The Fourteen Points <span class="h2sub">— caturdaśāra</span></h2>
+    <p class="glance">Where the great triangles cross, fourteen small triangles appear — the first woven field.</p>
+    <details class="deep"><summary>More</summary>
+      <p>Four triangles point up (fire, Śiva), five point down (water, Śakti). Their crossings weave 43 small chambers in all. The crossings where three lines meet at a point of pressure are the marma — 18 of them, with 13 apex contacts — counted and published in the geometry panel below so anyone can check the figure independently.</p>
+    </details>
+  </section>
+
+  <section class="panel" id="sec-v5" data-chat="The Outer Ten Points">
+    <h2>5 · The Outer Ten Points <span class="h2sub">— bahirdaśāra</span></h2>
+    <p class="glance">Ten points in the outer ring of the woven field.</p>
+    <details class="deep"><summary>More</summary><p>Each veil inward is drawn by the same nine triangles — nothing new is added; the eye simply reads a finer weave. That is the figure's whole method: one construction, many depths.</p></details>
+  </section>
+
+  <section class="panel" id="sec-v6" data-chat="The Inner Ten Points">
+    <h2>6 · The Inner Ten Points <span class="h2sub">— antardaśāra</span></h2>
+    <p class="glance">Ten points in the inner ring, one step from the heart of the figure.</p>
+    <details class="deep"><summary>More</summary><p>The two ten-point rings together frame the eight-point ring inside them. In the sung cycle, this is roughly where the voice turns from climbing to returning — the descent is drawn at full brightness, never dimmed: the way back is not a fading.</p></details>
+  </section>
+
+  <section class="panel" id="sec-v7" data-chat="The Eight Points">
+    <h2>7 · The Eight Points <span class="h2sub">— aṣṭakoṇa</span></h2>
+    <p class="glance">Eight points, the last woven ring before the centre.</p>
+    <details class="deep"><summary>More</summary><p>Inside this ring stands a single triangle. Everything outside it is mixture; inside it, the figure becomes one gesture.</p></details>
+  </section>
+
+  <section class="panel" id="sec-v8" data-chat="The Central Triangle">
+    <h2>8 · The Central Triangle <span class="h2sub">— trikoṇa</span></h2>
+    <p class="glance">One downward triangle at the centre — the seat of the point of light.</p>
+    <details class="deep"><summary>More</summary><p>The centre glyph you see during a recording lives here: लं वं रं यं हं ॐ — the seed-sound (bīja) of whichever centre is singing. At the crown it gives way to the point alone, and silence.</p></details>
+  </section>
+
+  <section class="panel" id="sec-v9" data-chat="The Point of Light">
+    <h2>9 · The Point of Light <span class="h2sub">— bindu</span></h2>
+    <p class="glance">A single point, placed not at the geometric centre but at the triangles' own centre of balance — the incentre, a hair above middle.</p>
+    <details class="deep"><summary>More</summary>
+      <p>The bindu sits at [0, +0.0055] of the radius — measured from the solver's exact construction, not placed by eye. When a recording reaches the crown, every colour drains, the point turns pearl, one soft flare of rays opens — and there is silence.</p>
+    </details>
+    <p class="decisions-line" id="decisionsLine">Here are your decisions for today: <span id="decisionsState">the decision record is not connected to this copy yet.</span></p>
+  </section>
+
+  <!-- ============ SEVEN CENTRES ============ -->
+  <section class="panel" id="sec-centres" data-chat="The Seven Centres">
+    <h2>The Seven Centres <span class="h2sub">— the body the sound climbs</span></h2>
+    <p class="glance">Six sounding centres and the silent crown. Each card: the seed-sound, the element, the lotus, and what tradition says lives there.</p>
+    <div id="stationCards" class="cards"></div>
+    <details class="deep"><summary>What about the smaller centres?</summary>
+      <p>Traditions also name smaller centres between these seven. The sources bound into this build do not name them with an attribution we can stand behind, so they are not listed — named only when a source can be cited, never invented.</p>
+    </details>
+    <details class="deep"><summary>About the colours</summary>
+      <p>Two colour languages live here, and they are never mixed silently. <strong>Traditional</strong>: each centre's own element-colour and lotus-colour, from the Sanskrit sources. <strong>Modern rainbow (20th c.)</strong>: red rising to violet — a Theosophical scheme (Leadbeater, 1927), beautiful and useful, but not a Sanskrit-source scheme, and labelled so wherever it appears. The light itself always speaks the spectrum — saturation lives in the light, not in painted surfaces.</p>
+    </details>
+  </section>
+
+  <!-- ============ KNOTS & SHEATHS ============ -->
+  <section class="panel" id="sec-knots" data-chat="The Three Knots">
+    <h2>The Three Knots <span class="h2sub">— granthi, where the climb hesitates</span></h2>
+    <p class="glance">At the navel, the heart and the brow, the rising energy meets a knot. In the music, the sweep of light pauses there — about a third of a second — on purpose.</p>
+    <details class="deep"><summary>More</summary>
+      <p><strong>Brahmā granthi</strong> — the navel knot, attachment to the material. <strong>Viṣṇu granthi</strong> — the heart knot, attachment to feeling and bond. <strong>Rudra granthi</strong> — the brow knot, attachment to the mind's own powers. The pause you see is scheduled on the audio clock as a plateau in the sweep — labelled here and in the figure panel, so it is never mistaken for lag.</p>
+    </details>
+  </section>
+
+  <section class="panel" id="sec-sheaths" data-chat="The Five Sheaths">
+    <h2>The Five Sheaths <span class="h2sub">— kośa, the layers of a person</span></h2>
+    <p class="glance">Tradition wraps the self in five sheaths, food to bliss. The dashboard's layers mirror them: glance, detail, depth.</p>
+    <details class="deep"><summary>The five</summary>
+      <p><strong>Annamaya</strong> — the food sheath, the body. <strong>Prāṇamaya</strong> — the breath sheath, energy. <strong>Manomaya</strong> — the mind sheath, thought and feeling. <strong>Vijñānamaya</strong> — the discernment sheath, understanding. <strong>Ānandamaya</strong> — the bliss sheath, the innermost quiet. Named here as the tradition names them (Taittirīya Upaniṣad); nothing added.</p>
+    </details>
+  </section>
+
+  <!-- ============ PHYSICS ============ -->
+  <section class="panel" id="sec-physics" data-chat="Sound, Light and Number">
+    <h2>Sound, Light and Number <span class="h2sub">— the physics under the figure</span></h2>
+    <p class="glance">The tonic bands of the chant — 82, 164, 246, 328 hertz — shape the rays through Bessel patterns, the mathematics of vibrating circles.</p>
+    <div class="band-readout" aria-label="Live spectral bands">
+      <div><span>82 Hz</span><meter id="band82" min="0" max="1" value="0"></meter></div>
+      <div><span>164 Hz</span><meter id="band164" min="0" max="1" value="0"></meter></div>
+      <div><span>246 Hz</span><meter id="band246" min="0" max="1" value="0"></meter></div>
+      <div><span>328 Hz</span><meter id="band328" min="0" max="1" value="0"></meter></div>
+    </div>
+    <details class="deep"><summary>More — geometry you can check</summary>
+      <p>The nine triangles (unit radius, y up): T1 (−0.5562, 0.7364)(0.5562, 0.7364)(0, −0.0965) · T2 (−0.6601, 0.4890)(0.6601, 0.4890)(0, −0.7561) · T3 (−0.9596, 0.2813)(0.9596, 0.2813)(0, −1) · T4 (−0.3086, 0.1799)(0.3086, 0.1799)(0, −0.4974) · T5 (−0.2549, 0.0621)(0.2549, 0.0621)(0, −0.2613) · T6 (−0.3497, −0.0965)(0.3497, −0.0965)(0, 0.4890) · T7 (−0.9652, −0.2613)(0.9652, −0.2613)(0, 1) · T8 (−0.6841, −0.4974)(0.6841, −0.4974)(0, 0.7364) · T9 (−0.5014, −0.7561)(0.5014, −0.7561)(0, 0.2813). Closure error: 1.67×10⁻⁹ of the radius. 18 marma, 13 apex contacts, 43 odd-cover chambers. The rays' shapes follow Bessel functions J0, J3, J5 — the same curves a drumhead makes — weighted by the live band energies, so the light's geometry is the sound's geometry.</p>
+    </details>
+  </section>
+
+  <!-- ============ BREATH ============ -->
+  <section class="panel" id="sec-breath" data-chat="The Breath">
+    <h2>The Breath <span class="h2sub">— twelve seconds, in and out</span></h2>
+    <p class="glance">At rest the figure breathes: in for about seven seconds, a held moment, out for about five — and the glow breathes with it, on the same envelope.</p>
+    <details class="deep"><summary>More</summary>
+      <p>The breath is deliberately not a sine wave: inhale 6.9 s, a 0.3 s hold at the top, exhale 4.8 s — twelve seconds in all, the figure swelling ±1.3% and the light ±15%. Only the light and the scale move; no words, borders or buttons shift by even a pixel. In Calm mode (or your system's reduce-motion setting) everything else stills and the breath alone remains, gentler at ±0.8%.</p>
+    </details>
+  </section>
+
+  <footer class="foot">
+    <p>Dashboard V4 — built under the council's command; every claim on this page is either measured, labelled, or marked not integrated. Nothing here reaches outside this machine.</p>
+    <p>Panel titles are a PROPOSED set (decision point DP-1): the five-second test at delivery ranks the candidate sets, and Trishul's pick is final.</p>
+    <p id="buildState" class="state-line"></p>
+  </footer>
+</main>
+
+<script src="data.js"></script>
+<script src="engine-core.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
