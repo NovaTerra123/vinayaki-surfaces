@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><script>window.__SB_SURFACE="control";</script><script src="../bridge-pages.js"></script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Spandana Control</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="page-wash" aria-hidden="true"></div>
+
+<header class="topbar">
+  <div class="brand">
+    <div class="brand-mark" aria-hidden="true">&#9670;</div>
+    <div>
+      <h1>SPANDANA CONTROL</h1>
+      <p class="sub">Live control surface &middot; agentic studio backend</p>
+      <div class="title-rule" aria-hidden="true"></div>
+    </div>
+  </div>
+  <div class="header-side">
+    <div class="live-box" id="liveBox" aria-live="polite">
+      <span class="live-dot" id="liveDot" aria-hidden="true"></span>
+      <span id="liveText">connecting&hellip;</span>
+      <span class="updated" id="updatedText"></span>
+    </div>
+    <div class="cascade-chip-wrap" id="cascadeWrap" hidden>
+      <span class="chip chip-cascade" id="cascadeChip">cascade</span>
+    </div>
+    <div class="service-line" id="serviceLine"></div>
+  </div>
+</header>
+
+<main class="layout">
+  <!-- STATIONS -->
+  <section class="section-block stations-block" aria-labelledby="stationsHeading">
+    <div class="section-head">
+      <h2 id="stationsHeading">Stations <span class="h2sub" id="rosterMeta"></span></h2>
+      <span class="source-line" id="rosterSource"></span>
+    </div>
+    <div class="stations-grid" id="stationsGrid">
+      <p class="empty-note">Waiting for first feed&hellip;</p>
+    </div>
+  </section>
+
+  <!-- DESKS -->
+  <section class="panel" aria-labelledby="desksHeading">
+    <div class="section-head">
+      <h2 id="desksHeading">Desks</h2>
+      <span class="source-line" id="desksSource"></span>
+    </div>
+    <div id="desksBody"><p class="empty-note">Waiting for first feed&hellip;</p></div>
+  </section>
+
+  <!-- JOBS -->
+  <section class="panel" aria-labelledby="jobsHeading">
+    <div class="section-head">
+      <h2 id="jobsHeading">Jobs</h2>
+      <span class="source-line" id="jobsSource"></span>
+    </div>
+    <div id="jobsBody"><p class="empty-note">Waiting for first feed&hellip;</p></div>
+  </section>
+
+  <!-- REGISTRY -->
+  <section class="panel" aria-labelledby="registryHeading">
+    <div class="section-head">
+      <h2 id="registryHeading">Delegation Registry</h2>
+      <span class="source-line" id="registrySource"></span>
+    </div>
+    <div id="registryBody"><p class="empty-note">Waiting for first feed&hellip;</p></div>
+  </section>
+
+  <!-- QUOTAS -->
+  <section class="panel" aria-labelledby="quotasHeading">
+    <div class="section-head">
+      <h2 id="quotasHeading">Quotas</h2>
+      <span class="source-line" id="quotasSource"></span>
+    </div>
+    <div id="quotasBody"><p class="empty-note">Waiting for first feed&hellip;</p></div>
+  </section>
+
+  <!-- CONTROL CHAT -->
+  <section class="panel control-panel" aria-labelledby="controlHeading">
+    <div class="section-head">
+      <h2 id="controlHeading">Control Chat</h2>
+      <span class="source-line" id="controlSource">control-inbox.jsonl</span>
+    </div>
+    <p class="honest-line">Instructions are logged to the control inbox for the backend to consume &mdash; logging is not execution.</p>
+    <div class="control-log" id="controlLog" aria-live="polite">
+      <p class="empty-note">No instructions logged yet.</p>
+    </div>
+    <div class="control-error" id="controlError" role="alert" hidden></div>
+    <form class="control-form" id="controlForm">
+      <label class="sr-only" for="controlInput">Instruction for the backend</label>
+      <input id="controlInput" type="text" autocomplete="off" placeholder="Type an instruction to log&hellip;" maxlength="2000">
+      <button type="submit" id="controlSend">Send</button>
+    </form>
+    <p class="control-note">Enter sends. Messages appear above once the server confirms they were logged.</p>
+  </section>
+</main>
+
+<footer class="foot">
+  <span>Spandana Control &middot; same-origin feed &middot; polls every 2 seconds</span>
+</footer>
+
+<script src="app.js"></script>
+</body>
+</html>
