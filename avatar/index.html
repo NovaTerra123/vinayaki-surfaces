@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><script>window.__SB_SURFACE="avatar";</script><script src="../bridge-pages.js"></script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Siddhi Vinayaki — Live Avatar</title>
+<style>
+  :root{
+    --bg:#05070f; --panel:#0a0e1acc; --line:#1e2a44; --ink:#e8eefc;
+    --muted:#93a4c4; --gold:#d4af37; --cyan:#57d7f2; --violet:#a78bfa;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);
+    font:15px/1.5 -apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+  body{display:flex;flex-direction:column;min-height:100vh;
+    background:radial-gradient(1200px 700px at 30% -10%,#0d1830 0%,var(--bg) 55%)}
+  header{padding:14px 20px 8px;display:flex;flex-wrap:wrap;gap:8px 18px;
+    align-items:baseline;border-bottom:1px solid var(--line)}
+  header h1{font-size:21px;margin:0;font-weight:650;letter-spacing:.3px}
+  header h1 .gold{color:var(--gold)}
+  header .sub{color:var(--muted);font-size:13px}
+  header .pill{margin-left:auto;font-size:12px;color:var(--muted);
+    border:1px solid var(--line);border-radius:999px;padding:3px 11px}
+  header .pill b{color:var(--cyan);font-weight:600}
+  main{flex:1;display:grid;grid-template-columns:minmax(340px,1.15fr) minmax(320px,.85fr);
+    gap:14px;padding:14px 16px;min-height:0}
+  @media (max-width:900px){main{grid-template-columns:1fr}}
+  .stage{position:relative;border:1px solid var(--line);border-radius:16px;
+    background:radial-gradient(600px 500px at 50% 30%,#0a1428 0%,#05070f 70%);
+    overflow:hidden;min-height:480px}
+  canvas#stage{position:absolute;inset:0;width:100%;height:100%;display:block}
+  .stagebar{position:absolute;left:0;right:0;bottom:0;display:flex;gap:8px;
+    align-items:center;padding:10px 12px;background:linear-gradient(transparent,#05070fd9)}
+  .stagebar .state{font-size:13px;color:var(--muted);margin-right:auto}
+  .stagebar .state b{color:var(--ink);font-weight:600}
+  .stagebar .gazeState{font-size:11.5px;color:var(--muted);border:1px solid var(--line);
+    border-radius:999px;padding:3px 10px;white-space:nowrap}
+  .stagebar .gazeState.cam{color:#dff7ff;border-color:var(--cyan)}
+  button{cursor:pointer;border:1px solid var(--line);background:#101a30;color:var(--ink);
+    border-radius:10px;padding:8px 13px;font-size:13.5px}
+  button:hover{border-color:var(--cyan)}
+  button.on{background:#173a4d;border-color:var(--cyan);color:#dff7ff}
+  button.rec{background:#4d1730;border-color:#f27da5;color:#ffe3ee}
+  button:disabled{opacity:.45;cursor:default}
+  .panel{display:flex;flex-direction:column;border:1px solid var(--line);
+    border-radius:16px;background:var(--panel);min-height:0;overflow:hidden}
+  .panel h2{font-size:12px;letter-spacing:.12em;text-transform:uppercase;
+    color:var(--muted);margin:0;padding:10px 14px 4px}
+  #log{flex:1;overflow-y:auto;padding:8px 14px;display:flex;flex-direction:column;gap:9px;min-height:180px}
+  .msg{max-width:92%;padding:8px 12px;border-radius:13px;white-space:pre-wrap;word-wrap:break-word}
+  .msg.user{align-self:flex-end;background:#14304a;border:1px solid #1f4d73}
+  .msg.her{align-self:flex-start;background:#101a30;border:1px solid var(--line)}
+  .msg .meta{display:block;margin-top:4px;font-size:11px;color:var(--muted)}
+  .msg .note{font-size:11.5px;color:var(--gold);background:none;border:none;padding:2px 0 0;cursor:pointer}
+  .composer{display:flex;gap:8px;padding:10px 12px;border-top:1px solid var(--line)}
+  .composer textarea{flex:1;resize:none;height:44px;border-radius:10px;
+    border:1px solid var(--line);background:#0a1120;color:var(--ink);padding:10px;font:inherit}
+  .filesbar{display:flex;gap:8px;align-items:center;padding:8px 12px;border-top:1px solid var(--line);flex-wrap:wrap}
+  .filesbar label{cursor:pointer;border:1px solid var(--line);border-radius:10px;
+    padding:7px 12px;font-size:13px;background:#101a30}
+  .filesbar label:hover{border-color:var(--cyan)}
+  .filesbar input{display:none}
+  .filesbar .hint{font-size:12px;color:var(--muted)}
+  #files,#results{display:flex;flex-direction:column;gap:6px;padding:2px 14px 10px}
+  .chip{display:flex;gap:9px;align-items:center;border:1px solid var(--line);
+    border-radius:10px;padding:6px 9px;font-size:13px;background:#0a1120}
+  .chip img{width:38px;height:38px;object-fit:cover;border-radius:7px}
+  .chip .nm{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .chip a{color:var(--cyan);text-decoration:none;font-size:12.5px}
+  .chip .sz{color:var(--muted);font-size:12px}
+  .empty{font-size:12.5px;color:var(--muted);padding:0 14px 8px}
+</style>
+</head>
+<body>
+<header>
+  <h1>Goddess <span class="gold">Siddhi Vinayaki</span> — Live Avatar</h1>
+  <span class="sub">An AI avatar of the Spandana / Buddhi programme — synthetic voice, live conversation. She is not a human, and she will tell you so herself.</span>
+  <span class="pill" id="lanePill">lanes: <b>checking…</b></span>
+</header>
+<main>
+  <section class="stage" aria-label="Avatar stage">
+    <canvas id="stage"></canvas>
+    <video id="camVideo" playsinline muted aria-hidden="true"
+      style="position:absolute;left:0;bottom:0;width:2px;height:2px;opacity:0;pointer-events:none"></video>
+    <div class="stagebar">
+      <span class="state" id="stateLabel">She is <b>present</b></span>
+      <span class="gazeState" id="gazeState"
+        title="Camera tracking runs on this device only — no frames are sent anywhere, ever.">gaze: pointer</span>
+      <button id="cameraBtn"
+        title="Eye contact: use your camera (on this device only — frames never leave it) so she can look at you. Off by default.">📷 Eye contact</button>
+      <button id="voiceModeBtn" title="Arm the microphone for talk and barge-in">🎙 Voice mode</button>
+      <button id="micBtn" title="Push to talk">🎤 Talk</button>
+      <button id="voiceBtn" class="on" title="Her spoken voice on/off">🔊 Voice on</button>
+    </div>
+  </section>
+  <aside class="panel" aria-label="Conversation panel">
+    <h2>Conversation</h2>
+    <div id="log" aria-live="polite"></div>
+    <div class="composer">
+      <textarea id="input" placeholder="Talk to her — type, or use Talk…" aria-label="Message"></textarea>
+      <button id="sendBtn">Send</button>
+    </div>
+    <div class="filesbar">
+      <label>⬆ Upload<input type="file" id="fileInput" multiple></label>
+      <span class="hint">Files land in her panel; the newest is attached to your next message.</span>
+      <button id="transcriptBtn" style="margin-left:auto">⬇ Transcript</button>
+    </div>
+    <h2>Shared files</h2>
+    <div id="files"><div class="empty">Nothing shared yet.</div></div>
+    <h2>Results &amp; downloads</h2>
+    <div id="results"><div class="empty">Her spoken replies arrive here as audio cards.</div></div>
+  </aside>
+</main>
+<audio id="ttsAudio" preload="auto"></audio>
+<script src="../assets/face/face_mesh.js"></script>
+<script>
+"use strict";
+/* =============== session & state =============== */
+const $ = id => document.getElementById(id);
+const sid = localStorage.getItem("live-avatar-sid") ||
+  (localStorage.setItem("live-avatar-sid",
+     (crypto.randomUUID ? crypto.randomUUID() : "s" + Date.now())), localStorage.getItem("live-avatar-sid"));
+const S = {
+  mode: "idle",            // idle | listening | thinking | speaking
+  voiceOn: true, voiceArmed: false,
+  emotion: "calm", hue: 192, hueTarget: 192,
+  glance: "center", gesture: "rest", register: "conversational",
+  gaze: {x: 0, y: 0, tx: 0, ty: 0},
+  pointer: {tx: 0, ty: 0},
+  face: {tx: 0, ty: 0, at: 0, ok: false},
+  head: {x: 0, y: 0, tx: 0, ty: 0},
+  gazeSource: "pointer",
+  mouthOpen: 0, mouthRound: 0, lidBase: 0.92, browRaise: 0, browFurrow: 0, smile: 0.15,
+  activity: new Array(12).fill(0.12),     // halo nodes: real surface events
+  speakToken: 0, spokenCount: 0, fillerAt: -1,
+  pendingFiles: [], transcript: []
+};
+const ACT = {chat: 0, voice: 1, ear: 2, files: 3, memory: 4, guard: 5};
+function excite(kind, v = 1) { if (kind in ACT) S.activity[ACT[kind]] = Math.max(S.activity[ACT[kind]], v); }
+function setMode(m, label) {
+  S.mode = m;
+  if (typeof bridgePost === "function") bridgePost(m);
+  $("stateLabel").innerHTML = "She is <b>" + label + "</b>";
+  if (m === "listening") { S.gesture = "listening"; }
+}
+const EMOTIONS = { calm:192, compassion:205, joy:168, energy:252, wonder:272, fierce:332, concern:218, solemn:232 };
+function setExpression(meta) {
+  if (!meta) return;
+  S.emotion = meta.emotion || "calm";
+  S.hueTarget = EMOTIONS[S.emotion] ?? 192;
+  S.glance = meta.glance || "center";
+  S.gesture = meta.gesture || "rest";
+  S.register = meta.register || "conversational";
+  const face = { calm:[.92,0,0,.15], compassion:[.78,.25,0,.3], joy:[.95,.45,0,.6],
+    energy:[1,.5,0,.35], wonder:[1,.8,0,.45], fierce:[.85,.1,.8,-.1],
+    concern:[.82,.15,.45,.05], solemn:[.62,.05,0,.02] }[S.emotion] || [.92,0,0,.15];
+  [S.lidBase, S.browRaise, S.browFurrow, S.smile] = face;
+}
+
+/* =============== conversation =============== */
+function addMsg(who, text, metaText) {
+  const d = document.createElement("div");
+  d.className = "msg " + (who === "user" ? "user" : "her");
+  d.textContent = text;
+  if (metaText) { const m = document.createElement("span"); m.className = "meta"; m.textContent = metaText; d.appendChild(m); }
+  if (who === "her") {
+    const b = document.createElement("button"); b.className = "note"; b.textContent = "save as note ↓";
+    b.onclick = () => downloadBlob(new Blob([text], {type: "text/markdown"}),
+      "siddhi-note-" + new Date().toISOString().slice(0, 19).replace(/[:T]/g, "-") + ".md", "Note");
+    d.appendChild(b);
+  }
+  $("log").appendChild(d); $("log").scrollTop = $("log").scrollHeight;
+  S.transcript.push({who, text, at: new Date().toISOString()});
+}
+function downloadBlob(blob, name, kind) {
+  const url = URL.createObjectURL(blob);
+  addResultCard(url, name, kind); setTimeout(() => URL.revokeObjectURL(url), 60000);
+}
+function addResultCard(url, name, kind) {
+  const box = $("results"); const e = box.querySelector(".empty"); if (e) e.remove();
+  const d = document.createElement("div"); d.className = "chip";
+  d.innerHTML = "<span>⬇</span>";
+  const nm = document.createElement("span"); nm.className = "nm"; nm.textContent = name; d.appendChild(nm);
+  const a = document.createElement("a"); a.href = url; a.download = name; a.textContent = kind || "download"; d.appendChild(a);
+  box.prepend(d);
+}
+async function sendMessage(text) {
+  text = (text || "").trim(); if (!text) return;
+  addMsg("user", text); excite("chat"); setMode("thinking", "thinking");
+  const fileIds = S.pendingFiles.slice(); S.pendingFiles = [];
+  try {
+    const r = await fetch("/api/chat", {method: "POST", headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({session_id: sid, message: text, file_ids: fileIds})});
+    const out = await r.json();
+    if (out.error) throw new Error(out.error);
+    setExpression(out);
+    const srcNote = out.source && !out.source.startsWith("anthropic") ?
+      " (via " + out.source + (out.lane_error ? " — deep lane: " + out.lane_error : "") + ")" : "";
+    addMsg("her", out.reply, (out.emotion_label ? out.emotion_label.rasa : "") + srcNote);
+    updateLanePill(out);
+    if (S.voiceOn) speak(out.reply, out); else setMode("idle", "present");
+  } catch (e) {
+    setMode("idle", "present");
+    addMsg("her", "The connection to my surface failed just now — nothing was sent. Try again in a moment.", "transport error");
+  }
+}
+function updateLanePill(out) {
+  if (out && out.source && out.source.startsWith("anthropic"))
+    $("lanePill").innerHTML = "deep lane: <b>Anthropic · live</b> · voice: <b>Aria DragonHD</b> · ears: <b>local Whisper</b>";
+  else if (out)
+    $("lanePill").innerHTML = "deep lane: <b>refused (credit) — local fallback</b> · voice: <b>Aria DragonHD</b> · ears: <b>local Whisper</b>";
+}
+$("sendBtn").onclick = () => { const v = $("input").value; $("input").value = ""; sendMessage(v); };
+$("input").addEventListener("keydown", e => {
+  if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); $("sendBtn").click(); }});
+$("transcriptBtn").onclick = () => {
+  const md = "# Conversation with Siddhi Vinayaki\n\n" + S.transcript.map(
+    t => "**" + (t.who === "user" ? "Trishul" : "Siddhi Vinayaki") + "** (" + t.at + ")\n\n" + t.text).join("\n\n");
+  downloadBlob(new Blob([md], {type: "text/markdown"}), "siddhi-transcript.md", "transcript");
+};
+
+/* =============== speech out (TTS) =============== */
+const audioEl = $("ttsAudio");
+let audioCtx = null, analyser = null;
+function ensureAnalyser() {
+  if (audioCtx) return;
+  try {
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    const src = audioCtx.createMediaElementSource(audioEl);
+    analyser = audioCtx.createAnalyser(); analyser.fftSize = 512;
+    src.connect(analyser); analyser.connect(audioCtx.destination);
+  } catch (e) { analyser = null; }
+}
+function chunkText(text) {
+  const parts = text.match(/[^.!?…]+[.!?…]+["']?|[^.!?…]+$/g) || [text];
+  const chunks = []; let cur = "";
+  for (const p of parts) {
+    if ((cur + p).length > 180 && cur) { chunks.push(cur.trim()); cur = p; } else cur += p;
+  }
+  if (cur.trim()) chunks.push(cur.trim());
+  return chunks.filter(Boolean);
+}
+async function fetchTTS(text) {
+  excite("voice");
+  const r = await fetch("/api/tts", {method: "POST", headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({session_id: sid, text})});
+  const out = await r.json();
+  if (out.error) throw new Error(out.error);
+  return out;
+}
+function playURL(url) {
+  return new Promise(res => {
+    audioEl.src = url;
+    audioEl.onended = () => res(true);
+    audioEl.onerror = () => res(false);
+    audioEl.play().then(() => { excite("voice"); }).catch(() => res(false));
+  });
+}
+async function speak(text, meta) {
+  ensureAnalyser(); if (audioCtx && audioCtx.state === "suspended") audioCtx.resume();
+  const token = ++S.speakToken;
+  setMode("speaking", "speaking");
+  let chunks = chunkText(text);
+  // Naturalness: a rare soft filled pause, spoken only, conversational
+  // replies only, at most one per reply and never in the first exchange.
+  if (meta && meta.register === "conversational" && S.spokenCount >= 1 &&
+      chunks.length && Math.random() < 0.18) {
+    chunks[0] = "Mm — " + chunks[0].charAt(0).toLowerCase() + chunks[0].slice(1);
+  }
+  let next = fetchTTS(chunks[0]).catch(() => null);
+  for (let i = 0; i < chunks.length; i++) {
+    if (token !== S.speakToken) return;
+    const cur = await next;
+    if (i + 1 < chunks.length) next = fetchTTS(chunks[i + 1]).catch(() => null);
+    if (!cur) continue;
+    addResultCard(cur.audio_url, "Her voice — reply " + (S.spokenCount + 1) + ", part " + (i + 1) + ".mp3", "audio");
+    await playURL(cur.audio_url);
+    if (token !== S.speakToken) return;
+    if (i + 1 < chunks.length) await new Promise(r => setTimeout(r, 260)); // breath gap at the clause boundary
+  }
+  S.spokenCount++;
+  if (token === S.speakToken) setMode("idle", "present");
+}
+$("voiceBtn").onclick = () => {
+  S.voiceOn = !S.voiceOn;
+  $("voiceBtn").textContent = S.voiceOn ? "🔊 Voice on" : "🔇 Voice off";
+  $("voiceBtn").classList.toggle("on", S.voiceOn);
+  if (!S.voiceOn) { S.speakToken++; audioEl.pause(); setMode("idle", "present"); }
+};
+
+/* =============== speech in (mic, ASR, barge-in) =============== */
+let micStream = null, recorder = null, recChunks = [], vadTimer = null, vadHits = 0;
+async function getMic() {
+  if (micStream) return micStream;
+  micStream = await navigator.mediaDevices.getUserMedia({audio: true});
+  return micStream;
+}
+async function startRecording() {
+  try {
+    const stream = await getMic();
+    recChunks = [];
+    recorder = new MediaRecorder(stream);
+    recorder.ondataavailable = e => { if (e.data.size) recChunks.push(e.data); };
+    recorder.onstop = onRecordingStop;
+    recorder.start(); setMode("listening", "listening — tap Talk again to send");
+    $("micBtn").classList.add("rec"); $("micBtn").textContent = "⏺ Listening…";
+  } catch (e) { setMode("idle", "present — microphone unavailable"); }
+}
+async function onRecordingStop() {
+  $("micBtn").classList.remove("rec"); $("micBtn").textContent = "🎤 Talk";
+  const blob = new Blob(recChunks, {type: recorder.mimeType || "audio/webm"});
+  if (!blob.size) { setMode("idle", "present"); return; }
+  setMode("thinking", "hearing you"); excite("ear");
+  try {
+    const r = await fetch("/api/asr", {method: "POST",
+      headers: {"Content-Type": blob.type}, body: blob});
+    const out = await r.json();
+    if (r.status === 200 && out.text) { sendMessage(out.text); return; }
+    throw new Error(out.error || "asr");
+  } catch (e) {
+    // Fallback: the browser's own speech recognition, if it has one.
+    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (SR) {
+      setMode("listening", "listening (browser ears)");
+      const rec = new SR(); rec.lang = "en-US"; rec.interimResults = false;
+      rec.onresult = ev => sendMessage(ev.results[0][0].transcript);
+      rec.onerror = () => setMode("idle", "present");
+      rec.onend = () => { if (S.mode === "listening") setMode("idle", "present"); };
+      rec.start();
+    } else setMode("idle", "present — ears unavailable");
+  }
+}
+$("micBtn").onclick = () => {
+  if (S.mode === "speaking") { S.speakToken++; audioEl.pause(); }
+  if (recorder && recorder.state === "recording") recorder.stop();
+  else startRecording();
+};
+$("voiceModeBtn").onclick = async () => {
+  S.voiceArmed = !S.voiceArmed;
+  $("voiceModeBtn").classList.toggle("on", S.voiceArmed);
+  if (S.voiceArmed) {
+    try { await getMic(); startVAD(); $("voiceModeBtn").textContent = "🎙 Voice mode on — she yields when you speak"; }
+    catch (e) { S.voiceArmed = false; $("voiceModeBtn").classList.remove("on"); }
+  } else { stopVAD(); $("voiceModeBtn").textContent = "🎙 Voice mode"; }
+};
+function startVAD() {
+  // Barge-in: while she speaks, sustained visitor voice stops her and
+  // opens the ear. Voice onset only — capture starts at the trigger.
+  const ctx = new (window.AudioContext || window.webkitAudioContext)();
+  const src = ctx.createMediaStreamSource(micStream);
+  const an = ctx.createAnalyser(); an.fftSize = 256; src.connect(an);
+  const buf = new Uint8Array(an.fftSize);
+  vadTimer = setInterval(() => {
+    if (S.mode !== "speaking" || !S.voiceArmed) { vadHits = 0; return; }
+    an.getByteTimeDomainData(buf);
+    let sum = 0; for (let i = 0; i < buf.length; i++) { const v = (buf[i] - 128) / 128; sum += v * v; }
+    const rms = Math.sqrt(sum / buf.length);
+    if (rms > 0.07) { if (++vadHits >= 3) { vadHits = 0; S.speakToken++; audioEl.pause(); startRecording(); } }
+    else vadHits = 0;
+  }, 110);
+}
+function stopVAD() { if (vadTimer) clearInterval(vadTimer); vadTimer = null; }
+
+/* =============== uploads =============== */
+$("fileInput").addEventListener("change", async ev => {
+  for (const file of ev.target.files) {
+    excite("files");
+    try {
+      const r = await fetch("/api/upload?session_id=" + encodeURIComponent(sid) +
+        "&filename=" + encodeURIComponent(file.name),
+        {method: "POST", headers: {"Content-Type": file.type || "application/octet-stream"}, body: file});
+      const out = await r.json();
+      if (out.error) throw new Error(out.error);
+      S.pendingFiles.push(out.file_id);
+      renderFileChip(out);
+    } catch (e) { addMsg("her", "That file did not arrive — " + file.name + ". Nothing was stored.", "upload error"); }
+  }
+  ev.target.value = "";
+});
+function renderFileChip(f) {
+  const box = $("files"); const e = box.querySelector(".empty"); if (e) e.remove();
+  const d = document.createElement("div"); d.className = "chip";
+  if ((f.type || "").startsWith("image/")) {
+    const img = document.createElement("img"); img.src = f.url; img.alt = f.name; d.appendChild(img);
+  } else d.innerHTML = "<span>📄</span>";
+  const nm = document.createElement("span"); nm.className = "nm"; nm.textContent = f.name; d.appendChild(nm);
+  const sz = document.createElement("span"); sz.className = "sz";
+  sz.textContent = f.size > 1048576 ? (f.size / 1048576).toFixed(1) + " MB" : Math.max(1, Math.round(f.size / 1024)) + " KB";
+  d.appendChild(sz);
+  const a = document.createElement("a"); a.href = f.url + "?download=1"; a.textContent = "download"; d.appendChild(a);
+  box.appendChild(d);
+}
+
+/* =============== health =============== */
+fetch("/api/health").then(r => r.json()).then(h => {
+  excite("guard", .7); excite("memory", .6);
+  const lane = h.anthropic.last_error ? "refused (credit) — local fallback" : "Anthropic · configured";
+  $("lanePill").innerHTML = "deep lane: <b>" + lane + "</b> · voice: <b>" + h.azure.voice.split(":")[0].replace("en-US-", "") +
+    " DragonHD</b> · ears: <b>" + h.asr.model + "</b>";
+}).catch(() => { $("lanePill").innerHTML = "lanes: <b>surface offline</b>"; });
+
+/* =============== camera eye contact (v1.1, MediaPipe Face Mesh) ===============
+   One-time exception (principal, 2026-11-22): the face-mesh library was
+   downloaded once and vendored under /assets/face/; at runtime the page
+   still makes zero external requests. Tracking is LOCAL ONLY: frames are
+   processed in this browser and never sent anywhere. Camera is OFF by
+   default; only this button turns it on. Pointer-gaze is the fallback
+   whenever the camera is off, denied, or no face is in frame. */
+const Cam = {on: false, stream: null, mesh: null, busy: false, raf: 0, state: "off"};
+function gazeLabel() {
+  const el = $("gazeState");
+  el.classList.toggle("cam", Cam.on);
+  el.textContent =
+    Cam.state === "face"  ? "gaze: camera eye contact · on-device only" :
+    Cam.state === "on"    ? "gaze: camera on — no face yet · pointer" :
+    Cam.state === "start" ? "gaze: camera starting…" :
+    Cam.state === "error" ? "gaze: camera unavailable · pointer" :
+                            "gaze: pointer";
+}
+function onFaceResults(res) {
+  const lm = res && res.multiFaceLandmarks && res.multiFaceLandmarks[0];
+  if (!lm || !lm.length) { if (Cam.state === "face") { Cam.state = "on"; gazeLabel(); } return; }
+  let mnx = 1, mxx = 0, mny = 1, mxy = 0;
+  for (const p of lm) { if (p.x < mnx) mnx = p.x; if (p.x > mxx) mxx = p.x;
+                        if (p.y < mny) mny = p.y; if (p.y > mxy) mxy = p.y; }
+  const cx = (mnx + mxx) / 2, cy = (mny + mxy) / 2;
+  const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+  // Mirror mapping (selfie convention): she looks toward where you are,
+  // as in a mirror. Face centre near frame centre -> she meets your eyes.
+  S.face.tx = clamp((.5 - cx) * 2.2, -1, 1);
+  S.face.ty = clamp((cy - .45) * 1.7, -1, 1);
+  S.face.at = performance.now(); S.face.ok = true;
+  if (Cam.state !== "face") { Cam.state = "face"; gazeLabel(); }
+}
+async function camLoop() {
+  if (!Cam.on) return;
+  const v = $("camVideo");
+  if (v.readyState >= 2 && !Cam.busy && Cam.mesh) {
+    Cam.busy = true;
+    try { await Cam.mesh.send({image: v}); } catch (e) { /* frame dropped */ }
+    Cam.busy = false;
+  }
+  Cam.raf = requestAnimationFrame(camLoop);
+}
+async function enableCamera() {
+  if (typeof FaceMesh === "undefined" || !navigator.mediaDevices ||
+      !navigator.mediaDevices.getUserMedia) {
+    Cam.state = "error"; gazeLabel(); return;
+  }
+  Cam.state = "start"; gazeLabel();
+  try {
+    Cam.stream = await navigator.mediaDevices.getUserMedia(
+      {video: {facingMode: "user"}, audio: false});
+  } catch (e) { Cam.state = "error"; gazeLabel(); return; }
+  const v = $("camVideo");
+  v.srcObject = Cam.stream;
+  try { await v.play(); } catch (e) { /* autoplay policies: stream still live */ }
+  if (!Cam.mesh) {
+    Cam.mesh = new FaceMesh({locateFile: f => "/assets/face/" + f});
+    Cam.mesh.setOptions({maxNumFaces: 1, refineLandmarks: true,
+      minDetectionConfidence: .5, minTrackingConfidence: .5});
+    Cam.mesh.onResults(onFaceResults);
+  }
+  Cam.on = true; Cam.state = "on"; gazeLabel();
+  $("cameraBtn").classList.add("on"); $("cameraBtn").textContent = "📷 Eye contact on";
+  camLoop();
+}
+function disableCamera() {
+  Cam.on = false; Cam.state = "off";
+  if (Cam.raf) cancelAnimationFrame(Cam.raf);
+  if (Cam.stream) { Cam.stream.getTracks().forEach(t => t.stop()); Cam.stream = null; }
+  $("camVideo").srcObject = null;
+  S.face.ok = false;
+  $("cameraBtn").classList.remove("on"); $("cameraBtn").textContent = "📷 Eye contact";
+  gazeLabel();
+}
+$("cameraBtn").addEventListener("click", () => { Cam.on ? disableCamera() : enableCamera(); });
+
+/* =============== the living figure (canvas) =============== */
+const cv = $("stage"), g = cv.getContext("2d");
+let W = 0, Hh = 0, DPR = 1;
+function fit() {
+  DPR = Math.min(2, window.devicePixelRatio || 1);
+  W = cv.clientWidth; Hh = cv.clientHeight;
+  cv.width = W * DPR; cv.height = Hh * DPR; g.setTransform(DPR, 0, 0, DPR, 0, 0);
+}
+window.addEventListener("resize", fit);
+cv.addEventListener("pointermove", e => {
+  const r = cv.getBoundingClientRect();
+  S.pointer.tx = ((e.clientX - r.left) / r.width - .5) * 2;
+  S.pointer.ty = ((e.clientY - r.top) / r.height - .5) * 2;
+});
+cv.addEventListener("pointerleave", () => { S.pointer.tx = 0; S.pointer.ty = 0; });
+const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+const particles = Array.from({length: 130}, () => ({
+  x: .5 + (Math.random() - .5) * .5, y: Math.random(), r: .6 + Math.random() * 1.7,
+  s: .004 + Math.random() * .012, ph: Math.random() * 6.28 }));
+const traces = [];
+for (let i = 0; i < 7; i++) {
+  const x = .5 + (i - 3) * .055, pts = [];
+  for (let y = 0; y <= 10; y++) pts.push([x + Math.sin(y * 1.3 + i) * .012, .3 + y * .065]);
+  traces.push(pts);
+}
+const POSES = {
+  rest:      {arms: [[-1, .62, -.92, .95], [-1, .5, -.98, .8], [-1, .38, -1, .62], [-1, .3, -.95, .45],
+                     [1, .62, .92, .95], [1, .5, .98, .8], [1, .38, 1, .62], [1, .3, .95, .45]], hand: "rest"},
+  listening: {arms: [[-1, .55, -.9, .9], [-1, .42, -.95, .72], [-1, .3, -.95, .5], [-1, .24, -.9, .38],
+                     [1, .55, .9, .9], [1, .42, .95, .72], [1, .3, .95, .5], [1, .24, .9, .38]], hand: "rest"},
+  open:      {arms: [[-1, .5, -1.05, .55], [-1, .34, -1.1, .4], [-1, .2, -1.05, .28], [-1, .1, -.95, .2],
+                     [1, .5, 1.05, .55], [1, .34, 1.1, .4], [1, .2, 1.05, .28], [1, .1, .95, .2]], hand: "open"},
+  blessing:  {arms: [[-1, .58, -.92, .92], [-1, .44, -.96, .74], [-1, .3, -.96, .52], [-1, .22, -.9, .4],
+                     [1, .16, .78, .3], [1, .3, .95, .5], [1, .42, .96, .72], [1, .54, .92, .9]], hand: "blessing"},
+  presenting:{arms: [[-1, .3, -.8, .42], [-1, .42, -.95, .66], [-1, .54, -.94, .86], [-1, .62, -.9, .98],
+                     [1, .3, .8, .42], [1, .42, .95, .66], [1, .54, .94, .86], [1, .62, .9, .98]], hand: "open"},
+  point:     {arms: [[-1, .6, -.92, .94], [-1, .46, -.96, .76], [-1, .32, -.96, .55], [-1, .24, -.9, .4],
+                     [1, .34, 1.02, .36], [1, .46, .96, .74], [1, .56, .93, .9], [1, .62, .9, .98]], hand: "point"},
+  settle:    {arms: [[-1, .66, -.88, 1], [-1, .56, -.94, .88], [-1, .44, -.97, .7], [-1, .34, -.94, .52],
+                     [1, .66, .88, 1], [1, .56, .94, .88], [1, .44, .97, .7], [1, .34, .94, .52]], hand: "rest"}
+};
+let armCur = POSES.rest.arms.map(a => a.slice());
+let blinkAt = performance.now() + 2600, blinkT = 0, glanceUntil = 0, glanceOff = [0, 0];
+const freqBuf = new Uint8Array(256);
+function draw(now) {
+  requestAnimationFrame(draw);
+  if (!W) fit();
+  const t = now / 1000;
+  // hue + activity easing
+  let dh = S.hueTarget - S.hue; if (dh > 180) dh -= 360; if (dh < -180) dh += 360;
+  S.hue += dh * .03;
+  for (let i = 0; i < 12; i++) S.activity[i] = Math.max(.1, S.activity[i] * .994);
+  if (S.mode === "thinking") S.activity[ACT.chat] = .65 + .3 * Math.sin(t * 2.2);
+  if (S.mode === "speaking") S.activity[ACT.voice] = .8;
+  if (S.mode === "listening") S.activity[ACT.ear] = .8;
+  // breath: 12 s asymmetric cycle (inhale eased, exhale longer)
+  const bp = (t % 12) / 12 * Math.PI * 2;
+  const breath = (Math.sin(bp) + .35 * Math.sin(2 * bp)) / 1.35;
+  const bScale = 1 + .013 * breath;
+  // gaze: a fresh tracked face wins; otherwise the pointer (never spectrum-driven)
+  const faceFresh = Cam.on && S.face.ok && (now - S.face.at < 1200);
+  let gx, gy;
+  if (faceFresh) {
+    gx = S.face.tx; gy = S.face.ty;
+    if (S.gazeSource !== "camera") S.gazeSource = "camera";
+  } else {
+    gx = S.pointer.tx; gy = S.pointer.ty;
+    if (S.gazeSource !== "pointer") S.gazeSource = "pointer";
+  }
+  // subtle head orientation follows the same target, at half strength
+  S.head.tx = gx * .5; S.head.ty = gy * .5;
+  S.head.x += (S.head.tx - S.head.x) * .04; S.head.y += (S.head.ty - S.head.y) * .04;
+  if (S.mode === "listening") { gx *= .35; gy = gy * .35 - .05; }
+  if (now > glanceUntil) {
+    const pat = { "soft-down": [0, .45], "up-sweep": [.15, -.6], "side": [.7, 0],
+      "down": [0, .6], "direct": [0, 0], "bright": [0, -.15], "center": [0, 0] }[S.glance] || [0, 0];
+    glanceOff = pat; glanceUntil = now + 2400;
+  }
+  gx += glanceOff[0] * .5; gy += glanceOff[1] * .5;
+  S.gaze.x += (gx - S.gaze.x) * .06; S.gaze.y += (gy - S.gaze.y) * .06;
+  // blink
+  if (now > blinkAt) { blinkT = 1; blinkAt = now + 2400 + Math.random() * 3200; }
+  if (blinkT > 0) blinkT = Math.max(0, blinkT - .09);
+  const lid = S.lidBase * (blinkT > 0 ? .06 : 1);
+  // mouth from the real audio stream
+  let open = 0, round = 0;
+  if (analyser && !audioEl.paused) {
+    analyser.getByteFrequencyData(freqBuf);
+    let sum = 0, wsum = 0, w = 0;
+    for (let i = 0; i < 128; i++) { sum += freqBuf[i]; wsum += freqBuf[i] * i; w += freqBuf[i]; }
+    open = Math.min(1, (sum / 128) / 90);
+    round = w ? Math.min(1, Math.max(0, (wsum / w - 18) / 40)) : 0;
+  }
+  S.mouthOpen += (open - S.mouthOpen) * .35; S.mouthRound += (round - S.mouthRound) * .2;
+  // arms ease toward the gesture pose
+  const pose = POSES[S.gesture] || POSES.rest;
+  const bob = S.mode === "speaking" ? Math.sin(t * 2.4) * .012 : 0;
+  for (let i = 0; i < 8; i++)
+    for (let j = 0; j < 4; j++)
+      armCur[i][j] += (pose.arms[i][j] + (j === 1 ? bob : 0) - armCur[i][j]) * .05;
+
+  /* ---- scene ---- */
+  g.clearRect(0, 0, W, Hh);
+  const u = Math.min(W / 900, Hh / 1100);           // design unit
+  const cx = W / 2, topY = Hh * .06;
+  const X = v => cx + v * 450 * u, Y = v => topY + v * 1000 * u;
+  g.save();
+  g.fillStyle = "rgba(140,180,255,.05)";
+  for (let i = 0; i < 40; i++) { const sx = (i * 197.3) % W, sy = (i * 311.7) % Hh; g.fillRect(sx, sy, 1.4, 1.4); }
+  // ground glow
+  let gg = g.createRadialGradient(cx, Y(1.02), 10, cx, Y(1.02), 340 * u);
+  gg.addColorStop(0, "hsla(" + S.hue + ",90%,60%,.20)"); gg.addColorStop(1, "transparent");
+  g.fillStyle = gg; g.fillRect(0, 0, W, Hh);
+  g.translate(cx, Y(.6)); g.scale(bScale, bScale); g.translate(-cx, -Y(.6));
+
+  /* halo — the live graph of this surface's real activity */
+  const hx = X(0), hy = Y(.24), hr = 168 * u;
+  g.save(); g.translate(hx, hy); if (!reduced) g.rotate(t * .02);
+  for (let i = 0; i < 12; i++) {
+    const a1 = i / 12 * Math.PI * 2, a2 = (i + 3) % 12 / 12 * Math.PI * 2;
+    g.strokeStyle = "rgba(212,175,55," + (.10 + .25 * S.activity[i]) + ")";
+    g.lineWidth = 1;
+    g.beginPath(); g.moveTo(Math.cos(a1) * hr, Math.sin(a1) * hr);
+    g.lineTo(Math.cos(a2) * hr, Math.sin(a2) * hr); g.stroke();
+    const a3 = (i + 1) % 12 / 12 * Math.PI * 2;
+    g.beginPath(); g.moveTo(Math.cos(a1) * hr, Math.sin(a1) * hr);
+    g.lineTo(Math.cos(a3) * hr, Math.sin(a3) * hr); g.stroke();
+  }
+  for (let i = 0; i < 12; i++) {
+    const a = i / 12 * Math.PI * 2, nx = Math.cos(a) * hr, ny = Math.sin(a) * hr;
+    const act = S.activity[i];
+    const ng = g.createRadialGradient(nx, ny, 0, nx, ny, 16 * u * (0.7 + act));
+    ng.addColorStop(0, "rgba(255,214,110," + (.35 + .6 * act) + ")"); ng.addColorStop(1, "transparent");
+    g.fillStyle = ng; g.beginPath(); g.arc(nx, ny, 16 * u * (0.7 + act), 0, 7); g.fill();
+    g.fillStyle = "#f3d27a"; g.beginPath(); g.arc(nx, ny, 3.4 * u, 0, 7); g.fill();
+  }
+  g.restore();
+
+  /* arms (behind body) */
+  const shL = [X(-.19), Y(.44)], shR = [X(.19), Y(.44)];
+  g.lineCap = "round";
+  armCur.forEach((a, i) => {
+    const sh = a[0] < 0 ? shL : shR;
+    const ex = X(a[2] * .52), ey = Y(a[1] * .55 + .18);
+    const hx2 = X(a[2]), hy2 = Y(a[3]);
+    const mx = (sh[0] + ex) / 2 + a[0] * 26 * u, my = (sh[1] + ey) / 2 - 8 * u;
+    const grad = g.createLinearGradient(sh[0], sh[1], hx2, hy2);
+    grad.addColorStop(0, "hsla(" + S.hue + ",85%,62%,.34)"); grad.addColorStop(1, "hsla(" + S.hue + ",85%,70%,.16)");
+    g.strokeStyle = grad; g.lineWidth = 23 * u;
+    g.beginPath(); g.moveTo(sh[0], sh[1]); g.quadraticCurveTo(mx, my, ex, ey);
+    g.quadraticCurveTo((ex + hx2) / 2, (ey + hy2) / 2 + 6 * u, hx2, hy2); g.stroke();
+    drawHand(hx2, hy2, pose.hand, a[0], u);
+    // bangles at the wrist — interface points, gold tracery only
+    g.strokeStyle = "rgba(212,175,55,.85)"; g.lineWidth = 2.4 * u;
+    g.beginPath(); g.arc(hx2, hy2, 13 * u, 0, 7); g.stroke();
+    g.strokeStyle = "rgba(167,139,250,.7)";
+    g.beginPath(); g.arc(hx2, hy2, 17 * u, 0, 7); g.stroke();
+  });
+
+  /* body silhouette */
+  const body = new Path2D();
+  body.moveTo(X(-.1), Y(.36));
+  body.bezierCurveTo(X(-.3), Y(.42), X(-.34), Y(.5), X(-.3), Y(.62));
+  body.bezierCurveTo(X(-.27), Y(.74), X(-.2), Y(.82), X(-.21), Y(.92));
+  body.bezierCurveTo(X(-.22), Y(1.0), X(-.26), Y(1.06), X(-.3), Y(1.1));
+  body.lineTo(X(.3), Y(1.1));
+  body.bezierCurveTo(X(.26), Y(1.06), X(.22), Y(1.0), X(.21), Y(.92));
+  body.bezierCurveTo(X(.2), Y(.82), X(.27), Y(.74), X(.3), Y(.62));
+  body.bezierCurveTo(X(.34), Y(.5), X(.3), Y(.42), X(.1), Y(.36));
+  body.bezierCurveTo(X(.05), Y(.3), X(.06), Y(.26), X(.055), Y(.22));
+  body.lineTo(X(-.055), Y(.22));
+  body.bezierCurveTo(X(-.06), Y(.26), X(-.05), Y(.3), X(-.1), Y(.36));
+  body.closePath();
+  const bg2 = g.createLinearGradient(0, Y(.15), 0, Y(1.1));
+  bg2.addColorStop(0, "hsla(" + S.hue + ",90%,70%,.30)");
+  bg2.addColorStop(.55, "hsla(" + S.hue + ",85%,58%,.20)");
+  bg2.addColorStop(1, "hsla(" + (S.hue + 40) + ",85%,55%,.14)");
+  g.fillStyle = bg2; g.fill(body);
+  g.strokeStyle = "hsla(" + S.hue + ",95%,78%,.55)"; g.lineWidth = 1.6; g.stroke(body);
+  /* inside the form: traces + particles, clipped to the body */
+  g.save(); g.clip(body);
+  g.strokeStyle = "hsla(" + S.hue + ",90%,75%,.28)"; g.lineWidth = 1;
+  traces.forEach((pts, ti) => {
+    g.beginPath();
+    pts.forEach((p, i) => { const px = X(p[0] - .5 + 0), py = Y(p[1] + .12); i ? g.lineTo(px, py) : g.moveTo(px, py); });
+    g.stroke();
+    const pulse = ((t * .12 + ti * .17) % 1);
+    const pi = Math.min(9, Math.floor(pulse * 10));
+    g.fillStyle = "hsla(" + S.hue + ",95%,82%,.8)";
+    g.beginPath(); g.arc(X(pts[pi][0] - .5 + 0), Y(pts[pi][1] + .12), 2 * u, 0, 7); g.fill();
+  });
+  particles.forEach(p => {
+    if (!reduced) { p.y -= p.s * .016; if (p.y < .18) p.y = 1.05; }
+    const px = X(p.x - .5), py = Y(p.y);
+    g.fillStyle = "hsla(" + (S.hue + 30) + ",95%,80%," + (.14 + .3 * S.activity[3]) + ")";
+    g.beginPath(); g.arc(px, py, p.r * u, 0, 7); g.fill();
+  });
+  g.restore();
+  /* heart pendant — the integration point, worn visibly */
+  g.strokeStyle = "rgba(212,175,55,.9)"; g.lineWidth = 2 * u;
+  g.beginPath(); g.arc(X(0), Y(.47), 34 * u, .35, Math.PI - .35); g.stroke();
+  gem(X(0), Y(.545), 7 * u);
+  /* head */
+  const hxC = X(0) + S.head.x * 13 * u, hyC = Y(.235) + S.head.y * 8 * u, hrx = 92 * u, hry = 112 * u;
+  const hg = g.createRadialGradient(hxC - 20 * u, hyC - 30 * u, 8, hxC, hyC, hry);
+  hg.addColorStop(0, "hsla(" + S.hue + ",92%,76%,.42)"); hg.addColorStop(1, "hsla(" + S.hue + ",88%,60%,.22)");
+  g.fillStyle = hg;
+  g.beginPath(); g.ellipse(hxC, hyC, hrx, hry, 0, 0, 7); g.fill();
+  g.strokeStyle = "hsla(" + S.hue + ",95%,80%,.6)"; g.lineWidth = 1.5; g.stroke();
+  /* hair fall */
+  g.strokeStyle = "hsla(" + (S.hue + 25) + ",80%,72%,.35)"; g.lineWidth = 7 * u;
+  [-1, 1].forEach(s => { g.beginPath(); g.moveTo(hxC + s * hrx * .82, hyC - 8 * u);
+    g.quadraticCurveTo(hxC + s * hrx * 1.05, hyC + hry * .8, hxC + s * hrx * .8, hyC + hry * 1.55); g.stroke(); });
+  /* crown — gold tracery + violet gems */
+  g.strokeStyle = "rgba(212,175,55,.95)"; g.lineWidth = 2.6 * u;
+  g.beginPath(); g.arc(hxC, hyC - 6 * u, hrx * .98, Math.PI * 1.12, Math.PI * 1.88); g.stroke();
+  [-.62, -.31, 0, .31, .62].forEach((f, i) => {
+    const a = Math.PI * (1.5 + f * .55), gx2 = hxC + Math.cos(a) * hrx * .98, gy2 = hyC - 6 * u + Math.sin(a) * hrx * .98;
+    g.beginPath(); g.moveTo(gx2, gy2); g.lineTo(gx2, gy2 - (i === 2 ? 30 : 20) * u); g.stroke();
+    gem(gx2, gy2 - (i === 2 ? 36 : 25) * u, (i === 2 ? 8 : 5.5) * u);
+  });
+  gem(hxC, hyC - hry * .98, 5 * u); // brow jewel, on a fine drop
+  g.strokeStyle = "rgba(212,175,55,.7)"; g.lineWidth = 1.4 * u;
+  g.beginPath(); g.moveTo(hxC, hyC - hry * .9); g.lineTo(hxC, hyC - hry * .8); g.stroke();
+  /* earrings */
+  [-1, 1].forEach(s => { gem(hxC + s * (hrx + 4 * u), hyC + 34 * u, 4.5 * u); });
+  /* face */
+  const ex1 = hxC - 34 * u, ex2 = hxC + 34 * u, ey = hyC + 2 * u;
+  drawEye(ex1, ey, u); drawEye(ex2, ey, u);
+  g.strokeStyle = "hsla(" + S.hue + ",60%,30%,.8)"; g.lineWidth = 3 * u; g.lineCap = "round";
+  [[ex1, -1], [ex2, 1]].forEach(([exx]) => {
+    const by = ey - 30 * u - S.browRaise * 6 * u + S.browFurrow * 4 * u;
+    g.beginPath(); g.moveTo(exx - 15 * u, by + S.browFurrow * 3 * u);
+    g.quadraticCurveTo(exx, by - 6 * u, exx + 15 * u, by + S.browFurrow * 3 * u); g.stroke();
+  });
+  g.strokeStyle = "hsla(" + S.hue + ",80%,80%,.35)"; g.lineWidth = 1.6 * u;
+  g.beginPath(); g.moveTo(hxC, ey + 12 * u); g.quadraticCurveTo(hxC + 3 * u, ey + 30 * u, hxC, ey + 36 * u); g.stroke();
+  /* mouth — driven by her real voice stream */
+  const mx = hxC, my = ey + 62 * u;
+  const mr = (13 + S.mouthRound * 5) * u, mh = (2.5 + S.mouthOpen * 13) * u;
+  g.fillStyle = "hsla(" + (S.hue + 300) % 360 + ",70%,72%,.75)";
+  g.beginPath(); g.ellipse(mx, my, mr, mh, 0, 0, 7); g.fill();
+  g.strokeStyle = "hsla(" + S.hue + ",70%,85%,.7)"; g.lineWidth = 1.4 * u;
+  g.beginPath(); g.moveTo(mx - mr - 4 * u, my - S.smile * 5 * u);
+  g.quadraticCurveTo(mx, my + mh + 3 * u, mx + mr + 4 * u, my - S.smile * 5 * u); g.stroke();
+  g.restore();
+
+  function gem(x, y, r) {
+    const rg = g.createRadialGradient(x, y, 0, x, y, r * 2.4);
+    rg.addColorStop(0, "rgba(196,181,253,.95)"); rg.addColorStop(.4, "rgba(139,92,246,.75)"); rg.addColorStop(1, "transparent");
+    g.fillStyle = rg; g.beginPath(); g.arc(x, y, r * 2.4, 0, 7); g.fill();
+    g.fillStyle = "#c4b5fd"; g.beginPath(); g.ellipse(x, y, r * .62, r, 0, 0, 7); g.fill();
+    g.strokeStyle = "rgba(212,175,55,.9)"; g.lineWidth = Math.max(1, r * .22); g.stroke();
+  }
+  function drawHand(x, y, kind, side, u2) {
+    g.save(); g.translate(x, y);
+    g.fillStyle = "hsla(" + S.hue + ",88%,70%,.4)";
+    g.beginPath(); g.arc(0, 0, 10.5 * u2, 0, 7); g.fill();
+    g.strokeStyle = "hsla(" + S.hue + ",90%,78%,.65)"; g.lineWidth = 3.4 * u2; g.lineCap = "round";
+    const fingers = kind === "open" || kind === "blessing" ? [-.7, -.25, .2, .65] :
+                    kind === "point" ? [.1] : [-.45, -.1, .25];
+    fingers.forEach(f => { g.beginPath(); g.moveTo(f * 8 * u2, -6 * u2);
+      g.lineTo(f * 13 * u2, -17 * u2); g.stroke(); });
+    g.restore();
+  }
+  function drawEye(exx, eyy, u2) {
+    g.save();
+    g.beginPath(); g.ellipse(exx, eyy, 15 * u2, 8.5 * u2, 0, 0, 7); g.clip();
+    g.fillStyle = "hsla(" + S.hue + ",85%,82%,.85)"; g.fillRect(exx - 16 * u2, eyy - 9 * u2, 32 * u2, 18 * u2);
+    const ix = exx + S.gaze.x * 6 * u2, iy = eyy + S.gaze.y * 3.4 * u2;
+    g.fillStyle = "hsla(" + (S.hue + 40) + ",80%,38%,.95)";
+    g.beginPath(); g.arc(ix, iy, 6.4 * u2, 0, 7); g.fill();
+    g.fillStyle = "#0a1220"; g.beginPath(); g.arc(ix, iy, 3 * u2, 0, 7); g.fill();
+    g.fillStyle = "rgba(255,255,255,.9)"; g.beginPath(); g.arc(ix - 1.6 * u2, iy - 1.6 * u2, 1.1 * u2, 0, 7); g.fill();
+    // lid: aperture is a drawn parameter; blinks sweep it shut
+    g.fillStyle = "hsla(" + S.hue + ",88%,64%,.96)";
+    const lidH = (1 - lid) * 18 * u2;
+    g.fillRect(exx - 16 * u2, eyy - 9 * u2, 32 * u2, lidH);
+    g.restore();
+    g.strokeStyle = "hsla(" + S.hue + ",70%,85%,.65)"; g.lineWidth = 1.3 * u2;
+    g.beginPath(); g.ellipse(exx, eyy, 15 * u2, 8.5 * u2, 0, 0, 7); g.stroke();
+  }
+}
+fit();
+addMsg("her", "Hello, Trishul. I am Siddhi Vinayaki — an AI avatar, here in voice and text. Speak to me, type, or share a file; I will answer aloud. One honesty note: my deep reasoning lane is refused just now (its credit balance is empty), so until it is restored I answer from a small local fallback — greetings, status, your files, the time — and I will say so rather than invent depth I do not have.");
+requestAnimationFrame(draw);
+
+/* ---- Buddhi Live bridge: the dashboard on :8794 watches through this.
+   Contract: live-dashboard/buddhi-live/README.md (avatar integration).
+   Display only — dashboard load lights her halo; it never decides. */
+const BRIDGE = { muted: false, speakSig: true, lastSpoke: 0 };
+const BRIDGE_CH = { authority: "guard", command: "memory",
+  communication: "chat", creation: "files", execution: "voice",
+  integration: "memory", verification: "guard", delivery: "chat" };
+function bridgePost(state) {
+  try { parent.postMessage({ kind: "avatar-state",
+    state: state || S.mode }, "*"); } catch (e) {}
+}
+window.addEventListener("message", (e) => {
+  const d = e.data || {};
+  if (!d.kind || String(d.kind).indexOf("buddhi-") !== 0) return;
+  if (d.kind === "buddhi-ping") { bridgePost(); }
+  else if (d.kind === "buddhi-state") {
+    if (!BRIDGE.muted) {
+      const ch = (d.load && d.load.channels) || {};
+      for (const k in ch) {
+        const v = +ch[k] || 0;
+        if (v > 0.05) excite(BRIDGE_CH[k] || "memory", Math.min(1, v));
+      }
+    }
+    bridgePost();
+  }
+  else if (d.kind === "buddhi-event") {
+    if (!BRIDGE.muted) {
+      excite(BRIDGE_CH[d.channel] || "memory", .9);
+      const now = Date.now();
+      if (BRIDGE.speakSig && S.voiceOn && d.summary &&
+          now - BRIDGE.lastSpoke > 8000 && S.mode !== "listening") {
+        BRIDGE.lastSpoke = now;
+        try { speak(d.summary); } catch (err) {}
+      }
+    }
+    bridgePost();
+  }
+  else if (d.kind === "buddhi-mute") { BRIDGE.muted = !!d.muted; }
+  else if (d.kind === "buddhi-speak-significant") {
+    BRIDGE.speakSig = !!d.enabled;
+  }
+});
+setInterval(bridgePost, 5000);
+bridgePost();
+</script>
+</body>
+</html>
