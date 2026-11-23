@@ -1,0 +1,15 @@
+MediaPipe Face Mesh — JavaScript solution, vendored locally.
+
+Package:  @mediapipe/face_mesh version 0.4.1633559619 (npm)
+Licence:  Apache-2.0 (declared in the package's package.json:
+          "license": "Apache-2.0"; the npm tarball ships no separate
+          LICENSE file, so this notice records the declaration)
+Source:   Google MediaPipe — https://github.com/google-ai-edge/mediapipe
+          (recorded here as provenance only; nothing in this folder is
+          loaded from the network at runtime)
+
+Vendored 2026-11-22 under the principal's one-time download exception
+(see ../../README.md, "v1.1"). The only local modification: three
+documentation URLs inside comments of the two emscripten WASM glue
+files were replaced with short placeholders so the served asset set
+contains no external URL strings at all; no code was changed.
