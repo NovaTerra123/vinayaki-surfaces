@@ -10,16 +10,6 @@
   main { max-width:560px; margin:0 auto; }
   h1 { font-size:24px; margin:0 0 6px; }
   p.sub { color:#b9aee0; margin:0 0 22px; }
-  .card { background:#171230; border:1px solid #372a6e; border-radius:14px;
-          padding:18px; margin:0 0 18px; }
-  label { display:block; font-weight:600; margin-bottom:8px; }
-  input { width:100%; box-sizing:border-box; padding:11px 12px;
-          border-radius:9px; border:1px solid #372a6e; background:#0d0a18;
-          color:#f2ecff; font-size:16px; }
-  button { margin-top:12px; background:#6d5bd0; color:#fff; border:0;
-           padding:11px 18px; border-radius:9px; font-size:16px;
-           font-weight:600; }
-  .ok { color:#9fe8b1; min-height:1.4em; margin-top:10px; }
   a.surf { display:block; background:#171230; border:1px solid #372a6e;
            border-radius:12px; padding:14px 16px; margin:0 0 10px;
            color:#f2ecff; text-decoration:none; font-weight:600; }
@@ -31,19 +21,10 @@
 <body>
 <main>
   <h1>🔱 Vinayaki Surfaces</h1>
-  <p class="sub">Your five programme surfaces, hosted. Live data arrives
-  encrypted from the VM bridge and is unlocked by your access key —
-  the key never leaves this device.</p>
-
-  <div class="card">
-    <label for="key">Access key</label>
-    <input id="key" type="password" autocomplete="off"
-           placeholder="Paste the access key Muse gave you">
-    <button id="save">Save key on this device</button>
-    <div class="ok" id="ok"></div>
-    <p class="note">Entered once per device. If data ever refuses to
-    unlock, re-enter the key here.</p>
-  </div>
+  <p class="sub">Your five programme surfaces, hosted. This edition
+  opens freely — no key, nothing to unlock. It carries each surface's
+  design and structure; the live data itself stays home on the VM
+  surfaces, where it belongs.</p>
 
   <a class="surf" href="dashboard/">Dashboard V4
     <span>Decisions, Sri Yantra, chat</span></a>
@@ -55,23 +36,10 @@
     <span>Styles &amp; productions</span></a>
   <a class="surf" href="avatar/">Live Avatar
     <span>Camera avatar (secure origin — camera prompt works here)</span></a>
+
+  <p class="note">Hosted showcase edition. Live programme data is
+  served only by the VM surfaces at home and never travels to this
+  public hosting.</p>
 </main>
-<script>
-  var input = document.getElementById('key');
-  var ok = document.getElementById('ok');
-  try {
-    if (localStorage.getItem('sb_key')) {
-      ok.textContent = 'Key already saved on this device.';
-    }
-  } catch (e) {}
-  document.getElementById('save').addEventListener('click', function () {
-    var v = input.value.trim();
-    if (!v) { ok.textContent = 'Paste the key first.'; return; }
-    try { localStorage.setItem('sb_key', v); } catch (e) {}
-    ok.textContent = 'Key saved. Opening your surfaces…';
-    var next = new URLSearchParams(location.search).get('next');
-    if (next) { location.replace(next); }
-  });
-</script>
 </body>
 </html>
