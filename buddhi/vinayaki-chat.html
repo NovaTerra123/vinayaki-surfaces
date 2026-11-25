@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vinayaki Chat — Goddess Siddhi Vinayaki · Buddhi Live</title>
+<link rel="stylesheet" href="/vinayaki-chat.css">
+</head>
+<body>
+<div class="vc-shell">
+  <aside class="vc-sidebar" id="vcSidebar" aria-label="Chat sidebar">
+    <div class="vc-identity">
+      <div class="vc-medallion" aria-hidden="true">🔱</div>
+      <div><h1>Goddess Siddhi Vinayaki</h1><p>Buddhi Live · the shared conversation</p></div>
+    </div>
+    <div>
+      <div class="label">Surfaces</div>
+      <nav class="vc-tabs" aria-label="Surfaces">
+        <a data-port="8791" href="#">Dashboard <span>8791</span></a>
+        <a data-port="8792" href="#">Control <span>8792</span></a>
+        <a data-port="8793" href="#">Live Avatar <span>8793</span></a>
+        <a href="/" >Buddhi Live <span>8794</span></a>
+        <a href="/vinayaki-chat.html" aria-current="page">Vinayaki Chat <span>8794</span></a>
+        <a data-port="8796" href="#">Studio <span>8796</span></a>
+      </nav>
+    </div>
+    <div>
+      <label class="label" for="vcSearch">Search spaces &amp; messages</label>
+      <input class="vc-search" id="vcSearch" type="search" placeholder="Filter spaces and the stream…" autocomplete="off">
+    </div>
+    <div>
+      <div class="label">Spaces · productions &amp; jobs on record</div>
+      <div id="vcSpaces"><p class="vc-empty">Loading the real record…</p></div>
+    </div>
+    <p class="vc-empty">Appearance, themes and layout are driven by the
+      <code>--vc-*</code> variables — the customization wave plugs in here.
+      No setting on this page is decorative-only.</p>
+  </aside>
+
+  <main class="vc-main">
+    <header class="vc-header">
+      <button id="vcMenuBtn" aria-label="Open sidebar">☰</button>
+      <div class="vc-medallion" style="--vc-avatar-size:44px" aria-hidden="true">🔱</div>
+      <div>
+        <h2>Goddess Siddhi Vinayaki</h2>
+        <div class="label">Buddhi · meta-orchestrator</div>
+      </div>
+      <span class="vc-presence unknown" id="vcPresence" role="status">presence unknown</span>
+      <div class="vc-spacer"></div>
+      <a data-port="8793" href="#"><button type="button">🎥 Voice / video — Live Avatar (8793)</button></a>
+    </header>
+
+    <div class="vc-strip" id="vcStrip" aria-label="Live state strip">
+      <span class="vc-strip-label">Buddhi direct · one hop to the bus machinery</span>
+      <span class="vc-chip" id="vcChipPresence" hidden></span>
+      <span class="vc-chip" id="vcChipJobs" hidden></span>
+      <span class="vc-chip" id="vcChipModels" hidden></span>
+      <span class="vc-chip" id="vcChipGates" hidden></span>
+    </div>
+
+    <div class="vc-stream" id="vcStream" aria-live="polite" aria-label="Message stream">
+      <p class="vc-empty">Loading the shared thread from the live record…</p>
+    </div>
+    <button type="button" id="vcScrollLatest" class="vc-scroll-latest" aria-label="Scroll to latest message" hidden>⌄</button>
+    <div class="vc-status" id="vcStatus" role="status"></div>
+
+    <div class="vc-quote-strip" id="vcQuoteStrip" hidden>
+      <span class="vc-quote-text" id="vcQuoteText"></span>
+      <button type="button" id="vcQuoteClear" aria-label="Cancel reply">✕</button>
+    </div>
+
+    <form class="vc-composer" id="vcForm">
+      <div class="vc-wave" id="vcWave" hidden>
+        <span class="vc-rec-dot" aria-hidden="true">●</span>
+        <canvas id="vcWaveCanvas" width="600" height="44" aria-label="Recording waveform"></canvas>
+        <span class="vc-wave-label">Recording… tap 🎙 Record again to stop</span>
+      </div>
+      <div class="vc-voice-preview" id="vcVoicePreview" hidden>
+        <span id="vcVoicePreviewLabel">Recording ready</span>
+        <button type="button" id="vcVoicePlay">▶ Play</button>
+        <button type="button" id="vcVoiceSendNote">Send as voice note</button>
+        <button type="button" id="vcVoiceDiscard">Discard</button>
+      </div>
+      <div class="vc-composer-row">
+        <button type="button" id="vcAttach" title="Attach photos, video, audio or files">＋ Attach</button>
+        <input type="file" id="vcFiles" multiple hidden
+          accept="image/*,video/*,audio/*,.pdf,.txt,.md,.json,.wav,.mp3">
+        <textarea id="vcInput" placeholder="Ask about a gate, a job, an event (bev-…), or the state of the work" aria-label="Message"></textarea>
+        <button type="button" id="vcDictate" title="Record — microphone starts only on this tap" aria-pressed="false">🎙 Record</button>
+        <button type="submit" id="vcSend">Send</button>
+      </div>
+      <div class="vc-upload-list" id="vcUploads"></div>
+      <div class="vc-toggles">
+        <label><input type="checkbox" id="vcVoiceMode"> Voice mode — speak replies aloud</label>
+        <label>Sound <button type="button" id="vcSoundToggle" aria-pressed="true">ON</button></label>
+        <span id="vcVoiceNote"></span>
+      </div>
+    </form>
+    <audio id="vcAudio" hidden></audio>
+  </main>
+</div>
+<script>window.VinayakiChatSurface = "vinayaki-chat";</script>
+<script src="/vinayaki-chat.js"></script>
+<link rel="stylesheet" href="/vinayaki-themes.css">
+<script src="/vinayaki-themes.js"></script>
+<script src="/vinayaki-uploads.js"></script>
+<script src="/vinayaki-avatar.js"></script>
+<script src="/vinayaki-life.js"></script>
+<link rel="stylesheet" href="/vinayaki-adapter.css">
+<script src="/vinayaki-adapter.js"></script>
+<!-- Wave seams (loaded if present; absent modules degrade honestly):
+     vinayaki-uploads.js (W3) exposes window.VinayakiUploads.enqueue
+     vinayaki-themes.js  (W2) drives the --vc-* variables
+     vinayaki-avatar.js  (W4) may call window.renderChoiceCards
+     vinayaki-life.js    (W5/W6) honesty chip / gestures -->
+</body>
+</html>

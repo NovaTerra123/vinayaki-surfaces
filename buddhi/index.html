@@ -1,199 +1,478 @@
 <!DOCTYPE html>
 <html lang="en">
-<head><script>window.__SB_SURFACE="buddhi";</script><script src="../bridge-pages.js"></script>
+<head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Buddhi Live — watch the network think</title>
 <style>
-  :root{
-    --bg:#0a0e1a; --panel:#10182b; --panel2:#0d1424; --line:#26314d;
-    --ink:#e8edf7; --dim:#93a1bd; --gold:#e6c35c; --ivory:#f1f5f9;
-    --measured:#57c7e3; --grammar:#e6c35c; --wish:#d98fd0;
-    --authority:#ff9d5c; --synthetic:#9aa3b2; --bad:#e05a4e; --ok:#57b87a;
-    --working:#57c7e3; --queued:#93a1bd; --blocked:#ff9d5c;
-    --done:#57b87a; --failed:#e05a4e; --idle:#5b6b8c;
-  }
-  *{box-sizing:border-box}
-  html,body{margin:0;padding:0;background:var(--bg);color:var(--ink);
-    font:14px/1.5 -apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
-  header{display:flex;flex-wrap:wrap;gap:10px;align-items:center;
-    padding:10px 14px;border-bottom:1px solid var(--line);
-    background:var(--panel2)}
-  header h1{font-size:17px;margin:0;font-weight:650;letter-spacing:.2px}
-  header h1 .sub{color:var(--dim);font-weight:400;font-size:12.5px}
-  .badge{font-size:11.5px;padding:2px 9px;border-radius:99px;
-    border:1px solid var(--line);color:var(--dim)}
-  .badge.live{color:#0a0e1a;background:var(--ok);border-color:var(--ok);
-    font-weight:700}
-  .badge.replay{color:#0a0e1a;background:var(--gold);border-color:var(--gold);
-    font-weight:700}
-  .badge.poll{color:#0a0e1a;background:var(--wish);border-color:var(--wish);
-    font-weight:700}
-  .spacer{flex:1}
-  .ctl{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
-  button,select{background:var(--panel);color:var(--ink);
-    border:1px solid var(--line);border-radius:8px;padding:6px 10px;
-    font-size:13px;cursor:pointer}
-  button[aria-pressed="true"]{border-color:var(--gold);color:var(--gold)}
-  button:disabled{opacity:.45;cursor:default}
-  #lastAge{color:var(--dim);font-size:12.5px}
-  #lastAge b{color:var(--ink)}
-  #voiceNote{color:var(--wish);font-size:12px;flex-basis:100%}
-  main{display:grid;gap:10px;padding:10px;
-    grid-template-columns:248px minmax(300px,1fr) 350px 320px;
-    grid-template-rows:minmax(480px,66vh) auto auto;
-    grid-template-areas:"desk stage stream rail" "crew crew crew crew"
-      "kala kala kala kala"}
-  main.norail{grid-template-columns:248px minmax(300px,1fr) 350px 0;
-    grid-template-areas:"desk stage stream rail" "crew crew crew crew"
-      "kala kala kala kala"}
-  main.norail #rail{display:none}
-  section{background:var(--panel);border:1px solid var(--line);
-    border-radius:12px;padding:10px 12px;min-width:0;
-    display:flex;flex-direction:column}
-  section h2{font-size:12px;text-transform:uppercase;letter-spacing:1.2px;
-    color:var(--dim);margin:2px 0 8px;font-weight:650}
-  section h2 .plain{text-transform:none;letter-spacing:0;color:var(--ink);
-    font-size:13px}
-  .scroll{overflow-y:auto;min-height:0;flex:1}
-  /* channel desk */
-  #desk{grid-area:desk}
-  .chan{border:1px solid var(--line);border-radius:9px;padding:7px 9px;
-    margin-bottom:8px;background:var(--panel2);transition:border-color .3s}
-  .chan.hot{border-color:var(--gold)}
-  .chan .top{display:flex;justify-content:space-between;align-items:baseline}
-  .chan .name{font-weight:600;font-size:13px}
-  .chan .freq{color:var(--dim);font-size:11px}
-  .chan .delta{color:var(--dim);font-size:11.5px;min-height:16px;
-    white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .chan .row{display:flex;align-items:center;gap:6px;margin-top:4px}
-  .chan input[type=range]{flex:1;accent-color:var(--gold);height:14px}
-  .chan label{font-size:11px;color:var(--dim);display:flex;gap:3px;
-    align-items:center}
-  .meter{height:5px;border-radius:3px;background:#1a2440;overflow:hidden;
-    margin-top:5px}
-  .meter i{display:block;height:100%;width:0;background:var(--gold);
-    transition:width .45s ease}
-  /* stage */
-  #stage{grid-area:stage;align-items:stretch}
-  #graph{width:100%;height:100%;min-height:300px}
-  #stageNote{color:var(--dim);font-size:12px;margin-top:6px}
-  /* stream */
-  #stream{grid-area:stream}
-  #digestCard{border:1px solid var(--gold);border-radius:9px;
-    background:var(--panel2);padding:8px 10px;margin-bottom:9px}
-  #digestCard .head{display:flex;justify-content:space-between;
-    align-items:baseline;gap:8px}
-  #digestCard .title{font-weight:650;font-size:13px;color:var(--gold)}
-  #digestCount{color:var(--dim);font-size:11.5px;white-space:nowrap}
-  #digestHead{font-size:13px;margin:4px 0 2px}
-  #digestLines{color:var(--ivory);font-size:12.5px}
-  #digestLines div{margin:2px 0}
-  .ev{border-left:3px solid var(--measured);background:var(--panel2);
-    border-radius:0 8px 8px 0;padding:6px 9px;margin-bottom:7px;
-    cursor:pointer}
-  .ev .meta{display:flex;gap:8px;flex-wrap:wrap;color:var(--dim);
-    font-size:11px;align-items:center}
-  .ev .tag{font-weight:700;text-transform:uppercase;letter-spacing:.6px}
-  .ev .buschip{border:1px solid var(--line);border-radius:5px;
-    padding:0 5px;font-weight:700;color:var(--ink)}
-  .ev .sum{font-size:12.5px;color:var(--dim)}
-  .ev .plain{font-size:13.5px;color:var(--ivory)}
-  .evDetail{display:none;background:#0a0f1f;border:1px solid var(--line);
-    border-radius:8px;padding:8px;margin:-3px 0 8px;font-size:11px;
-    white-space:pre-wrap;word-break:break-word;color:var(--dim);
-    max-height:260px;overflow:auto}
-  .evDetail.open{display:block}
-  .empty{color:var(--dim);font-size:13px;padding:8px 2px}
-  /* crew / production */
-  #crew{grid-area:crew}
-  .crewGrid{display:grid;gap:8px;
-    grid-template-columns:repeat(auto-fill,minmax(230px,1fr))}
-  .agent{border:1px solid var(--line);border-radius:9px;
-    background:var(--panel2);padding:7px 9px}
-  .agent .top{display:flex;justify-content:space-between;gap:6px;
-    align-items:baseline}
-  .agent .fname{font-weight:650;font-size:13px}
-  .agent .fid{color:var(--dim);font-size:11px}
-  .agent .fn{color:var(--dim);font-size:11.5px;min-height:15px}
-  .agent .bar{height:8px;border-radius:4px;background:#1a2440;
-    overflow:hidden;margin:5px 0 3px}
-  .agent .bar i{display:block;height:100%;width:0;
-    transition:width .8s ease, background-color .8s ease}
-  .agent .lab{font-size:11.5px;display:flex;justify-content:space-between}
-  .agent .caps{color:var(--dim);font-size:10.5px;margin-top:2px}
-  .cls-working{color:var(--working)} .cls-queued{color:var(--queued)}
-  .cls-blocked{color:var(--blocked)} .cls-done{color:var(--done)}
-  .cls-failed{color:var(--failed)} .cls-idle{color:var(--idle)}
-  .bg-working{background:var(--working)} .bg-queued{background:var(--queued)}
-  .bg-blocked{background:var(--blocked)} .bg-done{background:var(--done)}
-  .bg-failed{background:var(--failed)} .bg-idle{background:var(--idle)}
-  #prodStrip{border:1px solid var(--line);border-radius:9px;
-    background:var(--panel2);padding:8px 10px;margin-bottom:10px;
-    font-size:12.5px}
-  #prodStrip .pj{display:flex;gap:8px;align-items:center;flex-wrap:wrap;
-    margin:3px 0}
-  #prodStrip .mini{width:110px;height:6px;border-radius:3px;
-    background:#1a2440;overflow:hidden}
-  #prodStrip .mini i{display:block;height:100%;
-    transition:width .8s ease, background-color .8s ease}
-  #prodStrip .dim{color:var(--dim)}
-  /* kala panel */
-  #kala{grid-area:kala}
-  #kalaBody{display:grid;gap:6px;font-size:13px}
-  #kalaBody .krow{display:flex;gap:8px;flex-wrap:wrap;align-items:baseline}
-  #kalaBody .klabel{color:var(--dim);min-width:210px}
-  #kalaBody .kval{color:var(--ivory)}
-  #kalaBody .kgrammar{color:var(--grammar)}
-  #kalaBody .kwarn{color:var(--authority);font-weight:650}
-  #kalaBody .ksmall{color:var(--dim);font-size:11.5px}
-  /* rail */
-  #rail{grid-area:rail;padding:0;overflow:hidden}
-  #railHead{padding:10px 12px 6px;display:flex;gap:8px;align-items:center;
-    justify-content:space-between}
-  #railHead h2{margin:0}
-  #avatarState{font-size:11.5px;color:var(--dim);border:1px solid var(--line);
-    border-radius:99px;padding:2px 8px}
-  #avatarState.on{color:var(--ok);border-color:var(--ok)}
-  #avatarFrameWrap{position:relative;flex:1;min-height:300px;
-    background:#070b16}
-  #avatarFrame{width:100%;height:100%;border:0;display:block}
-  #avatarWait{position:absolute;inset:0;display:flex;align-items:center;
-    justify-content:center;color:var(--dim);font-size:13px;padding:16px;
-    text-align:center;pointer-events:none}
-  #railCtrls{padding:8px 12px 12px;display:flex;gap:14px;flex-wrap:wrap}
-  #railCtrls label{font-size:12.5px;color:var(--dim);display:flex;gap:5px;
-    align-items:center}
-  #medallion{display:none}
-  footer{display:flex;gap:12px;align-items:center;padding:8px 14px 14px;
-    color:var(--dim);font-size:12.5px;flex-wrap:wrap}
-  footer input[type=range]{flex:1;min-width:140px;accent-color:var(--gold)}
-  @media (max-width:1180px){
-    main{grid-template-columns:1fr 1fr;
-      grid-template-areas:"desk stage" "stream stream" "crew crew"
-      "kala kala" "rail rail"}
-    #rail{min-height:420px}
-  }
-  @media (max-width:760px){
-    main{grid-template-columns:1fr;grid-template-rows:none;
-      grid-template-areas:"stage" "stream" "desk" "crew" "kala" "rail"}
-    main.norail{grid-template-columns:1fr;
-      grid-template-areas:"stage" "stream" "desk" "crew" "kala" "rail"}
-    #medallion{display:flex;width:64px;height:64px;border-radius:50%;
-      border:2px solid var(--gold);align-items:center;justify-content:center;
-      font-size:26px;background:var(--panel2);cursor:pointer;margin:6px auto}
-    #rail .railBody{display:none}
-    #rail.expanded .railBody{display:block}
-  }
+/* ===== LIVING LIGHT KIT (inlined from shared/living-light.css — server
+   static root is this folder only, so ../shared/ is not servable) ===== */
+/* ============================================================
+   LIVING LIGHT — shared design kit for the Vinayaki surfaces
+   System: ~/workspace/live-dashboard/UI-DESIGN-SYSTEM-2026-11-22.md
+   Tokens: Vinayaki 2026-11-15 (ANSI lineage, WCAG-measured) +
+   chakra line-light spectrum. Motion: Apple spring params with
+   ESTIMATE cubic-bezier approximations for declarative use;
+   real springs live in motion.js.
+   ============================================================ */
+:root{
+  /* grounds & ink */
+  --void:#0A0614; --abyss:#150C26; --abyss2:#1D1136;
+  --smoke:#6E6390; --smoke-violet:#9A8BB8;
+  --moon:#F4EEFF; --throne:#6D28D9; --throne-hi:#7C3AED;
+  /* signal grammar — colour + word, always paired */
+  --rose:#FF5C7A; --amber:#FFC857; --mint:#3DFFA2;
+  --blue:#5B8CFF; --cyan:#33E0FF; --ultra:#C77DFF;
+  /* bright blooms — emphasis/live/wonder only */
+  --b-rose:#FF8FA3; --b-mint:#7CFFC4; --b-gold:#FFD97A;
+  --b-blue:#8FB0FF; --b-violet:#E0A6FF; --b-cyan:#8FF2FF;
+  /* ceremony metal — edging only */
+  --gold:#D4AF37;
+  /* chakra line-light spectrum (root→crown) */
+  --c-root:#FF3B30; --c-sacral:#FF9500; --c-navel:#FFCC00;
+  --c-heart:#34C759; --c-throat:#32ADE6; --c-brow:#5856D6; --c-crown:#AF52DE;
+  /* type */
+  --font-display:"Fraunces","Playfair Display",Georgia,serif;
+  --font-head:"Space Grotesk",system-ui,sans-serif;
+  --font-body:"Inter",system-ui,-apple-system,sans-serif;
+  --font-mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+  /* motion — durations */
+  --d-micro:160ms; --d-std:280ms; --d-panel:420ms; --d-hero:640ms;
+  --d-exposure:1800ms; --d-breath:12s;
+  /* motion — easings (spring approximations, ESTIMATE) */
+  --spring-smooth:cubic-bezier(.22,1,.36,1);      /* response .5 ζ 1.0  */
+  --spring-snappy:cubic-bezier(.28,.84,.42,1);    /* response .5 ζ .85  */
+  --spring-controlled:cubic-bezier(.34,1.3,.64,1);/* response .5 ζ .6   */
+  --spring-bouncy:cubic-bezier(.34,1.56,.64,1);   /* response .4 ζ .3 — delight only */
+  --ease-remap:cubic-bezier(.33,0,.2,1);
+  /* shape */
+  --r-panel:20px; --r-card:16px; --r-chip:999px;
+}
+*{box-sizing:border-box}
+html{background:var(--void)}
+body{
+  margin:0; background:var(--void); color:var(--moon);
+  font-family:var(--font-body); font-size:16px; line-height:1.65;
+  -webkit-font-smoothing:antialiased;
+}
+h1,h2,h3{font-family:var(--font-head); line-height:1.2; margin:0}
+.display{font-family:var(--font-display); font-weight:600}
+.label{
+  font-family:var(--font-mono); font-size:10px; font-weight:700;
+  letter-spacing:.14em; text-transform:uppercase;
+}
+.num{font-variant-numeric:tabular-nums; font-family:var(--font-mono)}
+
+/* ---- primitives ---- */
+.ll-panel{
+  background:linear-gradient(180deg,var(--abyss2),var(--abyss));
+  border:1px solid color-mix(in srgb,var(--smoke) 38%, transparent);
+  border-radius:var(--r-panel); padding:20px 22px;
+}
+.ll-card{
+  background:var(--abyss); border-radius:var(--r-card);
+  border:1px solid color-mix(in srgb,var(--smoke) 30%, transparent);
+  padding:16px 18px; position:relative; overflow:hidden;
+}
+.ll-chip{
+  display:inline-flex; align-items:center; gap:6px;
+  border-radius:var(--r-chip); padding:4px 12px; min-height:28px;
+  border:1px solid color-mix(in srgb,var(--smoke) 45%, transparent);
+  background:color-mix(in srgb,var(--abyss) 80%, transparent);
+  color:var(--moon); font-family:var(--font-mono); font-size:11px;
+  cursor:pointer; transition:transform var(--d-micro) var(--spring-snappy),
+    border-color var(--d-std) var(--spring-smooth),
+    box-shadow var(--d-std) var(--spring-smooth);
+}
+.ll-chip:hover{border-color:var(--ultra)}
+.ll-chip:active{transform:translateY(1px) scale(.98)}
+.ll-btn{
+  min-height:44px; padding:10px 20px; border-radius:14px; border:0;
+  font-family:var(--font-head); font-weight:600; font-size:15px;
+  cursor:pointer; transition:transform var(--d-micro) var(--spring-snappy),
+    filter var(--d-std) var(--spring-smooth),
+    box-shadow var(--d-std) var(--spring-smooth);
+}
+.ll-btn.primary{background:var(--throne); color:var(--moon)}
+.ll-btn.primary:hover{filter:brightness(1.15)}
+.ll-btn:active{transform:translateY(1px) scale(.98)}
+.ll-btn[disabled]{opacity:.45; cursor:default}
+.ll-hairline{border:0; border-top:1px solid color-mix(in srgb,var(--smoke) 35%, transparent)}
+
+/* ---- choreography keyframes ---- */
+/* faint-arrival: opacity .2→1 + rise (Lane B arrival 0.2; Pow Rise) */
+@keyframes ll-arrive{from{opacity:.2; transform:translateY(12px)} to{opacity:1; transform:translateY(0)}}
+.ll-arrive{animation:ll-arrive var(--d-panel) var(--spring-smooth) both}
+/* blur-replace midpoint veil (SwiftUI blurReplace × Core Image peak) */
+@keyframes ll-blur-out{to{opacity:0; filter:blur(16px)}}
+@keyframes ll-blur-in{from{opacity:0; filter:blur(16px)} to{opacity:1; filter:blur(0)}}
+.ll-blur-out{animation:ll-blur-out calc(var(--d-std)*.55) var(--ease-remap) both}
+.ll-blur-in{animation:ll-blur-in calc(var(--d-std)*.55) var(--ease-remap) both}
+/* ignition flicker (Pow Flicker count 3, irregular steps) */
+@keyframes ll-ignite{0%{opacity:.1}12%{opacity:.9}24%{opacity:.25}41%{opacity:1}57%{opacity:.4}73%{opacity:1}100%{opacity:1}}
+.ll-ignite{animation:ll-ignite 360ms linear both}
+/* glow pulse (Pow Glow: radius ~50, every 1.5s) */
+@keyframes ll-glowpulse{0%,100%{box-shadow:0 0 18px -6px var(--glow-c,var(--mint))}
+  50%{box-shadow:0 0 50px -4px var(--glow-c,var(--mint))}}
+.ll-live{animation:ll-glowpulse 1.5s ease-in-out infinite}
+/* ping rings (Pow Pulse, ×3 stagger via animation-delay in JS/classes) */
+.ll-ping{position:relative}
+.ll-ping::after{content:""; position:absolute; inset:0; border-radius:inherit;
+  border:1px solid var(--glow-c,var(--mint)); opacity:0; pointer-events:none;
+  animation:ll-pingring 1.8s var(--ease-remap) infinite}
+@keyframes ll-pingring{0%{transform:scale(1); opacity:.8} 100%{transform:scale(1.9); opacity:0}}
+/* shake (Pow Shake — errors; always paired with the word) */
+@keyframes ll-shake{0%,100%{transform:translateX(0)}15%{transform:translateX(-8px)}
+  35%{transform:translateX(6px)} 55%{transform:translateX(-4px)} 75%{transform:translateX(2px)}}
+.ll-shake{animation:ll-shake 320ms linear both}
+/* shine sweep (Pow Shine — sheen layer; colour set by --shine-c) */
+.ll-shine{position:relative; overflow:hidden}
+.ll-shine::before{content:""; position:absolute; top:-20%; bottom:-20%; width:45%;
+  left:-60%; transform:skewX(-18deg); pointer-events:none;
+  background:linear-gradient(90deg,transparent,
+    color-mix(in srgb,var(--shine-c,var(--b-cyan)) 34%, transparent),transparent);
+  mix-blend-mode:screen}
+.ll-shine.go::before{animation:ll-sheen 700ms var(--ease-remap) both}
+@keyframes ll-sheen{to{left:130%}}
+/* iris open (Pow Iris — feathered circular aperture) */
+@keyframes ll-iris{from{clip-path:circle(0% at var(--iris-x,50%) var(--iris-y,50%))}
+  to{clip-path:circle(142% at var(--iris-x,50%) var(--iris-y,50%))}}
+.ll-iris{animation:ll-iris var(--d-hero) var(--spring-smooth) both}
+/* film exposure (Pow — dark→visible luminance ramp) */
+@keyframes ll-exposure{from{filter:brightness(0)} to{filter:brightness(1)}}
+.ll-exposure{animation:ll-exposure var(--d-exposure) ease-in-out both}
+/* breath — ambient only, never layout (12s: in 6.9 / hold .3 / out 4.8) */
+@keyframes ll-breath{0%{transform:scale(1)} 57.5%{transform:scale(1.013)}
+  60%{transform:scale(1.013)} 100%{transform:scale(1)}}
+.ll-breath{animation:ll-breath var(--d-breath) ease-in-out infinite}
+/* odometer digits (SwiftUI numericText) */
+.ll-odo{display:inline-flex; overflow:hidden; vertical-align:bottom}
+.ll-odo .ll-digit{display:inline-block; overflow:hidden; height:1em; line-height:1}
+.ll-odo .ll-strip{display:flex; flex-direction:column; transition:none; will-change:transform}
+.ll-odo .ll-strip span{height:1em; line-height:1; display:block}
+
+/* ---- reduced motion: everything collapses to opacity (transitions.md) ---- */
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{animation-duration:.01ms !important; animation-iteration-count:1 !important;
+    transition-duration:.01ms !important; scroll-behavior:auto !important}
+  .ll-breath{animation:ll-breath var(--d-breath) ease-in-out infinite !important}
+  .ll-live{animation:none !important}
+}
+html[data-calm="1"] .ll-live, html[data-calm="1"] .ll-ping::after{animation:none !important}
+
+/* ===== surface styles ===== */
+
+/* ===== Buddhi Live surface styles — Living Light system =====
+   Kit CSS is INLINED above (server static root is this folder only;
+   ../shared/ is not servable). Tokens/types/motion per
+   UI-DESIGN-SYSTEM-2026-11-22.md. */
+:root{
+  --panel:var(--abyss); --panel2:var(--abyss2); --line:color-mix(in srgb,var(--smoke) 38%, transparent);
+  --ink:var(--moon); --dim:var(--smoke-violet); --gold:var(--gold);
+  --ivory:#F1F5F9;
+  --measured:#57C7E3; --grammar:#E6C35C; --wish:#D98FD0;
+  --authority:#FF9D5C; --synthetic:#9AA3B2; --bad:var(--rose); --ok:var(--mint);
+  --working:#57C7E3; --queued:#93A1BD; --blocked:#FF9D5C;
+  --done:#57B87A; --failed:#E05A4E; --idle:#5B6B8C;
+}
+body{font-size:14px}
+header.topbar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;
+  padding:12px 16px;margin:10px 10px 0;border-radius:var(--r-panel)}
+header h1{font-size:17px;margin:0;font-weight:650;letter-spacing:.2px;font-family:var(--font-head)}
+header h1 .sub{color:var(--dim);font-weight:400;font-size:12.5px}
+.badge{font-family:var(--font-mono);font-size:11.5px;padding:3px 10px;border-radius:99px;
+  border:1px solid var(--line);color:var(--dim);--glow-c:var(--mint)}
+.badge.live{color:#0A0614;background:var(--mint);border-color:var(--mint);font-weight:700}
+.badge.replay{color:#0A0614;background:var(--b-gold);border-color:var(--b-gold);font-weight:700;animation:none}
+.badge.poll{color:#0A0614;background:var(--ultra);border-color:var(--ultra);font-weight:700;animation:none}
+.spacer{flex:1}
+.ctl{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+button,select{background:var(--abyss);color:var(--moon);
+  border:1px solid var(--line);border-radius:10px;padding:8px 12px;min-height:44px;
+  font-size:13px;cursor:pointer;transition:transform var(--d-micro) var(--spring-snappy),border-color var(--d-std) var(--spring-smooth)}
+button:hover,select:hover{border-color:var(--ultra)}
+button:active{transform:translateY(1px) scale(.98)}
+button[aria-pressed="true"]{border-color:var(--gold);color:var(--gold)}
+button:disabled{opacity:.45;cursor:default}
+#lastAge{color:var(--dim);font-size:12.5px}
+#lastAge b{color:var(--moon)}
+#voiceNote{color:var(--wish);font-size:12px;flex-basis:100%}
+main{display:grid;gap:12px;padding:12px 10px;
+  grid-template-columns:248px minmax(300px,1fr) 350px 320px;
+  grid-template-rows:minmax(480px,66vh) auto auto;
+  grid-template-areas:"desk stage stream rail" "crew crew crew crew" "kala kala kala kala"}
+main.norail{grid-template-columns:248px minmax(300px,1fr) 350px 0;
+  grid-template-areas:"desk stage stream rail" "crew crew crew crew" "kala kala kala kala"}
+main.norail #rail{display:none}
+section{min-width:0;display:flex;flex-direction:column}
+section h2{font-family:var(--font-mono);font-size:10px;text-transform:uppercase;letter-spacing:.14em;
+  color:var(--dim);margin:2px 0 10px;font-weight:700}
+section h2 .plain{text-transform:none;letter-spacing:0;color:var(--moon);
+  font-size:13px;font-family:var(--font-head)}
+.scroll{overflow-y:auto;min-height:0;flex:1}
+#desk{grid-area:desk}
+.chan{border:1px solid var(--line);border-radius:var(--r-card);padding:9px 11px;
+  margin-bottom:8px;background:var(--abyss);position:relative;overflow:hidden;
+  transition:border-color var(--d-std) var(--spring-smooth)}
+.chan.hot{border-color:var(--gold)}
+.chan .top{display:flex;justify-content:space-between;align-items:baseline}
+.chan .name{font-weight:600;font-size:13px}
+.chan .freq{color:var(--dim);font-size:11px}
+.chan .delta{color:var(--dim);font-size:11.5px;min-height:16px;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.chan .row{display:flex;align-items:center;gap:6px;margin-top:4px}
+.chan input[type=range]{flex:1;accent-color:var(--gold);height:20px}
+.chan label{font-size:11px;color:var(--dim);display:flex;gap:3px;align-items:center;min-height:28px}
+.meter{height:5px;border-radius:3px;background:#1A2440;overflow:hidden;margin-top:5px}
+.meter i{display:block;height:100%;width:0;background:var(--gold);transition:width .45s var(--spring-smooth)}
+#stage{grid-area:stage;align-items:stretch}
+#graph{width:100%;height:100%;min-height:300px}
+#stageNote{color:var(--dim);font-size:12px;margin-top:6px}
+#stream{grid-area:stream}
+#digestCard{border-color:color-mix(in srgb,var(--gold) 55%, transparent);margin-bottom:10px;padding:10px 12px}
+#digestCard .head{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+#digestCard .title{font-weight:650;font-size:13px;color:var(--gold)}
+#digestCount{color:var(--dim);font-size:11.5px;white-space:nowrap;font-variant-numeric:tabular-nums}
+#digestHead{font-size:13px;margin:4px 0 2px}
+#digestLines{color:var(--ivory);font-size:12.5px}
+#digestLines div{margin:2px 0}
+.ev{border-left:3px solid var(--measured);background:var(--abyss);
+  border-radius:0 10px 10px 0;padding:7px 10px;margin-bottom:7px;cursor:pointer;
+  position:relative;overflow:hidden}
+.ev .meta{display:flex;gap:8px;flex-wrap:wrap;color:var(--dim);font-size:11px;align-items:center}
+.ev .tag{font-weight:700;text-transform:uppercase;letter-spacing:.6px}
+.ev .buschip{border:1px solid var(--line);border-radius:5px;padding:0 5px;font-weight:700;color:var(--moon)}
+.ev .sum{font-size:12.5px;color:var(--dim)}
+.ev .plain{font-size:13.5px;color:var(--ivory)}
+.evDetail{display:none;background:var(--void);border:1px solid var(--line);
+  border-radius:8px;padding:8px;margin:-3px 0 8px;font-size:11px;
+  white-space:pre-wrap;word-break:break-word;color:var(--dim);max-height:260px;overflow:auto}
+.evDetail.open{display:block}
+.empty{color:var(--dim);font-size:13px;padding:8px 2px}
+#crew{grid-area:crew}
+.crewGrid{display:grid;gap:8px;grid-template-columns:repeat(auto-fill,minmax(230px,1fr))}
+.agent{border:1px solid var(--line);border-radius:var(--r-card);background:var(--abyss);padding:9px 11px;position:relative;overflow:hidden}
+.agent .top{display:flex;justify-content:space-between;gap:6px;align-items:baseline}
+.agent .fname{font-weight:650;font-size:13px}
+.agent .fid{color:var(--dim);font-size:11px}
+.agent .fn{color:var(--dim);font-size:11.5px;min-height:15px}
+.agent .bar{height:8px;border-radius:4px;background:#1A2440;overflow:hidden;margin:5px 0 3px}
+.agent .bar i{display:block;height:100%;width:0;transition:width .8s var(--spring-smooth),background-color .8s ease}
+.agent .lab{font-size:11.5px;display:flex;justify-content:space-between}
+.agent .caps{color:var(--dim);font-size:10.5px;margin-top:2px}
+.cls-working{color:var(--working)} .cls-queued{color:var(--queued)}
+.cls-blocked{color:var(--blocked)} .cls-done{color:var(--done)}
+.cls-failed{color:var(--failed)} .cls-idle{color:var(--idle)}
+.bg-working{background:var(--working)} .bg-queued{background:var(--queued)}
+.bg-blocked{background:var(--blocked)} .bg-done{background:var(--done)}
+.bg-failed{background:var(--failed)} .bg-idle{background:var(--idle)}
+#prodStrip{border:1px solid var(--line);border-radius:var(--r-card);
+  background:var(--abyss);padding:9px 11px;margin-bottom:10px;font-size:12.5px}
+#prodStrip .pj{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:3px 0}
+#prodStrip .mini{width:110px;height:6px;border-radius:3px;background:#1A2440;overflow:hidden}
+#prodStrip .mini i{display:block;height:100%;transition:width .8s var(--spring-smooth),background-color .8s ease}
+#prodStrip .dim{color:var(--dim)}
+#kala{grid-area:kala}
+#kalaBody{display:grid;gap:6px;font-size:13px}
+#kalaBody .krow{display:flex;gap:8px;flex-wrap:wrap;align-items:baseline}
+#kalaBody .klabel{color:var(--dim);min-width:210px}
+#kalaBody .kval{color:var(--ivory)}
+#kalaBody .kgrammar{color:var(--grammar)}
+#kalaBody .kwarn{color:var(--authority);font-weight:650}
+#kalaBody .ksmall{color:var(--dim);font-size:11.5px}
+#rail{grid-area:rail;padding:0;overflow:hidden}
+#railHead{padding:12px 14px 6px;display:flex;gap:8px;align-items:center;justify-content:space-between}
+#railHead h2{margin:0}
+#avatarState{font-size:11.5px;color:var(--dim);border:1px solid var(--line);border-radius:99px;padding:2px 8px}
+#avatarState.on{color:var(--mint);border-color:var(--mint);--glow-c:var(--mint)}
+#avatarFrameWrap{position:relative;flex:1;min-height:300px;background:#070B16}
+#avatarFrame{width:100%;height:100%;border:0;display:block}
+#avatarWait{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  color:var(--dim);font-size:13px;padding:16px;text-align:center;pointer-events:none}
+#railCtrls{padding:8px 12px 12px;display:flex;gap:14px;flex-wrap:wrap}
+#railCtrls label{font-size:12.5px;color:var(--dim);display:flex;gap:5px;align-items:center;min-height:32px}
+#medallion{display:none}
+footer{display:flex;gap:12px;align-items:center;padding:8px 14px 14px;color:var(--dim);font-size:12.5px;flex-wrap:wrap}
+footer input[type=range]{flex:1;min-width:140px;accent-color:var(--gold);height:24px}
+@media (max-width:1180px){
+  main{grid-template-columns:1fr 1fr;
+    grid-template-areas:"desk stage" "stream stream" "crew crew" "kala kala" "rail rail"}
+  main.norail{grid-template-columns:1fr 1fr;
+    grid-template-areas:"desk stage" "stream stream" "crew crew" "kala kala" "rail rail"}
+  #rail{min-height:420px}
+}
+@media (max-width:760px){
+  main{grid-template-columns:1fr;grid-template-rows:none;
+    grid-template-areas:"stage" "stream" "desk" "crew" "kala" "rail"}
+  main.norail{grid-template-columns:1fr;
+    grid-template-areas:"stage" "stream" "desk" "crew" "kala" "rail"}
+  #medallion{display:flex;width:64px;height:64px;border-radius:50%;
+    border:2px solid var(--gold);align-items:center;justify-content:center;
+    font-size:26px;background:var(--abyss2);cursor:pointer;margin:6px auto}
+  #rail .railBody{display:none}
+  #rail.expanded .railBody{display:block}
+}
+
+
+/* ===== SWARM OBSERVATORY (inlined from shared/observatory.css — UI v2) ===== */
+/* ============================================================
+   SWARM OBSERVATORY — UI v2 (2026-11-23)
+   The readable multi-channel TantricSync stream: eight lanes,
+   nonlinear/asynchronous reading controls, honest freshness.
+   Consumes Living Light tokens (living-light.css / inlined kit).
+   ============================================================ */
+.obs{ --obs-lane-min:250px; background:var(--abyss); border:1px solid
+  color-mix(in srgb, var(--smoke) 45%, transparent); border-radius:18px;
+  padding:18px 18px 14px; margin:0 0 18px; }
+.obs-head{ display:flex; flex-wrap:wrap; gap:10px 14px; align-items:baseline;
+  justify-content:space-between; }
+.obs-title{ font-family:var(--font-head); font-size:20px; color:var(--moon);
+  margin:0; letter-spacing:.01em; }
+.obs-title .obs-sub{ display:block; font-family:var(--font-body);
+  font-size:12.5px; color:var(--smoke-violet); margin-top:3px; font-weight:400;}
+.obs-fresh{ font-family:var(--font-mono); font-size:11px; letter-spacing:.08em;
+  text-transform:uppercase; padding:5px 10px; border-radius:999px;
+  border:1px solid var(--smoke); color:var(--smoke-violet); white-space:nowrap; }
+.obs-fresh.live{ color:#062b1a; background:var(--mint); border-color:var(--mint);
+  font-weight:700; }
+.obs-fresh.poll{ color:var(--b-gold); border-color:var(--amber); }
+.obs-fresh.snapshot{ color:var(--b-violet); border-color:var(--ultra); }
+.obs-fresh.down{ color:#fff; background:var(--rose); border-color:var(--rose); }
+.obs-controls{ display:flex; flex-wrap:wrap; gap:8px; align-items:center;
+  margin:12px 0 6px; }
+.obs-controls .lbl{ font-family:var(--font-mono); font-size:10.5px;
+  letter-spacing:.12em; text-transform:uppercase; color:var(--smoke-violet);
+  margin-right:2px; }
+.obs-chipbtn{ font:inherit; font-size:12px; cursor:pointer; border-radius:999px;
+  padding:5px 11px; background:transparent; color:var(--moon);
+  border:1px solid var(--smoke); transition:all var(--d-micro); }
+.obs-chipbtn[aria-pressed="true"]{ border-color:var(--lane-c, var(--gold));
+  color:var(--lane-c, var(--gold)); box-shadow:inset 0 0 0 1px
+  var(--lane-c, var(--gold)); }
+.obs-chipbtn[aria-pressed="false"]{ opacity:.42; }
+.obs-chipbtn:focus-visible, .obs-btn:focus-visible, .obs-jump input:focus-visible{
+  outline:2px solid var(--b-cyan); outline-offset:2px; }
+.obs-btn{ font:inherit; font-size:12.5px; cursor:pointer; border-radius:10px;
+  padding:6px 13px; background:var(--throne); color:#fff; border:0;
+  transition:filter var(--d-micro); }
+.obs-btn:hover{ filter:brightness(1.15); }
+.obs-btn.ghost{ background:transparent; border:1px solid var(--smoke);
+  color:var(--moon); }
+.obs-btn[aria-pressed="true"]{ background:var(--amber); color:#241a02;
+  font-weight:700; }
+.obs-paused-note{ font-size:12.5px; color:var(--amber); min-height:1em; }
+.obs-jump{ display:flex; gap:6px; align-items:center; margin-left:auto; }
+.obs-jump input{ font:inherit; font-size:12.5px; background:var(--void);
+  color:var(--moon); border:1px solid var(--smoke); border-radius:10px;
+  padding:6px 10px; width:190px; }
+.obs-jump .miss{ font-size:12px; color:var(--rose); }
+.obs-lanes{ display:grid; gap:12px; margin-top:10px;
+  grid-template-columns:repeat(auto-fit, minmax(var(--obs-lane-min), 1fr)); }
+.obs.compact .obs-lanes{ grid-template-columns:repeat(auto-fit,minmax(210px,1fr)); }
+.obs-lane{ background:color-mix(in srgb, var(--void) 72%, transparent);
+  border:1px solid color-mix(in srgb, var(--smoke) 35%, transparent);
+  border-top:3px solid var(--lane-c, var(--smoke)); border-radius:12px;
+  display:flex; flex-direction:column; min-height:120px; max-height:430px; }
+.obs.compact .obs-lane{ max-height:300px; }
+.obs-lane.off{ display:none; }
+/* Sovereign Ladder lane grading (DOSSIER-MERGE, Buddhi dossier §1):
+   a lane's accent decays g3 lit -> g2 kindled -> g1 ember as its last
+   event ages; the age label brightens as the data quiets. Hue never
+   changes — state moves along the ladder, never along the spectrum. */
+.obs-lane.rung-3{ --lane-sat:85%; --lane-lum:1; }
+.obs-lane.rung-2{ --lane-sat:65%; --lane-lum:.72; }
+.obs-lane.rung-1{ --lane-sat:40%; --lane-lum:.45; }
+.obs-lane{ filter:saturate(var(--lane-sat, 85%)); }
+.obs-lane .obs-lane-head{ opacity:var(--lane-lum, 1); }
+.obs-lane.rung-1 .obs-lane-meta, .obs-lane.rung-2 .obs-lane-meta{
+  color:var(--moon); }
+.obs-lane-head{ padding:9px 12px 7px; border-bottom:1px solid
+  color-mix(in srgb, var(--smoke) 30%, transparent); }
+.obs-lane-name{ font-family:var(--font-head); font-size:14.5px;
+  color:var(--moon); }
+.obs-lane-bus{ font-family:var(--font-mono); font-size:10px;
+  letter-spacing:.1em; color:var(--lane-c, var(--smoke-violet));
+  text-transform:uppercase; margin-left:7px; }
+.obs-lane-meta{ font-size:11.5px; color:var(--smoke-violet); margin-top:2px; }
+.obs-lane-body{ overflow-y:auto; padding:7px 9px; display:flex;
+  flex-direction:column; gap:6px; }
+.obs-ev{ border-left:3px solid var(--type-c, var(--smoke));
+  background:color-mix(in srgb, var(--abyss2) 55%, transparent);
+  border-radius:0 8px 8px 0; padding:6px 9px; cursor:pointer;
+  animation:obs-arrive var(--d-std) cubic-bezier(.22,1,.36,1); }
+.obs-ev:hover{ background:color-mix(in srgb, var(--abyss2) 85%, transparent); }
+.obs-ev.flash{ box-shadow:0 0 0 2px var(--b-gold), 0 0 22px
+  color-mix(in srgb, var(--b-gold) 55%, transparent); }
+.obs-ev-meta{ display:flex; gap:7px; align-items:center; flex-wrap:wrap;
+  font-family:var(--font-mono); font-size:10px; color:var(--smoke-violet);
+  letter-spacing:.04em; }
+.obs-type{ font-weight:700; text-transform:uppercase; letter-spacing:.09em;
+  color:var(--type-c); border:1px solid var(--type-c); border-radius:5px;
+  padding:0 5px; font-size:9.5px; }
+.obs-ev-plain{ font-size:13px; line-height:1.45; color:var(--moon);
+  margin-top:3px; overflow-wrap:anywhere; }
+.obs-ev-sum{ font-size:11.5px; line-height:1.4; color:var(--smoke-violet);
+  overflow-wrap:anywhere; }
+.obs-ev-detail{ display:none; margin-top:6px; }
+.obs-ev.open .obs-ev-detail{ display:block; }
+.obs-ev-detail pre{ font-size:10.5px; line-height:1.5; color:var(--b-cyan);
+  white-space:pre-wrap; overflow-wrap:anywhere; max-height:230px;
+  overflow-y:auto; margin:0; }
+.obs-burst{ border:1px dashed color-mix(in srgb, var(--lane-c) 65%, transparent);
+  border-radius:8px; padding:6px 9px; cursor:pointer;
+  background:color-mix(in srgb, var(--lane-c) 7%, transparent); }
+.obs-burst-head{ font-size:12.5px; color:var(--moon); }
+.obs-burst-head b{ color:var(--lane-c); }
+.obs-burst .obs-ev{ margin-top:6px; }
+.obs-empty{ font-size:12.5px; color:var(--smoke-violet); line-height:1.5;
+  padding:8px 4px; font-style:italic; }
+.obs-roster{ margin-top:14px; border-top:1px solid
+  color-mix(in srgb, var(--smoke) 35%, transparent); padding-top:12px; }
+.obs-commission{ border:1px solid var(--gold); border-radius:12px;
+  padding:11px 14px; background:color-mix(in srgb, var(--gold) 6%, transparent); }
+.obs-commission h4{ margin:0 0 4px; font-family:var(--font-head);
+  font-size:15px; color:var(--b-gold); }
+.obs-commission .cmeta{ font-size:12px; color:var(--smoke-violet); }
+.obs-children{ display:flex; flex-direction:column; gap:5px; margin-top:9px; }
+.obs-child{ display:flex; gap:9px; align-items:center; font-size:12.5px;
+  color:var(--moon); flex-wrap:wrap; }
+.obs-child .cid{ font-family:var(--font-mono); font-size:11px;
+  color:var(--b-cyan); }
+.obs-state{ font-family:var(--font-mono); font-size:10px; font-weight:700;
+  letter-spacing:.08em; text-transform:uppercase; padding:1px 7px;
+  border-radius:999px; border:1px solid var(--smoke); color:var(--smoke-violet); }
+.obs-state.verified{ color:#062b1a; background:var(--mint); border-color:var(--mint); }
+.obs-state.approved, .obs-state.dispatched, .obs-state.received{
+  color:var(--b-blue); border-color:var(--blue); }
+.obs-state.awaiting_ruling{ color:#241a02; background:var(--amber);
+  border-color:var(--amber); }
+.obs-state.failed{ color:#fff; background:var(--rose); border-color:var(--rose); }
+.obs-bar{ flex:1 1 90px; height:5px; border-radius:3px; min-width:70px;
+  background:color-mix(in srgb, var(--smoke) 35%, transparent); overflow:hidden; }
+.obs-bar i{ display:block; height:100%; background:var(--lane-c, var(--cyan));
+  border-radius:3px; transition:width var(--d-panel) cubic-bezier(.22,1,.36,1); }
+.obs-agents{ display:grid; gap:6px; margin-top:10px;
+  grid-template-columns:repeat(auto-fit, minmax(230px, 1fr)); }
+.obs-agent{ font-size:12px; color:var(--smoke-violet);
+  border-left:3px solid var(--smoke); padding:4px 9px; line-height:1.45; }
+.obs-agent b{ color:var(--moon); font-size:12.5px; }
+.obs-agent.working{ border-color:var(--cyan); } .obs-agent.blocked{ border-color:var(--amber); }
+.obs-agent.failed{ border-color:var(--rose); } .obs-agent.done{ border-color:var(--mint); }
+@keyframes obs-arrive{ from{ opacity:.2; transform:translateY(8px);} to{ opacity:1; transform:none;} }
+@media (prefers-reduced-motion: reduce){
+  .obs-ev{ animation:none; } .obs-bar i{ transition:none; }
+  .obs-chipbtn, .obs-btn{ transition:none; } }
+
 </style>
 </head>
 <body>
-<header>
+
+<header class="ll-panel topbar">
   <h1>Buddhi Live <span class="sub">— watch and hear the whole network
     work: every message in its technical register and in plain English,
     a plain-English summary of the whole conversation every
     3⅓ minutes, and a progress bar for every worker.</span></h1>
-  <span id="modeBadge" class="badge live">● LIVE</span>
+  <span id="modeBadge" class="badge poll">◌ CONNECTING</span>
   <span id="lastAge">last real event: —</span>
   <div class="spacer"></div>
   <div class="ctl">
@@ -208,13 +487,16 @@
   </div>
 </header>
 
+<!-- ===== SWARM OBSERVATORY (UI v2, 2026-11-23) ===== -->
+<section id="observatory" aria-label="Swarm Observatory"></section>
+
 <main id="mainGrid">
-  <section id="desk">
+  <section id="desk" class="ll-panel">
     <h2><span class="plain">The eight lines</span> · tantricsync channels</h2>
     <div class="scroll" id="chans"></div>
   </section>
 
-  <section id="stage">
+  <section id="stage" class="ll-panel">
     <h2><span class="plain">The body of the work</span> · seven stations
       (cakra), root at the bottom, crown at the top</h2>
     <svg id="graph" viewBox="0 0 640 900" preserveAspectRatio="xMidYMid meet"
@@ -222,10 +504,10 @@
     <div id="stageNote">Loading the real roster…</div>
   </section>
 
-  <section id="stream">
+  <section id="stream" class="ll-panel">
     <h2><span class="plain">What they are saying</span> · newest first —
       the technical line, then the same thing in plain English</h2>
-    <div id="digestCard">
+    <div id="digestCard" class="ll-card ll-shine">
       <div class="head"><span class="title">The 3⅓-minute story</span>
         <span id="digestCount">first summary closes soon</span></div>
       <div id="digestHead">No window has closed yet.</div>
@@ -236,14 +518,14 @@
     <div class="scroll" id="events"></div>
   </section>
 
-  <section id="crew">
+  <section id="crew" class="ll-panel">
     <h2><span class="plain">Who is doing what</span> · every seat, desk
       and helper, named in Sanskrit + English, with its progress</h2>
     <div id="prodStrip">Loading the production view…</div>
     <div class="crewGrid" id="crewGrid"></div>
   </section>
 
-  <section id="kala">
+  <section id="kala" class="ll-panel">
     <h2><span class="plain">Time today</span> · kāla — the measured sky,
       the declared traditional windows, and the body rhythm, kept as
       three separate kinds of claim</h2>
@@ -251,7 +533,30 @@
       register…</div></div>
   </section>
 
-  <section id="rail">
+<section id="integrated-tech" class="ll-panel" style="grid-column:1/-1"><section id="integratedTechPanel" aria-label="Integrated Technologies"><h2>Integrated Technologies <span style="color:#F8BB3C">· the kept set, at work</span></h2><p class="kt-sub" id="ktStamp">Integrated 2026-11-25 01:25 EST · 20 kept technologies · everything the 2026-11-25 reclamation deliberately kept, now registered, staged, or catalogued — root to crown, the centre kept open. Filed to Buddhi's Integration Register as a deposit (FILED — Buddhi NOT RECEIVED / NOT EXECUTED); the fractal space-law classification rides with every item.</p><div class="kt-grid" id="ktGrid">
+<article class="kt-card" style="border-left:3px solid #2FA37C"><div class="kt-row"><span class="kt-name">Character Creation motion seat</span><span class="kt-class" style="color:#2FA37C">Pipeline stage</span></div><p class="kt-role">Premiere character-generation stage (Characters desk, Svādhiṣṭhāna); consumes registry model dreamshaperxl-turbo</p><p class="kt-status">INTEGRATED — named stage with entry points as found on disk (ComfyUI/main.py, scripts/gen.py); not smoke-run</p><p class="kt-meta">Svādhiṣṭhāna · characters desk · entry: ComfyUI/main.py (ComfyUI server, resident in-seat) · scripts/gen.py (ComfyUI API runner for the character-creation pipeline) · model-registry/pipeline-stages.json</p><p class="kt-meta">/home/hatch/workspace/neytra-birthday-video/motion/character-creation</p></article>
+<article class="kt-card" style="border-left:3px solid #2FA37C"><div class="kt-row"><span class="kt-name">Lip-sync Stress Test motion seat (incl. wav2lip/s3fd/piper per-project copies)</span><span class="kt-class" style="color:#2FA37C">Pipeline stage</span></div><p class="kt-role">Premiere lip-sync stage (Stage desk, Anāhata); consumes registry model musetalk; wav2lip + piper copies are in-seat components</p><p class="kt-status">INTEGRATED — named stage with entry points as found on disk (musetalk/, work/wav2lip/inference.py); probe outputs present; not smoke-run</p><p class="kt-meta">Anāhata · stage desk · entry: musetalk/ (MuseTalk harness; registered in models.json as musetalk) · work/wav2lip/inference.py (Wav2Lip inference) · model-registry/pipeline-stages.json</p><p class="kt-meta">/home/hatch/workspace/neytra-birthday-video/motion/lipsync-stress-test</p></article>
+<article class="kt-card" style="border-left:3px solid #2FA37C"><div class="kt-row"><span class="kt-name">Music Tests seat</span><span class="kt-class" style="color:#2FA37C">Pipeline stage</span></div><p class="kt-role">Premiere music test/render stage (Music Workbench desk, Viśuddha); engine-v2 Node renderer</p><p class="kt-status">INTEGRATED — named stage with entry points as found on disk (engine-v2/render.js); not smoke-run</p><p class="kt-meta">Viśuddha · music-workbench desk · entry: engine-v2/render.js (Node render entry; writes mix-guide.wav + stems via engine-core.js) · engine-v2/engine-core.js (engine core) · model-registry/pipeline-stages.json</p><p class="kt-meta">/home/hatch/workspace/neytra-birthday-video/music-tests</p></article>
+<article class="kt-card" style="border-left:3px solid #F8BB3C"><div class="kt-row"><span class="kt-name">Laya-Multilingual (canonical layout)</span><span class="kt-class" style="color:#F8BB3C">Model registry</span></div><p class="kt-role">Classification engine (bench candidate); the registered asset for the multilingual checkpoint</p><p class="kt-status">INTEGRATED-VERIFIED — registry entry pre-existing; canonical determination + mirror field added 2026-11-25; reconcile-derived state LANDED</p><p class="kt-meta">model-registry/models.json</p><p class="kt-meta">/home/hatch/workspace/models/Laya-Multilingual</p></article>
+<article class="kt-card" style="border-left:3px solid #F8BB3C"><div class="kt-row"><span class="kt-name">Laya multilingual mirror (inside models/Laya/multilingual/)</span><span class="kt-class" style="color:#F8BB3C">Model registry</span></div><p class="kt-role">Byte-identical mirror of the canonical asset (sha256 9d628fd9…), shipped inside the base Laya repo checkout</p><p class="kt-status">INTEGRATED-VERIFIED — recorded as named mirror; not deleted; not a second registered asset</p><p class="kt-meta">model-registry/models.json (mirror field on laya-multilingual + note on laya)</p><p class="kt-meta">/home/hatch/workspace/models/Laya/multilingual/model.safetensors</p></article>
+<article class="kt-card" style="border-left:3px solid #F8BB3C"><div class="kt-row"><span class="kt-name">Renri DiffSinger bank + renri_x extraction</span><span class="kt-class" style="color:#F8BB3C">Model registry</span></div><p class="kt-role">Singing-voice audition bank (2026-11-19 audition set)</p><p class="kt-status">INTEGRATED-VERIFIED — new registry entry; canonical = flattened banks/renri (3/3 onnx content-identical to _x extraction, measured); state LANDED via reconcile</p><p class="kt-meta">model-registry/models.json</p><p class="kt-meta">/home/hatch/workspace/voice-audition-free/banks/renri (canonical) · banks/renri_x (mirror)</p></article>
+<article class="kt-card" style="border-left:3px solid #F8BB3C"><div class="kt-row"><span class="kt-name">Miyo DiffSinger bank + miyo_x duplicate set</span><span class="kt-class" style="color:#F8BB3C">Model registry</span></div><p class="kt-role">The Character voice (principal ruling 2026-11-19); render-queue family P1c</p><p class="kt-status">INTEGRATED-VERIFIED — registry entry pre-existing; mirror field added (6/6 onnx md5-identical, measured); state LANDED</p><p class="kt-meta">model-registry/models.json</p><p class="kt-meta">/home/hatch/workspace/voice-audition-free/banks/miyo (canonical) · banks/miyo_x (mirror)</p></article>
+<article class="kt-card" style="border-left:3px solid #F8BB3C"><div class="kt-row"><span class="kt-name">LIEE DiffSinger bank + liee_x extraction</span><span class="kt-class" style="color:#F8BB3C">Model registry</span></div><p class="kt-role">Audition bank — REMOVED from the production Character-voice role by principal ruling 2026-11-19; retained as an addressable asset with that status explicit</p><p class="kt-status">INTEGRATED-VERIFIED — new registry entry (role audition-bank, never production); canonical = flattened banks/liee (9/9 onnx content-identical to _x extraction, measured); state LANDED via reconcile</p><p class="kt-meta">model-registry/models.json</p><p class="kt-meta">/home/hatch/workspace/voice-audition-free/banks/liee (canonical) · banks/liee_x (mirror)</p></article>
+<article class="kt-card" style="border-left:3px solid #F8BB3C"><div class="kt-row"><span class="kt-name">XTTS-v2 (HF hub cache)</span><span class="kt-class" style="color:#F8BB3C">Model registry</span></div><p class="kt-role">Guide-duty TTS for the voice-clone pipeline (finals are Qwen3-TTS per ruling 2026-11-22); load path = Coqui TTS API id tts_models/multilingual/multi-dataset/xtts_v2, HF_HUB_OFFLINE=1</p><p class="kt-status">INTEGRATED-VERIFIED — new registry entry with load_path (consumers enumerated); state LANDED via reconcile; licence CPML non-commercial from LICENSE.txt on disk</p><p class="kt-meta">model-registry/models.json</p><p class="kt-meta">/home/hatch/.cache/huggingface/hub/models--tts-hub--XTTS-v2/snapshots</p></article>
+<article class="kt-card" style="border-left:3px solid #F8BB3C"><div class="kt-row"><span class="kt-name">faster-whisper-small (HF hub cache twin)</span><span class="kt-class" style="color:#F8BB3C">Model registry</span></div><p class="kt-role">faster-whisper-format twin of the fleet whisper-small; canonical = models/whisper-small (transcription_pointer active/fallback; desk_dispatch resolves it usable)</p><p class="kt-status">INTEGRATED-VERIFIED — recorded as mirror of the ACTIVE canonical entry; dispatch path exercised in verification</p><p class="kt-meta">model-registry/models.json (mirror field on whisper-small)</p><p class="kt-meta">/home/hatch/.cache/huggingface/hub/models--Systran--faster-whisper-small/snapshots</p></article>
+<article class="kt-card" style="border-left:3px solid #F8BB3C"><div class="kt-row"><span class="kt-name">Remaining HF hub cache models (HTDemucs · faster-whisper-tiny · Qwen3-TTS base · SepFormer)</span><span class="kt-class" style="color:#F8BB3C">Model registry</span></div><p class="kt-role">Fleet assets already registered before this integration (htdemucs VERIFIED in-registry; qwen3-tts-0.6b ACTIVE via its production path)</p><p class="kt-status">INTEGRATED-VERIFIED — confirmed present in registry/cache at integration time; no new work needed or claimed</p><p class="kt-meta">model-registry/models.json (pre-existing entries)</p><p class="kt-meta">/home/hatch/.cache/huggingface/hub</p></article>
+<article class="kt-card" style="border-left:3px solid #E8A0B4"><div class="kt-row"><span class="kt-name">Google Takeout zip (browser_downloads/sess-243585136)</span><span class="kt-class" style="color:#E8A0B4">Catalogued</span></div><p class="kt-role">Source material (possible unique source); NOT a technology — catalogued, not unpacked wholesale</p><p class="kt-status">CATALOGUED — 2,147,621,708 bytes, present at seat; contents not enumerated (no wholesale unpack per brief)</p><p class="kt-meta">this record + INTEGRATION.md catalogue</p><p class="kt-meta">/home/hatch/workspace/browser_downloads/sess-243585136/browser-download-20261115T020757.487673732Z-0-takeout-20261114T013018Z-1-001.zip</p></article>
+<article class="kt-card" style="border-left:3px solid #E8A0B4"><div class="kt-row"><span class="kt-name">your_files deliverables (incl. duet-samples, brenda-final-master-peak)</span><span class="kt-class" style="color:#E8A0B4">Catalogued</span></div><p class="kt-role">The principal&#x27;s delivered files — reference only, no pipeline integration by design</p><p class="kt-status">CATALOGUED — 5,818,695,036 bytes at seat; untouched</p><p class="kt-meta">this record + INTEGRATION.md catalogue</p><p class="kt-meta">/home/hatch/workspace/your_files</p></article>
+<article class="kt-card" style="border-left:3px solid #E8A0B4"><div class="kt-row"><span class="kt-name">md-files-2026-11-24.zip</span><span class="kt-class" style="color:#E8A0B4">Catalogued</span></div><p class="kt-role">The principal&#x27;s deliverable (10,857 .md files) — reference only</p><p class="kt-status">CATALOGUED — 169,251,046 bytes, present at seat; untouched</p><p class="kt-meta">this record + INTEGRATION.md catalogue</p><p class="kt-meta">/home/hatch/workspace/your_files/md-files-2026-11-24.zip</p></article>
+<article class="kt-card" style="border-left:3px solid #E8A0B4"><div class="kt-row"><span class="kt-name">Brenda build6 sibling FINAL variants (incl. v3 peak set)</span><span class="kt-class" style="color:#E8A0B4">Catalogued</span></div><p class="kt-role">Finished-film variant masters + their build scripts (assemble_v3.py etc.) — delivered-work assets, not pipeline stages</p><p class="kt-status">CATALOGUED — 2,967,168,696 bytes at seat; the V3 FINAL PEAK master is the your_files canonical (duplicate deleted in reclamation)</p><p class="kt-meta">this record + INTEGRATION.md catalogue</p><p class="kt-meta">/home/hatch/workspace/brenda-birthday/build6</p></article>
+<article class="kt-card" style="border-left:3px solid #E8A0B4"><div class="kt-row"><span class="kt-name">space-versions (Space build provenance)</span><span class="kt-class" style="color:#E8A0B4">Catalogued</span></div><p class="kt-role">Build provenance archive for Spaces — evidence, not a runtime technology</p><p class="kt-status">CATALOGUED — 839,935,729 bytes at seat; untouched</p><p class="kt-meta">this record + INTEGRATION.md catalogue</p><p class="kt-meta">/home/hatch/workspace/space-versions</p></article>
+<article class="kt-card" style="border-left:3px solid #E8A0B4"><div class="kt-row"><span class="kt-name">spandana-studio restic backup repo</span><span class="kt-class" style="color:#E8A0B4">Catalogued</span></div><p class="kt-role">Live backup system for the Studio (source-manifest.json present) — infrastructure of record, catalogued; not modified</p><p class="kt-status">CATALOGUED — 685,629,535 bytes at seat; untouched (password file not read)</p><p class="kt-meta">this record + INTEGRATION.md catalogue</p><p class="kt-meta">/home/hatch/workspace/spandana-studio-backups/restic-repo</p></article>
+<article class="kt-card" style="border-left:3px solid #E8A0B4"><div class="kt-row"><span class="kt-name">ts-spaces/foundry-probe/node_modules</span><span class="kt-class" style="color:#E8A0B4">Catalogued</span></div><p class="kt-role">Dependency tree of the foundry-probe Space; NO lockfile — regeneration not guaranteed, which is why reclamation kept it</p><p class="kt-status">CATALOGUED — 115,860,187 bytes at seat; untouched; the probe Space itself is a ts-space, not a Studio/Buddhi pipeline component</p><p class="kt-meta">this record + INTEGRATION.md catalogue</p><p class="kt-meta">/home/hatch/workspace/ts-spaces/foundry-probe/node_modules</p></article>
+<article class="kt-card" style="border-left:3px solid #E8A0B4"><div class="kt-row"><span class="kt-name">voice-audition-free/banks/miyo_prev (bank source zips)</span><span class="kt-class" style="color:#E8A0B4">Catalogued</span></div><p class="kt-role">Source archives of the DiffSinger banks (Canary / Miyo / DANROU zips) — provenance for the registered banks</p><p class="kt-status">CATALOGUED — present at seat; the complete DANROU zip here is the canonical retained copy named in the reclamation manifest</p><p class="kt-meta">this record + INTEGRATION.md catalogue</p><p class="kt-meta">/home/hatch/workspace/voice-audition-free/banks/miyo_prev</p></article>
+<article class="kt-card" style="border-left:3px solid #B2012D"><div class="kt-row"><span class="kt-name">Per-project venv site-packages duplicates (voice-clone/venv, character-creation/venv, piperenv, voice-audition venv, qwen3-venv…)</span><span class="kt-class" style="color:#B2012D">Not a technology</span></div><p class="kt-role">Execution substrate of the armed pipelines — each venv is its pipeline&#x27;s interpreter environment, not a technology to integrate; the pipelines that own them are the integrated units</p><p class="kt-status">CATALOGUED as NOT-A-TECHNOLOGY — per-environment installs by design (a shared env would break the pipelines&#x27; pinned stacks); no action taken or needed</p><p class="kt-meta">this record (classification only)</p><p class="kt-meta">per-project venvs across ~/workspace</p></article>
+</div></section></section>
+
+    <section id="rail" class="ll-panel">
     <div id="medallion" title="Her — tap to open">🪷</div>
     <div class="railBody">
       <div id="railHead">
@@ -283,6 +588,137 @@
   <span id="srcNote"></span>
 </footer>
 
+
+<script>
+/* ===== LIVING LIGHT MOTION KIT (inlined from shared/motion.js) ===== */
+/* ============================================================
+   LIVING LIGHT — motion.js (shared by all five surfaces)
+   Real spring integrator (Apple params): k=(2π/T)², c=4πζ/T,
+   mass 1, semi-implicit Euler, velocity handoff on retarget.
+   Plus: odometer digit-roll (numericText port), FLIP hero,
+   stagger, shine/ignite triggers keyed to REAL value diffs.
+   Honest-motion law: helpers animate only changes the caller
+   has verified against actual state. This file never invents
+   a state change.
+   ============================================================ */
+(function(global){
+"use strict";
+
+/* ---------- springs ---------- */
+function springParams(T, zeta){ return { k:(2*Math.PI/T)*(2*Math.PI/T), c:4*Math.PI*zeta/T }; }
+var PRESETS = {
+  track:  springParams(0.15, 0.86),  /* interactiveSpring — gesture tracking */
+  settle: springParams(0.50, 0.85),  /* snappy settle */
+  smooth: springParams(0.50, 1.00),  /* critically damped */
+  gentle: springParams(0.65, 0.90)
+};
+/* Animate obj {x} toward target with a named spring; onUpdate(x, v).
+   Returns handle with retarget(newTarget) — velocity carries over. */
+function springTo(obj, target, preset, onUpdate, onDone){
+  var p = PRESETS[preset] || PRESETS.settle;
+  var x = obj.x, v = obj.v || 0, tgt = target, raf = null, last = null, dead = false;
+  function frame(ts){
+    if(dead) return;
+    if(last == null) last = ts;
+    var dt = Math.min((ts - last)/1000, 1/30); last = ts;
+    var a = -p.k*(x - tgt) - p.c*v;
+    v += a*dt; x += v*dt;
+    obj.x = x; obj.v = v;
+    onUpdate && onUpdate(x, v);
+    if(Math.abs(x - tgt) < 0.05 && Math.abs(v) < 0.5){ obj.x = tgt; obj.v = 0; onUpdate && onUpdate(tgt, 0); dead = true; onDone && onDone(); return; }
+    raf = requestAnimationFrame(frame);
+  }
+  raf = requestAnimationFrame(frame);
+  return { retarget:function(t){ tgt = t; if(dead){ dead = false; last = null; raf = requestAnimationFrame(frame); } },
+           cancel:function(){ dead = true; if(raf) cancelAnimationFrame(raf); },
+           get value(){ return x; }, get velocity(){ return v; } };
+}
+
+/* ---------- smoothstep time remap (Core Image easing) ---------- */
+function smoothstep(t){ t = Math.max(0, Math.min(1, t)); return t*t*(3 - 2*t); }
+
+/* ---------- odometer (numericText port) ----------
+   renderOdo(el, value, opts): rolls each digit column toward the
+   new value. Direction follows sign of change unless opts.down.
+   No-op (returns false) when the value is unchanged — the caller
+   must not celebrate a non-change. */
+function buildOdo(el, str){
+  el.classList.add("ll-odo"); el.innerHTML = "";
+  var cols = [];
+  for(var i = 0; i < str.length; i++){
+    var ch = str[i];
+    if(/\d/.test(ch)){
+      var d = document.createElement("span"); d.className = "ll-digit";
+      var strip = document.createElement("span"); strip.className = "ll-strip";
+      for(var n = 0; n < 10; n++){ var s = document.createElement("span"); s.textContent = n; strip.appendChild(s); }
+      d.appendChild(strip); el.appendChild(d);
+      cols.push({ strip: strip, digit: +ch });
+      strip.style.transform = "translateY(" + (-ch) + "em)";
+    } else {
+      var p = document.createElement("span"); p.textContent = ch; el.appendChild(p);
+      cols.push({ strip: null, digit: null });
+    }
+  }
+  return cols;
+}
+function renderOdo(el, value, opts){
+  opts = opts || {};
+  var str = String(value);
+  var prev = el.getAttribute("data-odo");
+  if(prev === str) return false;               /* unchanged — no roll */
+  var cols = buildOdo(el, str);
+  el.setAttribute("data-odo", str);
+  requestAnimationFrame(function(){
+    cols.forEach(function(c){
+      if(!c.strip) return;
+      c.strip.style.transition = "transform 600ms cubic-bezier(.22,1,.36,1)";
+      c.strip.style.transform = "translateY(" + (-c.digit) + "em)";
+    });
+  });
+  return true;
+}
+
+/* ---------- FLIP hero (matchedGeometry port) ----------
+   flipTo(el, applyChange, preset): measures el, runs applyChange
+   (the DOM/layout change), inverts, springs to identity. */
+function flipTo(el, applyChange, preset){
+  var first = el.getBoundingClientRect();
+  applyChange();
+  var lastR = el.getBoundingClientRect();
+  var dx = first.left - lastR.left, dy = first.top - lastR.top;
+  var sx = lastR.width ? first.width/lastR.width : 1, sy = lastR.height ? first.height/lastR.height : 1;
+  var state = { x: 0 };
+  var from = { scale: sx, dx: dx, dy: dy };
+  el.style.transformOrigin = "top left";
+  return springTo(state, 1, preset || "settle", function(t){
+    var s = smoothstep(t);
+    var cdx = from.dx*(1-s), cdy = from.dy*(1-s);
+    var csx = from.scale + (1-from.scale)*s, csy = from.scale + (1-from.scale)*s;
+    el.style.transform = "translate(" + cdx + "px," + cdy + "px) scale(" + csx + "," + csy + ")";
+  }, function(){ el.style.transform = ""; });
+}
+
+/* ---------- stagger (index-computed fan-out) ---------- */
+function staggerIn(nodes, baseDelay){
+  nodes = Array.prototype.slice.call(nodes);
+  nodes.forEach(function(n, i){
+    n.style.animationDelay = (i*(baseDelay || 40)) + "ms";
+    n.classList.add("ll-arrive");
+  });
+}
+
+/* ---------- event triggers ---------- */
+function shine(el, color){ if(color) el.style.setProperty("--shine-c", color);
+  el.classList.remove("go"); void el.offsetWidth; setTimeout(function(){ el.classList.add("go"); }, 500); }
+function ignite(el){ el.classList.remove("ll-ignite"); void el.offsetWidth; el.classList.add("ll-ignite"); }
+function shake(el){ el.classList.remove("ll-shake"); void el.offsetWidth; el.classList.add("ll-shake"); }
+
+global.LivingLight = { springTo: springTo, springParams: springParams, PRESETS: PRESETS,
+  smoothstep: smoothstep, renderOdo: renderOdo, flipTo: flipTo,
+  staggerIn: staggerIn, shine: shine, ignite: ignite, shake: shake };
+})(window);
+
+</script>
 <script>
 "use strict";
 const $ = s => document.querySelector(s);
@@ -307,6 +743,21 @@ const TYPES = {
 };
 const BUSNAMES = {C0:"EVIDENCE",C1:"GRAMMAR",C2:"INTENT",C3:"AUTHORITY",
   C4:"PLAN",C5:"EXECUTION",C6:"DELTA",C7:"VERIFICATION"};
+/* Living Light: channel -> chakra line-light colour (spectral shine key).
+   Colour is always paired with the row's existing text labels. */
+const CHCOLOR = {authority:"#AF52DE", command:"#5856D6",
+  communication:"#32ADE6", creation:"#FF9500", execution:"#FFCC00",
+  integration:"#34C759", verification:"#33E0FF", delivery:"#E0A6FF"};
+const STCOLOR = {"Sahasrāra":"#AF52DE","Ājñā":"#5856D6","Viśuddha":"#32ADE6",
+  "Anāhata":"#34C759","Maṇipūra":"#FFCC00","Svādhiṣṭhāna":"#FF9500",
+  "Mūlādhāra":"#FF3B30"};
+let arrivedIds = {}, pendingArrival = null, lastKalaJson = "", lastDigestId = null;
+function blurSwap(el, apply){
+  if(!el || !window.LivingLight){ apply(); return; }
+  el.classList.remove("ll-blur-in"); el.classList.add("ll-blur-out");
+  setTimeout(()=>{ apply(); el.classList.remove("ll-blur-out");
+    el.classList.add("ll-blur-in"); }, 160);
+}
 const STATIONS = [
   ["Sahasrāra","Delivery — the ruling gate","#9a6fe0"],
   ["Ājñā","Vision & verification","#5a5fd0"],
@@ -562,6 +1013,7 @@ function esc(s){
 function renderKala(k){
   const wrap = $("#kalaBody");
   if(!k || !k.available){
+    lastKalaJson = "";
     wrap.innerHTML = `<div class="empty">${esc(k && k.note ||
       "Kāla register unavailable — the time panel cannot be drawn " +
       "honestly right now; the rest of this page is unaffected.")}</div>`;
@@ -609,7 +1061,12 @@ function renderKala(k){
     s && s.in_warning_band ? "kwarn" : "kval");
   html += kRow("Body rhythm", esc((k.body || {}).line || ""));
   html += kRow("", esc((k.verification || {}).note || ""), "ksmall");
-  wrap.innerHTML = html;
+  if(html !== lastKalaJson){
+    lastKalaJson = html;
+    wrap.innerHTML = html;
+    wrap.classList.remove("ll-blur-in"); void wrap.offsetWidth;
+    wrap.classList.add("ll-blur-in");
+  }
 }
 async function loadKala(){
   try{
@@ -623,7 +1080,15 @@ setInterval(loadKala, 60000);
 
 /* ---------------- digest card ---------------- */
 function showDigest(d){
+  const isNewDigest = d && d.id && lastDigestId !== null && d.id !== lastDigestId;
+  if(d && d.id) lastDigestId = d.id;
   lastDigest = d;
+  const card = $("#digestCard");
+  if(isNewDigest && window.LivingLight){
+    card.classList.add("ll-shine");
+    LivingLight.shine(card, "#FFD97A");
+    blurSwap($("#digestLines"), ()=>{});
+  }
   $("#digestHead").textContent = d.headline;
   $("#digestLines").innerHTML = "";
   (d.lines || []).forEach(l=>{
@@ -708,7 +1173,8 @@ function renderStream(){
     return;
   }
   wrap.innerHTML = "";
-  list.forEach(ev=>{
+  list.forEach((ev, idx)=>{
+    const isNew = pendingArrival === ev.id && !arrivedIds[ev.id];
     const t = TYPES[ev.type] || TYPES.measured;
     const row = document.createElement("div");
     row.className = "ev"; row.style.borderLeftColor = t.color;
@@ -727,6 +1193,15 @@ function renderStream(){
     det.className = "evDetail";
     det.textContent = JSON.stringify(ev.ref, null, 2);
     row.addEventListener("click", ()=>det.classList.toggle("open"));
+    if(isNew){
+      arrivedIds[ev.id] = 1;
+      row.classList.add("ll-arrive"); row.style.animationDelay = "0ms";
+      if(significant(ev) && window.LivingLight){
+        row.classList.add("ll-shine");
+        LivingLight.shine(row, STCOLOR[ev.station] || CHCOLOR[ev.channel] || "#8FF2FF");
+      }
+      if(pendingArrival === ev.id) pendingArrival = null;
+    }
     wrap.appendChild(row); wrap.appendChild(det);
   });
 }
@@ -760,6 +1235,7 @@ setInterval(refreshMeta, 5000);
 /* ---------------- ingest + realtime (SSE, polling fallback) -------- */
 function ingest(ev, live){
   if(allEvents.some(x=>x.id === ev.id)) return;
+  if(live) pendingArrival = ev.id;
   allEvents.push(ev);
   allEvents.sort((a, b)=>(a.epoch || 0) - (b.epoch || 0));
   if(ev.epoch && ev.epoch > lastEpoch) lastEpoch = ev.epoch;
@@ -779,7 +1255,8 @@ let pollTimer = null;
 function startPolling(){
   if(pollTimer) return;
   const b = $("#modeBadge");
-  b.className = "badge poll"; b.textContent = "◌ POLLING (push unavailable)";
+  blurSwap(b, ()=>{ b.className = "badge poll";
+    b.textContent = "◌ POLLING (push unavailable)"; });
   const tick = async ()=>{
     try{
       const r = await fetch("/api/events?since=" +
@@ -797,6 +1274,7 @@ function startPolling(){
 function startStream(){
   let fails = 0;
   const es = new EventSource("/api/stream");
+  es.onopen = ()=>{ const b = $("#modeBadge"); b.className = "badge live ll-live"; b.textContent = "● LIVE"; };
   es.onmessage = e=>{
     fails = 0;
     let msg; try{ msg = JSON.parse(e.data); }catch(err){ return; }
@@ -825,9 +1303,10 @@ function setMode(m){
   mode = m;
   const b = $("#modeBadge");
   if(m === "live" && !pollTimer){
-    b.className = "badge live"; b.textContent = "● LIVE";
+    b.className = "badge live ll-live"; b.textContent = "● LIVE";
   } else if(m === "replay"){
-    b.className = "badge replay"; b.textContent = "◐ REPLAY";
+    blurSwap(b, ()=>{ b.className = "badge replay";
+      b.textContent = "◐ REPLAY"; });
   }
   $("#liveBtn").disabled = (m === "live");
   renderStream();
@@ -886,17 +1365,22 @@ const frame = $("#avatarFrame");
 frame.src = AVATAR + "/";
 let avatarAlive = false, avatarState = "waiting";
 function postToAvatar(msg){
-  try{ frame.contentWindow.postMessage(msg, "*"); }catch(e){}
+  /* G-20 second half (cycle #3 wave 2): outbound pinned to the exact
+     8793 origin (AVATAR, derived from own location — same convention
+     as live-avatar's PARENT_ORIGIN for :8794). Never a wildcard. */
+  try{ frame.contentWindow.postMessage(msg, AVATAR); }catch(e){}
 }
 window.addEventListener("message", e=>{
-  if(!e.origin || !e.origin.endsWith(":8793")) return;
+  /* G-20 second half: inbound accepts only the exact 8793 origin —
+     no suffix/prefix-only check. */
+  if(e.origin !== AVATAR) return;
   const d = e.data || {};
   if(d.kind === "avatar-state"){
     avatarAlive = true; avatarState = d.state || "idle";
     $("#avatarWait").style.display = "none";
     const chip = $("#avatarState");
     chip.textContent = "she is here — " + avatarState;
-    chip.classList.add("on");
+    chip.classList.add("on"); chip.classList.add("ll-live");
   }
 });
 setInterval(()=>{
@@ -907,7 +1391,7 @@ setInterval(()=>{
   if(!avatarAlive){
     const chip = $("#avatarState");
     chip.textContent = "waiting for her service (port 8793)";
-    chip.classList.remove("on");
+    chip.classList.remove("on"); chip.classList.remove("ll-live");
   }
 }, 5000);
 $("#muteHer").addEventListener("change", e=>
@@ -917,6 +1401,8 @@ $("#speakSig").addEventListener("change", e=>
 
 /* ---------------- boot ---------------- */
 (async function boot(){
+  if(window.LivingLight)
+    LivingLight.staggerIn(document.querySelectorAll("main section"), 40);
   buildDesk();
   loadKala();
   try{
@@ -927,6 +1413,728 @@ $("#speakSig").addEventListener("change", e=>
       "State snapshot unavailable — the graph cannot be drawn honestly.";
   }
   startStream();
+})();
+</script>
+
+<script>
+/* ===== SWARM OBSERVATORY (inlined from shared/observatory.js — UI v2) ===== */
+/* ============================================================
+   SWARM OBSERVATORY — UI v2 (2026-11-23)
+   The readable multi-channel TantricSync stream.
+
+   Data: ONLY the real feed — {base}/api/events, /api/state,
+   /api/jobs, SSE {base}/api/stream. No event is ever fabricated:
+   an empty lane renders its true emptiness.
+
+   Nonlinear asynchronous reading, made functional:
+   - eight channel lanes (filter toggles) instead of one forced feed
+   - pause-the-river: rendering holds, data keeps flowing, the held
+     count is shown; resume renders what accumulated
+   - jump-to-event by id (full or prefix) or by HH:MM time
+   - catch-up compression: a burst (>=4 events, same channel+type+
+     actor within 120 s) collapses into one expandable summary line
+   - ordering is by event time; arrival time is kept on every record
+     and shown in the detail view, so out-of-order arrival is visible
+
+   Honest freshness: the chip says LIVE only while an SSE stream is
+   actually open. Otherwise POLLING (local feed) or SNAPSHOT (hosted /
+   lagging data), with the view age in seconds, counting up. The word
+   "live" is never rendered for snapshot data.
+   ============================================================ */
+(function (global) {
+  "use strict";
+
+  /* ---------- pure core (node-testable) ---------- */
+
+  // The eight feed channels (8794 unified feed vocabulary), each with
+  // its plain name, its bus sub-label (bus.py CHANNEL_NAMES lineage,
+  // as already used by the Buddhi desk), and a lane accent colour.
+  var CHANNELS = [
+    { id: "authority",     plain: "Decisions & permissions", bus: "C3 · AUTHORITY",            color: "#FFD97A" },
+    { id: "command",       plain: "Commands & commissions",  bus: "C2 · INTENT",               color: "#8FB0FF" },
+    { id: "communication", plain: "Who joined & messages",   bus: "C1 · GRAMMAR + C4 · PLAN",  color: "#8FF2FF" },
+    { id: "creation",      plain: "Things being made",       bus: "Svādhiṣṭhāna line",         color: "#FF9500" },
+    { id: "execution",     plain: "Work running",            bus: "C5 · EXECUTION",            color: "#FFCC00" },
+    { id: "integration",   plain: "Changes & deltas",        bus: "C6 · DELTA",                color: "#34C759" },
+    { id: "verification",  plain: "Checks & verdicts",       bus: "C0 · EVIDENCE + C7 · VERIFICATION", color: "#E0A6FF" },
+    { id: "delivery",      plain: "Deliveries",              bus: "Sahasrāra line",            color: "#AF52DE" }
+  ];
+  var CH_BY_ID = {}; CHANNELS.forEach(function (c) { CH_BY_ID[c.id] = c; });
+
+  // Provenance types (bus-assigned; the chip is colour + word, always).
+  var TYPES = {
+    measured:  { word: "measured",         color: "#57C7E3" },
+    grammar:   { word: "declared grammar", color: "#D4AF37" },
+    wish:      { word: "wish / intent",    color: "#FF8FB3" },
+    authority: { word: "authority",        color: "#FF9F57" },
+    synthetic: { word: "synthetic test",   color: "#9A8BB8" }
+  };
+
+  function sortEvents(events) {
+    // Event-time order; arrival sequence breaks ties so out-of-order
+    // arrivals stay visible instead of being silently reshuffled.
+    return events.slice().sort(function (a, b) {
+      var d = (a.epoch || 0) - (b.epoch || 0);
+      if (d !== 0) return d;
+      return (a._seq || 0) - (b._seq || 0);
+    });
+  }
+
+  function groupByChannel(events) {
+    var out = {}; CHANNELS.forEach(function (c) { out[c.id] = []; });
+    sortEvents(events).forEach(function (ev) {
+      if (out[ev.channel]) out[ev.channel].push(ev);
+      else { (out._other = out._other || []).push(ev); }
+    });
+    return out;
+  }
+
+  var BURST_WINDOW_S = 120, BURST_MIN = 4;
+  function compressLane(events) {
+    // events: one channel, event-time ascending. Returns items:
+    // {kind:"ev", ev} | {kind:"burst", events:[...]}.
+    var items = [], run = [];
+    function flush() {
+      if (run.length >= BURST_MIN) items.push({ kind: "burst", events: run.slice() });
+      else run.forEach(function (ev) { items.push({ kind: "ev", ev: ev }); });
+      run = [];
+    }
+    events.forEach(function (ev) {
+      if (!run.length) { run = [ev]; return; }
+      var first = run[0], last = run[run.length - 1];
+      var sameClass = ev.type === first.type && ev.actor === first.actor &&
+                      ev.channel === first.channel;
+      if (sameClass && (ev.epoch - last.epoch) <= BURST_WINDOW_S &&
+          (ev.epoch - first.epoch) <= BURST_WINDOW_S * 2) run.push(ev);
+      else { flush(); run = [ev]; }
+    });
+    flush();
+    return items;
+  }
+
+  function fmtClock(epoch) {
+    if (!epoch) return "—";
+    var d = new Date(epoch * 1000);
+    function p(n) { return (n < 10 ? "0" : "") + n; }
+    return p(d.getUTCHours()) + ":" + p(d.getUTCMinutes()) + ":" + p(d.getUTCSeconds());
+  }
+  function fmtAge(sec) {
+    if (sec == null || !isFinite(sec)) return "—";
+    sec = Math.max(0, Math.round(sec));
+    if (sec < 90) return sec + "s";
+    if (sec < 5400) return Math.round(sec / 60) + " min";
+    if (sec < 172800) return (sec / 3600).toFixed(1) + " h";
+    return (sec / 86400).toFixed(1) + " d";
+  }
+
+  var Core = { CHANNELS: CHANNELS, CH_BY_ID: CH_BY_ID, TYPES: TYPES,
+    sortEvents: sortEvents, groupByChannel: groupByChannel,
+    compressLane: compressLane, fmtClock: fmtClock, fmtAge: fmtAge,
+    BURST_MIN: BURST_MIN, BURST_WINDOW_S: BURST_WINDOW_S };
+  if (typeof module !== "undefined" && module.exports) module.exports = Core;
+  global.SwarmObsCore = Core;
+
+  /* ---------- component ---------- */
+
+  function mount(root, opts) {
+    opts = opts || {};
+    var base = opts.base || "";
+    var commissionId = opts.commissionId || "pkt-buddhi-ui-design-2026-11-23";
+    var compact = !!opts.compact;
+    var RENDER_CAP = compact ? 40 : 80;
+
+    var byId = new Map(), seq = 0, lastEpoch = 0;
+    var paused = false, heldCount = 0, compressOn = true;
+    var enabled = {}; CHANNELS.forEach(function (c) { enabled[c.id] = true; });
+    var typeFilter = ""; // "" = all types
+    var mode = "poll";   // live | poll | snapshot | down
+    var lastSync = 0, newestEpoch = 0, es = null, esErrors = 0, pollTimer = null;
+
+    root.classList.add("obs"); if (compact) root.classList.add("compact");
+    root.innerHTML =
+      '<div class="obs-head"><h3 class="obs-title">Swarm Observatory' +
+      '<span class="obs-sub">Watch Buddhi\u2019s swarm work \u2014 every line below is a real recorded event on the eight TantricSync channels. Nothing here is simulated.</span></h3>' +
+      '<span class="obs-fresh poll" data-r="fresh">connecting\u2026</span></div>' +
+      '<div class="obs-controls"><span class="lbl">Channels</span>' +
+      CHANNELS.map(function (c) {
+        return '<button class="obs-chipbtn" data-r="ch" data-ch="' + c.id +
+          '" aria-pressed="true" style="--lane-c:' + c.color + '">' + c.id + '</button>';
+      }).join("") +
+      '<span class="lbl" style="margin-left:8px">Type</span>' +
+      '<button class="obs-chipbtn" data-r="type" data-t="" aria-pressed="true">all</button>' +
+      Object.keys(TYPES).map(function (t) {
+        return '<button class="obs-chipbtn" data-r="type" data-t="' + t +
+          '" aria-pressed="false" style="--lane-c:' + TYPES[t].color + '">' + TYPES[t].word + '</button>';
+      }).join("") + '</div>' +
+      '<div class="obs-controls">' +
+      '<button class="obs-btn" data-r="pause" aria-pressed="false">\u23F8 Pause the river</button>' +
+      '<button class="obs-btn ghost" data-r="compress" aria-pressed="true">Catch-up compression: on</button>' +
+      '<span class="obs-paused-note" data-r="held"></span>' +
+      '<span class="obs-jump"><input data-r="jumpin" type="text" placeholder="jump to event id or HH:MM" aria-label="Jump to event by id or time">' +
+      '<button class="obs-btn ghost" data-r="jump">Jump</button>' +
+      '<span class="miss" data-r="jumpmiss"></span></span></div>' +
+      '<div class="obs-lanes" data-r="lanes"></div>' +
+      '<div class="obs-roster" data-r="roster"></div>';
+
+    var lanesEl = root.querySelector('[data-r="lanes"]');
+    var freshEl = root.querySelector('[data-r="fresh"]');
+    var heldEl = root.querySelector('[data-r="held"]');
+    var rosterEl = root.querySelector('[data-r="roster"]');
+
+    // Build lane shells once; bodies re-render on change.
+    var laneBodies = {};
+    CHANNELS.forEach(function (c) {
+      var lane = document.createElement("div");
+      lane.className = "obs-lane"; lane.dataset.lane = c.id;
+      lane.style.setProperty("--lane-c", c.color);
+      lane.innerHTML = '<div class="obs-lane-head"><span class="obs-lane-name">' +
+        c.plain + '</span><span class="obs-lane-bus">' + c.bus + '</span>' +
+        '<div class="obs-lane-meta" data-r="meta"></div></div>' +
+        '<div class="obs-lane-body" data-r="body"></div>';
+      lanesEl.appendChild(lane);
+      laneBodies[c.id] = { lane: lane, body: lane.querySelector('[data-r="body"]'),
+                           meta: lane.querySelector('[data-r="meta"]') };
+    });
+
+    function esc(s) { var d = document.createElement("div");
+      d.textContent = s == null ? "" : String(s); return d.innerHTML; }
+
+    function evRow(ev) {
+      var t = TYPES[ev.type] || TYPES.measured;
+      var row = document.createElement("div");
+      row.className = "obs-ev"; row.dataset.eid = ev.id;
+      row.style.setProperty("--type-c", t.color);
+      row.innerHTML =
+        '<div class="obs-ev-meta"><span>' + fmtClock(ev.epoch) + ' UTC</span>' +
+        '<span class="obs-type">' + t.word + '</span>' +
+        (ev.bus_channel ? '<span>' + esc(ev.bus_channel) + '</span>' : '') +
+        (ev.station ? '<span>' + esc(ev.station) + '</span>' : '') +
+        '<span>' + esc(ev.actor || "") + '</span>' +
+        '<span>#' + esc(String(ev.id).slice(0, 8)) + '</span></div>' +
+        '<div class="obs-ev-plain">' + esc(ev.plain || ev.summary || "") + '</div>' +
+        (ev.plain && ev.summary && ev.summary !== ev.plain ?
+          '<div class="obs-ev-sum">' + esc(ev.summary) + '</div>' : '') +
+        '<div class="obs-ev-detail"><pre></pre></div>';
+      row.addEventListener("click", function () {
+        var pre = row.querySelector("pre");
+        if (!row.classList.contains("open")) {
+          var detail = { id: ev.id, ts: ev.ts, epoch: ev.epoch,
+            arrived_seq: ev._seq, source: ev.source, channel: ev.channel,
+            bus_channel: ev.bus_channel, type: ev.type, actor: ev.actor,
+            station: ev.station, opcode: ev.opcode, yield_kind: ev.yield_kind,
+            ref: ev.ref };
+          pre.textContent = JSON.stringify(detail, null, 2);
+        }
+        row.classList.toggle("open");
+      });
+      return row;
+    }
+
+    function renderLane(cid, now) {
+      var slot = laneBodies[cid]; if (!slot) return;
+      var all = [];
+      byId.forEach(function (ev) { if (ev.channel === cid) all.push(ev); });
+      all = sortEvents(all);
+      var shown = typeFilter ? all.filter(function (e) { return e.type === typeFilter; }) : all;
+      slot.lane.classList.toggle("off", !enabled[cid]);
+      var last = all[all.length - 1];
+      slot.meta.textContent = all.length + " recorded" +
+        (last ? " · last " + fmtAge(now - last.epoch) + " ago" : "");
+      // Sovereign Ladder (dossier §1): lane freshness rung from the
+      // real age of its newest event — lit <60s, kindled <600s,
+      // ember beyond; a lane with no events rests at ember.
+      var rung = !last ? 1 : (now - last.epoch < 60 ? 3 :
+                 (now - last.epoch < 600 ? 2 : 1));
+      slot.lane.classList.remove("rung-1", "rung-2", "rung-3");
+      slot.lane.classList.add("rung-" + rung);
+      slot.body.innerHTML = "";
+      if (!all.length) {
+        slot.body.innerHTML = '<div class="obs-empty">No traffic recorded on this ' +
+          'line yet. The lane is real; the silence is real too.</div>';
+        return;
+      }
+      if (!shown.length) {
+        slot.body.innerHTML = '<div class="obs-empty">No events of the chosen ' +
+          'type on this line.</div>';
+        return;
+      }
+      var items = compressOn ? compressLane(shown) : shown.map(function (ev) {
+        return { kind: "ev", ev: ev }; });
+      var nodes = [];
+      items.forEach(function (it) {
+        if (it.kind === "ev") { nodes.push(evRow(it.ev)); return; }
+        var b = document.createElement("div");
+        b.className = "obs-burst";
+        var f = it.events[0], l = it.events[it.events.length - 1];
+        b.innerHTML = '<div class="obs-burst-head"><b>\u00D7' + it.events.length +
+          '</b> ' + esc(TYPES[f.type] ? TYPES[f.type].word : f.type) + ' \u00B7 ' +
+          esc(f.actor || "") + ' \u00B7 ' + fmtClock(f.epoch) + '\u2013' +
+          fmtClock(l.epoch) + ' UTC \u2014 a burst, compressed. Tap to open.</div>';
+        var holder = document.createElement("div");
+        holder.style.display = "none";
+        it.events.forEach(function (ev) { holder.appendChild(evRow(ev)); });
+        b.appendChild(holder);
+        b.querySelector(".obs-burst-head").addEventListener("click", function () {
+          holder.style.display = holder.style.display === "none" ? "" : "none";
+        });
+        nodes.push(b);
+      });
+      nodes.reverse(); // newest first for reading
+      nodes.slice(0, RENDER_CAP).forEach(function (n) { slot.body.appendChild(n); });
+      if (nodes.length > RENDER_CAP) {
+        var more = document.createElement("div");
+        more.className = "obs-empty";
+        more.textContent = "+ " + (nodes.length - RENDER_CAP) +
+          " earlier items on this line \u2014 jump by id or time to reach them.";
+        slot.body.appendChild(more);
+      }
+    }
+
+    function renderAll() {
+      var now = Date.now() / 1000;
+      CHANNELS.forEach(function (c) { renderLane(c.id, now); });
+      heldEl.textContent = paused && heldCount ?
+        heldCount + " new while paused \u2014 the river kept flowing; press resume to read them." : "";
+    }
+
+    function tickFresh() {
+      var now = Date.now() / 1000;
+      var age = lastSync ? Math.max(0, Math.round(now - lastSync)) : null;
+      freshEl.className = "obs-fresh " + mode;
+      if (mode === "live") freshEl.textContent = "\u25CF LIVE \u2014 TantricSync stream (SSE) \u00B7 last event " +
+        (newestEpoch ? fmtAge(now - newestEpoch) + " ago" : "\u2014");
+      else if (mode === "poll") freshEl.textContent = "\u25CC POLLING \u2014 local feed \u00B7 view age " +
+        (age == null ? "\u2014" : age + "s") + " \u00B7 last event " +
+        (newestEpoch ? fmtAge(now - newestEpoch) + " ago" : "\u2014");
+      else if (mode === "snapshot") freshEl.textContent = "\u25A3 SNAPSHOT \u2014 not a live stream \u00B7 data age " +
+        (newestEpoch ? fmtAge(now - newestEpoch) : "\u2014") + " \u00B7 view age " +
+        (age == null ? "\u2014" : age + "s");
+      else freshEl.textContent = "\u25CF FEED DOWN \u2014 no successful sync yet; showing the last record received";
+    }
+
+    function ingest(ev, live) {
+      if (!ev || !ev.id || byId.has(ev.id)) return false;
+      ev._seq = ++seq;
+      byId.set(ev.id, ev);
+      if (ev.epoch && ev.epoch > lastEpoch) lastEpoch = ev.epoch;
+      if (ev.epoch && ev.epoch > newestEpoch) newestEpoch = ev.epoch;
+      if (paused) { heldCount++; heldEl.textContent = heldCount +
+        " new while paused \u2014 the river kept flowing; press resume to read them."; }
+      else if (live) renderAll();
+      return true;
+    }
+
+    /* --- roster + commission card --- */
+    function stateChip(st) { return '<span class="obs-state ' + esc(st || "") + '">' +
+      esc(st || "unknown") + '</span>'; }
+    function renderRoster(jobs, state) {
+      var html = "";
+      var parent = jobs.filter(function (j) { return j.id === commissionId; })[0];
+      var children = jobs.filter(function (j) {
+        return j.lineage === commissionId && j.id !== commissionId; });
+      if (parent) {
+        var done = children.filter(function (j) { return j.state === "verified"; }).length;
+        html += '<div class="obs-commission"><h4>The standing commission \u2014 ' +
+          esc(commissionId) + '</h4><div class="cmeta">desk ' + esc(parent.desk || "") +
+          ' \u00B7 seat ' + esc(parent.persona || "") + ' \u00B7 state ' + esc(parent.state || "") +
+          ' \u00B7 children ' + done + '/' + children.length + ' verified \u00B7 ' +
+          'commissioned ' + esc(parent.created_at || "") + '</div>' +
+          '<div class="cmeta">' + esc(parent.spec || "") + '</div>';
+        if (children.length) {
+          html += '<div class="obs-children">' + children.map(function (j) {
+            return '<div class="obs-child"><span class="cid">' + esc(j.id) + '</span>' +
+              stateChip(j.state) + '<span>' + esc(j.persona || "") + '</span>' +
+              '<span class="obs-bar"><i style="width:' + (j.progress || 0) + '%"></i></span>' +
+              '<span>' + (j.progress == null ? "\u2014" : j.progress + "%") + '</span></div>';
+          }).join("") + '</div>';
+        }
+        html += '</div>';
+      }
+      var agents = (state && state.agents) || [];
+      var active = agents.filter(function (a) {
+        return a.status_class === "working" || a.status_class === "blocked" ||
+               a.status_class === "failed"; });
+      if (active.length) {
+        html += '<div class="obs-agents">' + active.slice(0, compact ? 6 : 12).map(function (a) {
+          return '<div class="obs-agent ' + esc(a.status_class) + '"><b>' +
+            esc(a.fusion_name || a.source_id) + '</b> \u00B7 ' + esc(a.label || "") +
+            '<br>' + esc(a.english_function || a.function || "") + '</div>';
+        }).join("") + '</div>';
+      }
+      var reg = state && state.registry;
+      if (reg && reg.entries) html += '<div class="cmeta" style="margin-top:8px;font-size:12px;color:var(--smoke-violet)">Delegation registry: ' +
+        reg.entries.length + ' grants on record \u2014 who authorised whom, in the open.</div>';
+      rosterEl.innerHTML = html;
+    }
+
+    function loadRoster() {
+      Promise.all([
+        fetch(base + "/api/jobs").then(function (r) { return r.json(); }).catch(function () { return { jobs: [] }; }),
+        fetch(base + "/api/state").then(function (r) { return r.json(); }).catch(function () { return null; })
+      ]).then(function (res) { renderRoster(res[0].jobs || [], res[1]); });
+    }
+
+    /* --- transport: SSE first (the only path allowed to say LIVE),
+           polling fallback, snapshot verdict when data lags --- */
+    function pollOnce() {
+      return fetch(base + "/api/events?since=" + (lastEpoch || 0))
+        .then(function (r) { return r.json(); })
+        .then(function (d) {
+          lastSync = Date.now() / 1000;
+          (d.events || []).forEach(function (ev) { ingest(ev, mode !== "live"); });
+          if (mode !== "live") {
+            var lag = lastSync - (newestEpoch || lastSync);
+            mode = (esErrors >= 3 && lag > 120) ? "snapshot" : "poll";
+          }
+          if (!paused) renderAll();
+          tickFresh();
+        })
+        .catch(function () { if (mode !== "live") { mode = lastSync ? mode : "down"; tickFresh(); } });
+    }
+    function startTransport() {
+      // Backfill the whole record first (the feed is the record).
+      fetch(base + "/api/events?since=0").then(function (r) { return r.json(); })
+        .then(function (d) {
+          lastSync = Date.now() / 1000;
+          (d.events || []).forEach(function (ev) { ingest(ev, false); });
+          renderAll(); tickFresh();
+        }).catch(function () { tickFresh(); })
+        .then(function () {
+          try {
+            es = new EventSource(base + "/api/stream");
+            es.onmessage = function (m) {
+              esErrors = 0;
+              var obj; try { obj = JSON.parse(m.data); } catch (e) { return; }
+              if (obj.kind === "event" && obj.event) {
+                lastSync = Date.now() / 1000;
+                if (mode !== "live") { mode = "live"; }
+                ingest(obj.event, true); tickFresh();
+              } else if (obj.kind === "state" || obj.kind === "agents") {
+                lastSync = Date.now() / 1000; loadRoster();
+              }
+            };
+            es.onerror = function () {
+              esErrors++;
+              if (esErrors >= 3 && mode === "live") mode = "poll";
+              if (!pollTimer) pollTimer = setInterval(pollOnce, 4000);
+              tickFresh();
+            };
+          } catch (e) {
+            if (!pollTimer) pollTimer = setInterval(pollOnce, 4000);
+          }
+          // Even with SSE open, keep the roster fresh.
+          setInterval(loadRoster, 30000);
+        });
+    }
+
+    /* --- controls --- */
+    root.querySelectorAll('[data-r="ch"]').forEach(function (b) {
+      b.addEventListener("click", function () {
+        var cid = b.dataset.ch;
+        enabled[cid] = !enabled[cid];
+        b.setAttribute("aria-pressed", String(enabled[cid]));
+        renderAll();
+      });
+    });
+    root.querySelectorAll('[data-r="type"]').forEach(function (b) {
+      b.addEventListener("click", function () {
+        typeFilter = b.dataset.t;
+        root.querySelectorAll('[data-r="type"]').forEach(function (x) {
+          x.setAttribute("aria-pressed", String(x === b)); });
+        renderAll();
+      });
+    });
+    var pauseBtn = root.querySelector('[data-r="pause"]');
+    pauseBtn.addEventListener("click", function () {
+      paused = !paused;
+      pauseBtn.setAttribute("aria-pressed", String(paused));
+      pauseBtn.textContent = paused ? "\u25B6 Resume the river" : "\u23F8 Pause the river";
+      if (!paused) { heldCount = 0; renderAll(); } else tickFresh();
+      heldEl.textContent = paused ? "Paused \u2014 new events are being held, not lost." : "";
+    });
+    var compBtn = root.querySelector('[data-r="compress"]');
+    compBtn.addEventListener("click", function () {
+      compressOn = !compressOn;
+      compBtn.setAttribute("aria-pressed", String(compressOn));
+      compBtn.textContent = "Catch-up compression: " + (compressOn ? "on" : "off");
+      renderAll();
+    });
+    function doJump() {
+      var q = root.querySelector('[data-r="jumpin"]').value.trim();
+      var miss = root.querySelector('[data-r="jumpmiss"]');
+      miss.textContent = "";
+      if (!q) return;
+      var found = null;
+      if (/^\d{1,2}:\d{2}/.test(q)) {
+        var parts = q.split(":"), hh = +parts[0], mm = +parts[1];
+        byId.forEach(function (ev) {
+          if (found || !ev.epoch) return;
+          var d = new Date(ev.epoch * 1000);
+          if (d.getUTCHours() === hh && d.getUTCMinutes() === mm) found = ev;
+        });
+      } else {
+        byId.forEach(function (ev) {
+          if (!found && String(ev.id).indexOf(q) === 0) found = ev; });
+        if (!found) byId.forEach(function (ev) {
+          if (!found && String(ev.id).indexOf(q) >= 0) found = ev; });
+      }
+      if (!found) { miss.textContent = "no event \u201C" + q + "\u201D in the loaded record"; return; }
+      if (!enabled[found.channel]) {
+        enabled[found.channel] = true;
+        var btn = root.querySelector('[data-ch="' + found.channel + '"]');
+        if (btn) btn.setAttribute("aria-pressed", "true");
+      }
+      if (typeFilter && found.type !== typeFilter) {
+        typeFilter = "";
+        root.querySelectorAll('[data-r="type"]').forEach(function (x) {
+          x.setAttribute("aria-pressed", String(x.dataset.t === "")); });
+      }
+      renderAll();
+      setTimeout(function () {
+        var row = root.querySelector('.obs-ev[data-eid="' + found.id + '"]');
+        if (!row) { // inside a compressed burst: open the burst first
+          var bursts = root.querySelectorAll(".obs-burst");
+          for (var i = 0; i < bursts.length; i++) {
+            if (bursts[i].querySelector('[data-eid="' + found.id + '"]')) {
+              bursts[i].querySelector("div").style.display = "";
+              row = bursts[i].querySelector('[data-eid="' + found.id + '"]');
+              break;
+            }
+          }
+        }
+        if (row) { row.scrollIntoView({ block: "center" });
+          row.classList.add("flash");
+          setTimeout(function () { row.classList.remove("flash"); }, 2400); }
+        else miss.textContent = "event " + found.id.slice(0, 8) +
+          " is in the record but beyond this lane\u2019s render cap";
+      }, 60);
+    }
+    root.querySelector('[data-r="jump"]').addEventListener("click", doJump);
+    root.querySelector('[data-r="jumpin"]').addEventListener("keydown", function (e) {
+      if (e.key === "Enter") doJump();
+    });
+
+    loadRoster();
+    startTransport();
+    setInterval(tickFresh, 1000);
+    return { ingest: ingest, renderAll: renderAll,
+             _byId: byId, _setPaused: function (v) { if (v !== paused) pauseBtn.click(); } };
+  }
+
+  global.SwarmObservatory = { mount: mount, Core: Core };
+})(typeof window !== "undefined" ? window : this);
+
+/* mount: same-origin base — SSE allowed to say LIVE here */
+window.__observatory = SwarmObservatory.mount(document.getElementById("observatory"), { base: "", commissionId: "pkt-buddhi-ui-design-2026-11-23" });
+</script>
+
+<section id="voice-observatory" class="ll-panel" aria-label="TantricSync Voice Observatory">
+<style>
+#voice-observatory .vo-grid{display:flex;gap:18px;flex-wrap:wrap}
+#voice-observatory .vo-map{min-width:250px;flex:0 1 280px}
+#voice-observatory .vo-side{flex:1 1 340px;min-width:300px}
+#voice-observatory .vo-station{display:flex;align-items:center;gap:8px;margin:3px 0}
+#voice-observatory .vo-dot{width:14px;height:14px;border-radius:50%;box-shadow:0 0 8px currentColor}
+#voice-observatory .vo-listen{cursor:pointer;border:1px solid var(--hatch-widget-border,#555);background:transparent;color:inherit;border-radius:6px;padding:1px 8px;font-size:12px}
+#voice-observatory .vo-sig{border-top:1px solid rgba(128,128,128,.25);padding:6px 0;font-size:13px}
+#voice-observatory .vo-chip{display:inline-block;border:1px solid rgba(128,128,128,.5);border-radius:8px;padding:0 6px;margin-right:4px;font-size:11px}
+#voice-observatory .vo-quiet{opacity:.75;font-style:italic}
+#voice-observatory .vo-edge{font-size:12px;opacity:.9}
+@media (prefers-reduced-motion: no-preference){
+  #voice-observatory .vo-dot.live{animation:vo-pulse 2.4s ease-in-out infinite}
+  @keyframes vo-pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.35)}}
+}
+</style>
+<h3>TantricSync Voice Observatory <span class="vo-chip">the swarm, audible</span></h3>
+<p style="font-size:13px;max-width:70ch">The whole chakra–kundalini–sheath system, live: every real bus event lands at its station
+(<b>declared grammar</b>), carries its <b>measured</b> TantricSync spectral signature, and is classified by
+bhāva (emotional tone) (<b>synthesis, rule table published</b>). Open a LISTEN toggle and that channel's actual recorded
+exchange is spoken by the agent's own synthetic voice, modulated by context — anger is answered mellow
+and consoling, by rasa (response flavour) rule. Quiet traffic looks and sounds quiet here.</p>
+<div class="vo-grid">
+  <div class="vo-map" id="voMap"></div>
+  <div class="vo-side">
+    <div>
+      <label><input type="checkbox" id="voMasterMute"> Master mute (silence all channels)</label>
+      <span id="voFresh" class="vo-chip">…</span>
+    </div>
+    <div id="voAgents" style="margin:8px 0"></div>
+    <div id="voEdges"></div>
+    <div id="voStream"></div>
+    <audio id="voAudio" preload="none"></audio>
+    <p id="voNow" style="font-size:12px;opacity:.85"></p>
+  </div>
+</div>
+<script>
+(function(){
+  const $=s=>document.querySelector(s);
+  const mutedAgents=new Set();
+  let lastSignals=[];
+  function esc(t){return String(t||"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]))}
+  async function refresh(){
+    try{
+      const r=await fetch("/api/voice/signals?limit=40"); const d=await r.json();
+      lastSignals=d.signals||[];
+      $("#voFresh").textContent="bus events: "+d.total_events+" · rebuilt "+(d.server_now||"");
+      renderMap(d); renderAgents(d); renderStream(d);
+    }catch(e){ $("#voFresh").textContent="voice feed unavailable: "+e; }
+  }
+  function latestByStation(d){
+    const m={}; for(const s of d.signals) m[s.station]=s; return m;
+  }
+  function renderMap(d){
+    const latest=latestByStation(d);
+    const order=["Sahasrara","Ajna","Visuddha","Anahata","Manipura","Svadhisthana","Muladhara"];
+    $("#voMap").innerHTML=order.map(st=>{
+      const s=latest[st]; const col=(s&&s.sonic&&s.sonic.light)||"#888";
+      const bija=(s&&s.sonic&&s.sonic.bija)||"";
+      return '<div class="vo-station"><span class="vo-dot'+(s?" live":"")+'" style="color:'+col+';background:'+col+'"></span>'+
+        "<b>"+st+"</b> <span style='opacity:.75'>bīja (seed syllable): "+esc(bija)+"</span>"+
+        (s?' <button class="vo-listen" data-listen="'+s.event_id+'">LISTEN '+s.event_id+'</button>'
+          :' <span class="vo-quiet">quiet</span>')+"</div>";
+    }).join("");
+    const edges=d.signals.filter(s=>s.edge).slice(-6);
+    $("#voEdges").innerHTML="<h4 style='margin:8px 0 4px'>Live edges (task threads)</h4>"+
+      (edges.length?edges.map(s=>'<div class="vo-edge">'+esc(s.edge.from_station)+" → "+esc(s.edge.to_station)+
+        " · "+esc(s.actor)+" · "+esc(s.event)+" · bhāva (emotional tone) "+esc(s.bhava)+"</div>").join("")
+        :'<div class="vo-quiet">No threaded traffic in the current window.</div>');
+  }
+  function renderAgents(d){
+    const cast=d.cast||{};
+    $("#voAgents").innerHTML="<h4 style='margin:8px 0 4px'>Agents (synthetic voices)</h4>"+
+      Object.keys(cast).slice(0,14).map(a=>'<label style="display:inline-block;margin:2px 8px 2px 0;font-size:12px">'+
+        '<input type="checkbox" data-mute="'+esc(a)+'" '+(mutedAgents.has(a)?"checked":"")+"> mute "+
+        esc(a)+" <span style='opacity:.7'>("+esc(cast[a].voice.replace("en-US-","").replace("Neural",""))+")</span></label>").join("");
+    document.querySelectorAll("[data-mute]").forEach(cb=>cb.addEventListener("change",()=>{
+      if(cb.checked) mutedAgents.add(cb.getAttribute("data-mute")); else mutedAgents.delete(cb.getAttribute("data-mute"));
+    }));
+  }
+  function renderStream(d){
+    const rows=d.signals.slice(-12).reverse();
+    $("#voStream").innerHTML="<h4 style='margin:10px 0 4px'>The river, latest first</h4>"+
+      (rows.length?rows.map(s=>'<div class="vo-sig"><span class="vo-chip">'+esc(s.station)+"</span>"+
+        '<span class="vo-chip">bhāva (emotional tone) '+esc(s.bhava)+"</span>"+
+        '<span class="vo-chip">'+esc(s.bus_type)+"</span>"+
+        "<b>"+esc(s.actor)+"</b> · "+esc(s.event)+" · "+esc(s.event_id)+"<br>"+
+        esc(s.summary)+
+        ' <button class="vo-listen" data-listen="'+s.event_id+'">LISTEN</button></div>').join("")
+        :'<div class="vo-quiet">The river is quiet — no events yet. Silence here is the truth, not a gap.</div>');
+    document.querySelectorAll("[data-listen]").forEach(b=>b.addEventListener("click",()=>speak(b.getAttribute("data-listen"))));
+  }
+  async function speak(eventId){
+    if($("#voMasterMute").checked){ $("#voNow").textContent="Master mute is on — the channel stays silent."; return; }
+    const sig=lastSignals.find(s=>s.event_id===eventId);
+    if(sig&&mutedAgents.has(sig.actor)){ $("#voNow").textContent=sig.actor+" is muted."; return; }
+    $("#voNow").textContent="speaking "+eventId+" …";
+    try{
+      const r=await fetch("/api/voice/speak",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({event_id:eventId})});
+      const d=await r.json();
+      if(!d.ok){ $("#voNow").textContent="could not speak: "+(d.error||"unknown"); return; }
+      const u=d.utterance;
+      const au=$("#voAudio"); au.src=u.audio_url; await au.play();
+      $("#voNow").textContent="♪ "+u.event_id+" · "+u.voice+" · bhāva (emotional tone) "+u.bhava+
+        (u.stimulus_bhava?" (answering "+u.stimulus_bhava+")":"")+
+        " · rate "+u.rate_pct+"% · pitch "+u.pitch_pct+"% · lag "+u.lag_s+"s ("+u.cache+") · station "+u.station;
+    }catch(e){ $("#voNow").textContent="speak failed: "+e; }
+  }
+  refresh(); setInterval(refresh, 6000);
+})();
+</script>
+</section>
+
+<section id="attunement" class="ll-panel" aria-label="Station Attunement Pass">
+  <link rel="stylesheet" href="/attunement.css">
+  <h2><span class="plain">Station Attunement</span> · a breath-paced ascent through the seven stations</h2>
+  <p>One slow breath per station — 6.9 s rise, 0.3 s hold, 4.8 s rest; 84 s for the full pass. On natural completion the server times the pass and writes one measured receipt to the swarm bus.</p>
+  <div class="att-spine">
+    <div class="att-light" aria-hidden="true"></div>
+      <div class="att-station" style="color:#ff2a1a"><span class="att-node"></span><span class="att-label">Mūlādhāra <span class="att-gloss">· root</span></span></div>
+      <div class="att-station" style="color:#ff7a00"><span class="att-node"></span><span class="att-label">Svādhiṣṭhāna <span class="att-gloss">· sacral flow</span></span></div>
+      <div class="att-station" style="color:#ffd400"><span class="att-node"></span><span class="att-label">Maṇipūra <span class="att-gloss">· navel fire</span></span></div>
+      <div class="att-station" style="color:#2ee66b"><span class="att-node"></span><span class="att-label">Anāhata <span class="att-gloss">· heart</span></span></div>
+      <div class="att-station" style="color:#1e9bff"><span class="att-node"></span><span class="att-label">Viśuddha <span class="att-gloss">· throat</span></span></div>
+      <div class="att-station" style="color:#5a3dff"><span class="att-node"></span><span class="att-label">Ājñā <span class="att-gloss">· brow insight</span></span></div>
+      <div class="att-station" style="color:#b45cff"><span class="att-node"></span><span class="att-label">Sahasrāra <span class="att-gloss">· crown</span></span></div>
+  </div>
+  <div class="att-scan">
+    <p class="att-scan-q">Before you begin — which one sounds like you lately? (optional — tap one, or none; tapping again deselects)</p>
+    <div class="att-chips">
+      <button class="att-chip" type="button" data-idx="0">Mūlādhāra (root) · "always on edge"</button>
+      <button class="att-chip" type="button" data-idx="1">Svādhiṣṭhāna (sacral) · "no spark, no joy"</button>
+      <button class="att-chip" type="button" data-idx="2">Maṇipūra (solar plexus) · "can't say no"</button>
+      <button class="att-chip" type="button" data-idx="3">Anāhata (heart) · "hard to let people in"</button>
+      <button class="att-chip" type="button" data-idx="4">Viśuddha (throat) · "words get stuck"</button>
+      <button class="att-chip" type="button" data-idx="5">Ājñā (third eye) · "doubting your gut"</button>
+      <button class="att-chip" type="button" data-idx="6">Sahasrāra (crown) · "feeling disconnected"</button>
+    </div>
+    <p class="att-note">Feelings are traditional associations — a mirror for reflection, not a diagnosis.</p>
+  </div>
+  <div class="att-controls">
+    <button class="att-begin" type="button">Begin</button>
+    <button class="att-abort" type="button" disabled>Abort</button>
+  </div>
+  <p class="att-status" role="status">ready — press Begin when you are.</p>
+  <script src="/attunement.js"></script>
+</section>
+
+<!-- Cycle #5 W1 additive nav mount: link to the full Vinayaki Chat page (same 8794 origin). Additive only — no existing behaviour altered. -->
+<section class="ll-panel" aria-label="Vinayaki Chat — full chat page">
+  <h2><span class="plain">Vinayaki Chat</span> · the full chat experience</h2>
+  <p><a href="/vinayaki-chat.html">Open Vinayaki Chat →</a> — sidebar, spaces, choice cards, attach, dictation and voice mode, on this same origin and the same shared thread.</p>
+</section>
+
+<section id="buddhi-chat-section" class="ll-panel" aria-label="Talk to Buddhi — shared chat">
+  <h2><span class="plain">Talk to Buddhi</span> · the shared conversation — same thread on every surface</h2>
+  <link rel="stylesheet" href="/chat-panel.css">
+  <div id="buddhi-chat-mount"></div>
+  <script>window.BUDDHI_CHAT_SURFACE="8794";window.BUDDHI_CHAT_BASE="";</script>
+  <script src="/chat-panel.js"></script>
+</section>
+
+<!-- Wave-2 coherence (G-27/G-28/G-31): identity corner + UNSEEN +
+     freshness dialect, same byte-identical surface kit as the other
+     four surfaces. Display only; no behaviour path is touched. -->
+<link rel="stylesheet" href="/surface-kit.css">
+<script src="/surface-kit.js"></script>
+
+
+<style>
+#integratedTechPanel{background:#0A0A12;border:1px solid rgba(248,187,60,.45);
+ box-shadow:0 0 18px rgba(248,187,60,.12), inset 0 0 24px rgba(35,41,70,.35);
+ border-radius:18px;padding:22px 20px;margin:26px auto;color:#F5EFE4}
+#integratedTechPanel h2{font-size:22px;line-height:1.3;margin:0 0 6px;color:#FFFFFF}
+#integratedTechPanel .kt-sub{font-size:15px;line-height:1.55;color:#CFC7B8;margin:0 0 16px}
+#integratedTechPanel .kt-grid{display:grid;grid-template-columns:1fr;gap:12px}
+@media(min-width:760px){#integratedTechPanel .kt-grid{grid-template-columns:1fr 1fr}}
+.kt-card{background:rgba(35,41,70,.28);border:1px solid rgba(245,239,228,.14);
+ border-radius:12px;padding:14px 16px;min-height:44px}
+.kt-row{display:flex;justify-content:space-between;gap:12px;align-items:baseline;flex-wrap:wrap}
+.kt-name{font-size:17px;font-weight:600;color:#FFFFFF}
+.kt-class{font-size:13px;letter-spacing:.04em;text-transform:uppercase}
+.kt-role{font-size:15.5px;line-height:1.5;margin:8px 0 0;color:#F5EFE4}
+.kt-status{font-size:14.5px;line-height:1.5;margin:6px 0 0;color:#D8CFA9}
+.kt-meta{font-size:13px;line-height:1.45;margin:6px 0 0;color:#9A927E;word-break:break-all}
+</style>
+<script>
+(function(){
+  function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+  fetch('/api/integrated-tech').then(function(r){return r.ok?r.json():null;}).then(function(d){
+    if(!d||!d.kept) return;
+    var host=document.getElementById('ktGrid'); if(!host) return;
+    var labels={'PIPELINE-INTEGRATE':'Pipeline stage','REGISTRY-INTEGRATE':'Model registry','CATALOGUE-ONLY':'Catalogued','NOT-A-TECHNOLOGY':'Not a technology'};
+    var accents={'PIPELINE-INTEGRATE':'#2FA37C','REGISTRY-INTEGRATE':'#F8BB3C','CATALOGUE-ONLY':'#E8A0B4','NOT-A-TECHNOLOGY':'#B2012D'};
+    var order={'PIPELINE-INTEGRATE':0,'REGISTRY-INTEGRATE':1,'CATALOGUE-ONLY':2,'NOT-A-TECHNOLOGY':3};
+    var items=d.kept.items.slice().sort(function(a,b){return order[a.class]-order[b.class];});
+    host.innerHTML=items.map(function(it){
+      return '<article class="kt-card" style="border-left:3px solid '+accents[it.class]+'">'
+      +'<div class="kt-row"><span class="kt-name">'+esc(it.name)+'</span>'
+      +'<span class="kt-class" style="color:'+accents[it.class]+'">'+labels[it.class]+'</span></div>'
+      +'<p class="kt-role">'+esc(it.role)+'</p><p class="kt-status">'+esc(it.status)+'</p>'
+      +'<p class="kt-meta">'+esc(it.integrated_into)+'</p><p class="kt-meta">'+esc(it.seat)+'</p></article>';
+    }).join('');
+    var stamp=document.getElementById('ktStamp');
+    if(stamp) stamp.textContent='Live record · integrated '+d.kept.integrated+' · '+d.kept.items.length+' kept technologies';
+  }).catch(function(){});
 })();
 </script>
 </body>
