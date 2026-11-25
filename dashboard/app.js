@@ -27,6 +27,7 @@ if (hour >= 22 || hour < 7) $("#quietNote").hidden = false;
 var calm = false;
 function setCalm(on){
   calm = on; document.body.classList.toggle("calm", on);
+  document.documentElement.setAttribute("data-calm", on ? "1" : "0");
   $("#calmToggle").setAttribute("aria-pressed", String(on));
 }
 if (window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches) setCalm(true);
@@ -135,7 +136,7 @@ applyScheme();
 (function cards(){
   var wrap = $("#stationCards");
   D.stations.forEach(function(st, i){
-    var card = document.createElement("article"); card.className = "card";
+    var card = document.createElement("article"); card.className = "card ll-card ll-shine";
     card.innerHTML = "<h3>" + (i+1) + " · " + st.plain + " <span class='h2sub'>— " + st.name + "</span></h3>" +
       "<p><span class='bija'>" + st.bija + "</span> " + st.translit + " · " + st.petals + " petals · " + st.tattvaWord + "</p>" +
       "<p><span class='swatch' style='background:" + (st.lotusHex || "#444") + "'></span>lotus: " + st.lotusWord + "</p>" +
@@ -143,7 +144,7 @@ applyScheme();
       "<button class='chip tone-btn' data-tone='" + ["lam","vam","ram","yam","ham","om"][i] + "' data-station='" + i + "'>Hear its seed-sound</button>";
     wrap.appendChild(card);
   });
-  var crown = document.createElement("article"); crown.className = "card";
+  var crown = document.createElement("article"); crown.className = "card ll-card";
   crown.innerHTML = "<h3>7 · Crown <span class='h2sub'>— " + D.crown.name + "</span></h3><p>" + D.crown.note + "</p>";
   wrap.appendChild(crown);
 })();
@@ -227,6 +228,7 @@ function decodeAll(){
           var pb = $("#playBtn"); pb.disabled = false; pb.textContent = "▶ Play the cycle";
           /* Sanctuary ready-handshake (M-16): the veil lifts only now. */
           $("#stage").classList.add("ready");
+          if (window.LivingLight) LivingLight.ignite($("#stage"));
         }
       })
       .catch(function(err){
@@ -275,6 +277,10 @@ function fireDueCues(){
     if (q.ev === -2){ glyph.textContent = ""; $("#nowState").textContent = "Crown — silence. The point alone holds the light."; }
     else {
       glyph.textContent = D.centreGlyphs[q.idx];
+      if (window.LivingLight){
+        var scard = $$("#stationCards .card")[q.idx];
+        if (scard) LivingLight.shine(scard, D.spectral[q.idx]);
+      }
       var st = D.stations[q.idx];
       var pos = now - startCtx - activeMap.offset;
       var state = C.stateAt(activeMap, pos);
@@ -457,11 +463,79 @@ requestAnimationFrame(frame);
 })();
 
 /* ---------- decisions line (Bindu panel closing line) ---------- */
+/* ---------- gates (ADDED surfacing): api/state already returns a gates
+   section (decisions.json); the pre-regen front-end read only
+   decisionsToday and silently discarded it. Same endpoint, same single
+   fetch, no new data path — the gates are rendered as decision cards.
+   decisionsToday behaviour above/below is preserved exactly, including
+   its honest default text while the field is absent. ---------- */
+function escHtml(t){
+  return String(t == null ? "" : t).replace(/[&<>"']/g, function(c){
+    return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
+  });
+}
+function renderGates(s){
+  var stateEl = $("#gatesState"), list = $("#gatesList");
+  if (!stateEl || !list) return;
+  if (!s || !s.gates || !Array.isArray(s.gates.gates)){
+    stateEl.textContent = "The decision record carries no gates section in this copy — nothing is assumed about open decisions.";
+    return;
+  }
+  var open = s.gates.gates.filter(function(g){ return g && g.status === "open"; });
+  var count = (typeof s.gates.open_count === "number") ? s.gates.open_count : open.length;
+  var odo = $("#gatesOpenCount");
+  if (odo){
+    if (window.LivingLight && LivingLight.renderOdo(odo, count)) { /* rolled on real value */ }
+    else if (!window.LivingLight) odo.textContent = String(count);
+    else if (!odo.getAttribute("data-odo")) odo.textContent = String(count);
+  }
+  stateEl.textContent = open.length ? "" : "No gates are open right now.";
+  open.forEach(function(g){
+    var b = g.brink || {};
+    var brinkTxt = (typeof b.done === "number" && typeof b.total === "number")
+      ? ("Brink package: " + b.done + " of " + b.total + " complete" +
+         (typeof b.pending === "number" ? " · " + b.pending + " pending" : "") +
+         (b.at_brink ? " · AT BRINK — packet complete" : " · not yet at brink"))
+      : "Brink package: not reported.";
+    var ageTxt = (typeof g.age_h === "number") ? (Math.round(g.age_h * 10) / 10) + " hours waiting" : "age not reported";
+    var refs = Array.isArray(g.evidence_refs) && g.evidence_refs.length
+      ? "<ul class='gate-refs'>" + g.evidence_refs.map(function(r){ return "<li>" + escHtml(r) + "</li>"; }).join("") + "</ul>"
+      : "";
+    var card = document.createElement("article");
+    /* DOSSIER-MERGE E1 (Gate Radiance, Buddhi dossier §3): every card
+       rendered here is by construction an OPEN gate awaiting his
+       ruling (the filter above), so it carries the awaiting grade —
+       g4 radiant, breath-pulsed for exactly as long as the state
+       persists; a gate that leaves "open" is never rendered here. */
+    card.className = "card ll-card ll-shine gate-card gate-awaiting";
+    card.style.setProperty("--glow-c", "var(--amber)");
+    card.innerHTML =
+      "<p class='gate-meta'>" + escHtml(g.gate_id) + " · " + escHtml(g.class_tag || "decision") + " · open</p>" +
+      "<h3>" + escHtml(g.project) + " <span class='h2sub'>— " + escHtml(g.step) + "</span></h3>" +
+      "<p class='gate-decision'>" + escHtml(g.decision) + "</p>" +
+      "<p>" + escHtml(ageTxt) + " · " + escHtml(brinkTxt) + "</p>" +
+      "<p>If it expires without your ruling: <strong>" + escHtml(g.default_on_expiry || "hold") + "</strong>" +
+      (g.standing_ruling_id ? " · standing ruling " + escHtml(g.standing_ruling_id) : "") + "</p>" +
+      refs;
+    list.appendChild(card);
+  });
+  if (window.LivingLight && open.length){
+    /* real arrival in state: faint-arrival stagger + amber ignition (design system §4) */
+    LivingLight.staggerIn($$(".gate-card", list), 40);
+    $$(".gate-card", list).forEach(function(c){ LivingLight.ignite(c); });
+  }
+}
 fetch("api/state").then(function(r){ return r.json(); }).then(function(s){
   if (s && typeof s.decisionsToday === "number"){
     $("#decisionsState").textContent = "here are your " + s.decisionsToday + " decisions today.";
+    if (window.LivingLight) LivingLight.shine($("#sec-v9"), "#FFD97A");
   }
-}).catch(function(){ /* honest default text stays */ });
+  renderGates(s);
+}).catch(function(){
+  /* honest default text stays for decisions; gates are stated unknown, never assumed empty */
+  var gs = $("#gatesState");
+  if (gs) gs.textContent = "The decision record could not be reached — open gates are unknown, not assumed to be none.";
+});
 
 /* ---------- chat: one surface per section, NOT INTEGRATED honesty (Ruling 3, C-10) ---------- */
 var proactiveUsed = 0, proactiveCap = D.proactivityCapPerSession || 1;
@@ -487,6 +561,7 @@ $$("section[data-chat]").forEach(function(sec){
     input.disabled = true; send.disabled = true;
   }
   function setOn(){
+    if (window.LivingLight) LivingLight.ignite(box);
     stateEl.textContent = "connected — the canary on this Mac"; stateEl.classList.remove("off");
     note.hidden = true; input.disabled = false; send.disabled = false;
   }
@@ -529,4 +604,33 @@ $$("section[data-chat]").forEach(function(sec){
 
 /* ---------- build state footer: honest, always ---------- */
 $("#buildState").textContent = "Build state: BUILT (this copy) · battery evidence in RECONCILIATION.md · not deployed — “deployed” is said only after the served state is verified on your screen.";
+})();
+
+/* ---------- TantricSync Voice Observatory panel (cycle 2026-11-23) ----------
+   Read-only panel over the 8794 stage's /api/voice/signals (CORS *).
+   Renders only what the endpoint returns; on failure it says so. */
+(function(){
+  var host = window.location.hostname || "127.0.0.1";
+  var url = "http://" + host + ":8794/api/voice/signals?limit=10";
+  function esc(t){return String(t||"").replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
+  async function tick(){
+    var st = document.getElementById("voPanelStations"), sm = document.getElementById("voPanelStream"), fr = document.getElementById("voPanelFresh");
+    if(!st) return;
+    try{
+      var r = await fetch(url); var d = await r.json();
+      var latest = {}; (d.signals||[]).forEach(function(s){ latest[s.station]=s; });
+      st.innerHTML = (d.stations||[]).map(function(name){
+        var s = latest[name]; var col = (s&&s.sonic&&s.sonic.light)||"#666";
+        return '<span style="display:inline-flex;align-items:center;gap:5px;font-size:12px"><span style="width:11px;height:11px;border-radius:50%;background:'+col+';box-shadow:0 0 7px '+col+'"></span>'+name+(s?"":" (quiet)")+"</span>";
+      }).join("");
+      var rows = (d.signals||[]).slice(-6).reverse();
+      sm.innerHTML = rows.length ? rows.map(function(s){
+        return "<div style='border-top:1px solid rgba(128,128,128,.25);padding:4px 0'><b>"+esc(s.actor)+"</b> · "+esc(s.station)+" · bhāva "+esc(s.bhava)+" · "+esc(s.event_id)+"<br>"+esc(s.summary)+"</div>";
+      }).join("") : "<i>The river is quiet — no events yet.</i>";
+      fr.textContent = "bus events: "+d.total_events+" · rebuilt "+(d.server_now||"");
+    }catch(e){
+      fr.textContent = "voice panel unavailable (8794 stage not answering): "+e;
+    }
+  }
+  tick(); setInterval(tick, 8000);
 })();
