@@ -1,0 +1,201 @@
+/* ============================================================
+   LIVING LIGHT — shared design kit for the Vinayaki surfaces
+   System: ~/workspace/live-dashboard/UI-DESIGN-SYSTEM-2026-11-22.md
+   Tokens: Vinayaki 2026-11-15 (ANSI lineage, WCAG-measured) +
+   chakra line-light spectrum. Motion: Apple spring params with
+   ESTIMATE cubic-bezier approximations for declarative use;
+   real springs live in motion.js.
+   ============================================================ */
+:root{
+  /* grounds & ink */
+  --void:#0A0614; --abyss:#150C26; --abyss2:#1D1136;
+  --smoke:#6E6390; --smoke-violet:#9A8BB8;
+  --moon:#F4EEFF; --throne:#6D28D9; --throne-hi:#7C3AED;
+  /* signal grammar — colour + word, always paired */
+  --rose:#FF5C7A; --amber:#FFC857; --mint:#3DFFA2;
+  --blue:#5B8CFF; --cyan:#33E0FF; --ultra:#C77DFF;
+  /* bright blooms — emphasis/live/wonder only */
+  --b-rose:#FF8FA3; --b-mint:#7CFFC4; --b-gold:#FFD97A;
+  --b-blue:#8FB0FF; --b-violet:#E0A6FF; --b-cyan:#8FF2FF;
+  /* ceremony metal — edging only */
+  --gold:#D4AF37;
+  /* chakra line-light spectrum (root→crown) */
+  --c-root:#FF3B30; --c-sacral:#FF9500; --c-navel:#FFCC00;
+  --c-heart:#34C759; --c-throat:#32ADE6; --c-brow:#5856D6; --c-crown:#AF52DE;
+  /* type */
+  --font-display:"Fraunces","Playfair Display",Georgia,serif;
+  --font-head:"Space Grotesk",system-ui,sans-serif;
+  --font-body:"Inter",system-ui,-apple-system,sans-serif;
+  --font-mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+  /* motion — durations */
+  --d-micro:160ms; --d-std:280ms; --d-panel:420ms; --d-hero:640ms;
+  --d-exposure:1800ms; --d-breath:12s;
+  /* motion — easings (spring approximations, ESTIMATE) */
+  --spring-smooth:cubic-bezier(.22,1,.36,1);      /* response .5 ζ 1.0  */
+  --spring-snappy:cubic-bezier(.28,.84,.42,1);    /* response .5 ζ .85  */
+  --spring-controlled:cubic-bezier(.34,1.3,.64,1);/* response .5 ζ .6   */
+  --spring-bouncy:cubic-bezier(.34,1.56,.64,1);   /* response .4 ζ .3 — delight only */
+  --ease-remap:cubic-bezier(.33,0,.2,1);
+  /* shape */
+  --r-panel:20px; --r-card:16px; --r-chip:999px;
+}
+*{box-sizing:border-box}
+html{background:var(--void)}
+body{
+  margin:0; background:var(--void); color:var(--moon);
+  font-family:var(--font-body); font-size:16px; line-height:1.65;
+  -webkit-font-smoothing:antialiased;
+}
+h1,h2,h3{font-family:var(--font-head); line-height:1.2; margin:0}
+.display{font-family:var(--font-display); font-weight:600}
+.label{
+  font-family:var(--font-mono); font-size:10px; font-weight:700;
+  letter-spacing:.14em; text-transform:uppercase;
+}
+.num{font-variant-numeric:tabular-nums; font-family:var(--font-mono)}
+
+/* ---- primitives ---- */
+.ll-panel{
+  background:linear-gradient(180deg,var(--abyss2),var(--abyss));
+  border:1px solid color-mix(in srgb,var(--smoke) 38%, transparent);
+  border-radius:var(--r-panel); padding:20px 22px;
+}
+.ll-card{
+  background:var(--abyss); border-radius:var(--r-card);
+  border:1px solid color-mix(in srgb,var(--smoke) 30%, transparent);
+  padding:16px 18px; position:relative; overflow:hidden;
+}
+.ll-chip{
+  display:inline-flex; align-items:center; gap:6px;
+  border-radius:var(--r-chip); padding:4px 12px; min-height:28px;
+  border:1px solid color-mix(in srgb,var(--smoke) 45%, transparent);
+  background:color-mix(in srgb,var(--abyss) 80%, transparent);
+  color:var(--moon); font-family:var(--font-mono); font-size:11px;
+  cursor:pointer; transition:transform var(--d-micro) var(--spring-snappy),
+    border-color var(--d-std) var(--spring-smooth),
+    box-shadow var(--d-std) var(--spring-smooth);
+}
+.ll-chip:hover{border-color:var(--ultra)}
+.ll-chip:active{transform:translateY(1px) scale(.98)}
+.ll-btn{
+  min-height:44px; padding:10px 20px; border-radius:14px; border:0;
+  font-family:var(--font-head); font-weight:600; font-size:15px;
+  cursor:pointer; transition:transform var(--d-micro) var(--spring-snappy),
+    filter var(--d-std) var(--spring-smooth),
+    box-shadow var(--d-std) var(--spring-smooth);
+}
+.ll-btn.primary{background:var(--throne); color:var(--moon)}
+.ll-btn.primary:hover{filter:brightness(1.15)}
+.ll-btn:active{transform:translateY(1px) scale(.98)}
+.ll-btn[disabled]{opacity:.45; cursor:default}
+.ll-hairline{border:0; border-top:1px solid color-mix(in srgb,var(--smoke) 35%, transparent)}
+
+/* ---- choreography keyframes ---- */
+/* faint-arrival: opacity .2→1 + rise (Lane B arrival 0.2; Pow Rise) */
+@keyframes ll-arrive{from{opacity:.2; transform:translateY(12px)} to{opacity:1; transform:translateY(0)}}
+.ll-arrive{animation:ll-arrive var(--d-panel) var(--spring-smooth) both}
+/* blur-replace midpoint veil (SwiftUI blurReplace × Core Image peak) */
+@keyframes ll-blur-out{to{opacity:0; filter:blur(16px)}}
+@keyframes ll-blur-in{from{opacity:0; filter:blur(16px)} to{opacity:1; filter:blur(0)}}
+.ll-blur-out{animation:ll-blur-out calc(var(--d-std)*.55) var(--ease-remap) both}
+.ll-blur-in{animation:ll-blur-in calc(var(--d-std)*.55) var(--ease-remap) both}
+/* ignition flicker (Pow Flicker count 3, irregular steps) */
+@keyframes ll-ignite{0%{opacity:.1}12%{opacity:.9}24%{opacity:.25}41%{opacity:1}57%{opacity:.4}73%{opacity:1}100%{opacity:1}}
+.ll-ignite{animation:ll-ignite 360ms linear both}
+/* glow pulse (Pow Glow: radius ~50, every 1.5s) */
+@keyframes ll-glowpulse{0%,100%{box-shadow:0 0 18px -6px var(--glow-c,var(--mint))}
+  50%{box-shadow:0 0 50px -4px var(--glow-c,var(--mint))}}
+.ll-live{animation:ll-glowpulse 1.5s ease-in-out infinite}
+/* ping rings (Pow Pulse, ×3 stagger via animation-delay in JS/classes) */
+.ll-ping{position:relative}
+.ll-ping::after{content:""; position:absolute; inset:0; border-radius:inherit;
+  border:1px solid var(--glow-c,var(--mint)); opacity:0; pointer-events:none;
+  animation:ll-pingring 1.8s var(--ease-remap) infinite}
+@keyframes ll-pingring{0%{transform:scale(1); opacity:.8} 100%{transform:scale(1.9); opacity:0}}
+/* shake (Pow Shake — errors; always paired with the word) */
+@keyframes ll-shake{0%,100%{transform:translateX(0)}15%{transform:translateX(-8px)}
+  35%{transform:translateX(6px)} 55%{transform:translateX(-4px)} 75%{transform:translateX(2px)}}
+.ll-shake{animation:ll-shake 320ms linear both}
+/* shine sweep (Pow Shine — sheen layer; colour set by --shine-c) */
+.ll-shine{position:relative; overflow:hidden}
+.ll-shine::before{content:""; position:absolute; top:-20%; bottom:-20%; width:45%;
+  left:-60%; transform:skewX(-18deg); pointer-events:none;
+  background:linear-gradient(90deg,transparent,
+    color-mix(in srgb,var(--shine-c,var(--b-cyan)) 34%, transparent),transparent);
+  mix-blend-mode:screen}
+.ll-shine.go::before{animation:ll-sheen 700ms var(--ease-remap) both}
+@keyframes ll-sheen{to{left:130%}}
+/* iris open (Pow Iris — feathered circular aperture) */
+@keyframes ll-iris{from{clip-path:circle(0% at var(--iris-x,50%) var(--iris-y,50%))}
+  to{clip-path:circle(142% at var(--iris-x,50%) var(--iris-y,50%))}}
+.ll-iris{animation:ll-iris var(--d-hero) var(--spring-smooth) both}
+/* film exposure (Pow — dark→visible luminance ramp) */
+@keyframes ll-exposure{from{filter:brightness(0)} to{filter:brightness(1)}}
+.ll-exposure{animation:ll-exposure var(--d-exposure) ease-in-out both}
+/* breath — ambient only, never layout (12s: in 6.9 / hold .3 / out 4.8) */
+@keyframes ll-breath{0%{transform:scale(1)} 57.5%{transform:scale(1.013)}
+  60%{transform:scale(1.013)} 100%{transform:scale(1)}}
+.ll-breath{animation:ll-breath var(--d-breath) ease-in-out infinite}
+/* odometer digits (SwiftUI numericText) */
+.ll-odo{display:inline-flex; overflow:hidden; vertical-align:bottom}
+.ll-odo .ll-digit{display:inline-block; overflow:hidden; height:1em; line-height:1}
+.ll-odo .ll-strip{display:flex; flex-direction:column; transition:none; will-change:transform}
+.ll-odo .ll-strip span{height:1em; line-height:1; display:block}
+
+/* ---- reduced motion: everything collapses to opacity (transitions.md) ---- */
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{animation-duration:.01ms !important; animation-iteration-count:1 !important;
+    transition-duration:.01ms !important; scroll-behavior:auto !important}
+  .ll-breath{animation:ll-breath var(--d-breath) ease-in-out infinite !important}
+  .ll-live{animation:none !important}
+}
+html[data-calm="1"] .ll-live, html[data-calm="1"] .ll-ping::after{animation:none !important}
+
+/* ============================================================
+   UI v2 — OBSERVATORY LAYER (2026-11-23)
+   Grading ladder (GEPP deliverable §1): six state rungs as
+   reusable classes. A rung is an ADDITIVE grade (inset ring /
+   soft glow) layered over the element's own signal colours —
+   it never replaces the word or the colour that carries the
+   state. Honest-motion law (design system §5): a rung may only
+   be applied by JS when the underlying state field actually
+   carries that condition; stale is computed from the real
+   last-update timestamp against a stated threshold and is
+   always shown with its age (.rung-age).
+   ============================================================ */
+.ll-rung-idle{box-shadow:none}
+.ll-rung-live{box-shadow:0 0 16px -6px var(--mint), inset 0 0 0 1px color-mix(in srgb,var(--mint) 35%, transparent)}
+.ll-rung-stale{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--amber) 70%, transparent)}
+.ll-rung-diverged{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--rose) 75%, transparent), 0 0 14px -6px var(--rose)}
+.ll-rung-awaiting-ruling{--glow-c:var(--amber); box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--amber) 70%, transparent), 0 0 18px -6px var(--amber);
+  animation:ll-glowpulse 1.5s ease-in-out infinite}
+.ll-rung-delivered{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--gold) 65%, transparent), 0 0 22px -6px var(--b-gold)}
+.rung-age{font-family:var(--font-mono); font-size:11px; color:var(--amber); white-space:nowrap}
+.actor-line{font-family:var(--font-mono); font-size:11px; color:var(--smoke-violet); white-space:normal}
+
+/* ---- Kāla-phase ambient shift — DECLARED client-clock grammar ----
+   The temperature of the AMBIENT layer only is shifted by the
+   viewer's local day phase, computed from the CLIENT clock in
+   JS (applyKalaPhase). This is declared grammar, NOT the
+   measured Kāla register (that register lives on 8794/8791 and
+   is never claimed here). It never touches layout and never
+   touches signal colours — only --kala-glow / --kala-op, which
+   feed ambient washes alone. */
+:root{--kala-glow:transparent; --kala-op:.08}
+html[data-kala-phase="dawn"]{--kala-glow:#FF9500; --kala-op:.14}
+html[data-kala-phase="day"]{--kala-glow:#32ADE6; --kala-op:.06}
+html[data-kala-phase="dusk"]{--kala-glow:#FF5C7A; --kala-op:.12}
+html[data-kala-phase="night"]{--kala-glow:#5856D6; --kala-op:.10}
+.kala-ambient{position:fixed; inset:0; pointer-events:none; z-index:0;
+  background:radial-gradient(60% 42% at 50% 0%, var(--kala-glow), transparent 70%);
+  opacity:var(--kala-op)}
+
+/* ---- reduced motion: gentler breath (design system §4 — in
+   reduced motion the breath alone remains, GENTLER ±0.8%) ---- */
+@keyframes ll-breath-soft{0%{transform:scale(1)} 57.5%{transform:scale(1.008)}
+  60%{transform:scale(1.008)} 100%{transform:scale(1)}}
+@media (prefers-reduced-motion: reduce){
+  .ll-breath{animation:ll-breath-soft var(--d-breath) ease-in-out infinite !important}
+  .ll-rung-awaiting-ruling{animation:none}
+  .kala-ambient{transition:none}
+}
