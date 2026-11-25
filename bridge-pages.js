@@ -244,3 +244,95 @@ var SB_ANAHATA_MARK = {
   window.EventSource.OPEN = 1;
   window.EventSource.CLOSED = 2;
 })();
+
+/* === REBUILDING WATCHER (Permanence Build 2026-11-25) ===
+ * The honest $0 seamlessness the edge-proxy study identified: this
+ * showcase copy detects a dead live-backend and says so, instead of
+ * presenting a stale face as if it were live. Signal: the estate's
+ * dead-man heartbeat, mirrored by deadman/stamp.py to this repo's
+ * gh-pages branch as permanence-heartbeat.json (same-origin here).
+ * The supervisor-driven converge stamps at least every ~10 min on a
+ * healthy estate; if the heartbeat ages past the threshold, the live
+ * house is down or rebuilding (VM replacement gap) — show the banner
+ * and auto-reload until a fresh stamp lands. A heartbeat that cannot
+ * be fetched at all is "unknown": no banner (this host being
+ * unreachable would mean the page itself is not being viewed). */
+(function () {
+  "use strict";
+  var MAX_AGE_MS = window.__SB_REBUILD_MAX_AGE_MS || 15 * 60 * 1000;
+  var POLL_MS = 60 * 1000;
+  var RELOAD_MS = 90 * 1000;
+
+  /* Pure decision core (unit-tested by extraction in the build). */
+  function sbRebuildState(nowMs, hbMs) {
+    if (hbMs == null || isNaN(hbMs)) return "unknown";
+    return (nowMs - hbMs > MAX_AGE_MS) ? "rebuilding" : "live";
+  }
+  window.__sbRebuildState = sbRebuildState;
+
+  function heartbeatUrl() {
+    try {
+      var scripts = document.getElementsByTagName("script");
+      for (var i = 0; i < scripts.length; i++) {
+        var src = scripts[i].src || "";
+        if (src.indexOf("bridge-pages.js") >= 0) {
+          return src.slice(0, src.lastIndexOf("/") + 1) +
+            "permanence-heartbeat.json";
+        }
+      }
+    } catch (e) { /* fall through */ }
+    var parts = location.pathname.split("/").filter(Boolean);
+    return "/" + (parts[0] || "") + "/permanence-heartbeat.json";
+  }
+
+  var barEl = null, reloadTimer = null;
+  function showBar(ageMin) {
+    function draw() {
+      if (!barEl) {
+        barEl = document.createElement("div");
+        barEl.id = "sbRebuildingBar";
+        barEl.style.cssText = "position:fixed;left:0;right:0;top:0;" +
+          "z-index:99999;background:#232946;color:#f8bb3c;" +
+          "border-bottom:1px solid #f8bb3c;padding:10px 14px;" +
+          "font:13px/1.5 system-ui;text-align:center";
+        (document.body || document.documentElement).appendChild(barEl);
+      }
+      barEl.textContent = "🔱 The live house is rebuilding — last " +
+        "sign of life " + ageMin + " min ago. This showcase copy " +
+        "stays up; the live surfaces return in a few minutes and " +
+        "this page refreshes itself.";
+      barEl.style.display = "block";
+    }
+    if (document.body) draw();
+    else document.addEventListener("DOMContentLoaded", draw);
+    if (!reloadTimer) {
+      reloadTimer = setTimeout(function () { location.reload(); },
+                               RELOAD_MS);
+    }
+  }
+  function hideBar() {
+    if (barEl) barEl.style.display = "none";
+    if (reloadTimer) { clearTimeout(reloadTimer); reloadTimer = null; }
+  }
+
+  async function poll() {
+    var hbMs = null;
+    try {
+      var r = await fetch(heartbeatUrl() + "?t=" + Date.now(),
+                          { cache: "no-store" });
+      if (r.status === 200) {
+        var hb = await r.json();
+        hbMs = Date.parse(hb.timestamp_utc);
+      }
+    } catch (e) { hbMs = null; }
+    var state = sbRebuildState(Date.now(), hbMs);
+    window.__sbRebuildLastState = state;
+    if (state === "rebuilding") {
+      showBar(Math.round((Date.now() - hbMs) / 60000));
+    } else if (state === "live") {
+      hideBar();
+    }
+  }
+  poll();
+  setInterval(poll, POLL_MS);
+})();
