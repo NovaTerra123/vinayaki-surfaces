@@ -1,123 +1,340 @@
 <!DOCTYPE html>
 <html lang="en">
-<head><script>window.__SB_SURFACE="studio";</script><script src="../bridge-pages.js"></script>
+<head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Spandana Studio — one-intent cinematic production</title>
 <style>
-  :root{
-    --bg:#070b16; --panel:#0d1424; --panel2:#10182b; --line:#26314d;
-    --text:#e8edf7; --muted:#93a1bd; --gold:#e6c35c; --violet:#9a6fe0;
-    --cyan:#57c7e3; --pink:#d98fd0; --green:#57b87a; --red:#e05a4e;
-  }
-  *{box-sizing:border-box}
-  body{margin:0;background:radial-gradient(1200px 600px at 70% -10%,#16224a 0%,var(--bg) 55%);
-       color:var(--text);font-family:Georgia,'Times New Roman',serif;line-height:1.5}
+/* ============================================================
+   LIVING LIGHT KIT — INLINED VERBATIM from
+   ~/workspace/live-dashboard/shared/living-light.css
+   (server.py serves only this folder; ../shared/ is not under
+   its static root, so the kit is inlined — function over purity,
+   per UI-DESIGN-SYSTEM-2026-11-22.md §7.)
+   ============================================================ */
+:root{
+  --void:#0A0614; --abyss:#150C26; --abyss2:#1D1136;
+  --smoke:#6E6390; --smoke-violet:#9A8BB8;
+  --moon:#F4EEFF; --throne:#6D28D9; --throne-hi:#7C3AED;
+  --rose:#FF5C7A; --amber:#FFC857; --mint:#3DFFA2;
+  --blue:#5B8CFF; --cyan:#33E0FF; --ultra:#C77DFF;
+  --b-rose:#FF8FA3; --b-mint:#7CFFC4; --b-gold:#FFD97A;
+  --b-blue:#8FB0FF; --b-violet:#E0A6FF; --b-cyan:#8FF2FF;
+  --gold:#D4AF37;
+  --c-root:#FF3B30; --c-sacral:#FF9500; --c-navel:#FFCC00;
+  --c-heart:#34C759; --c-throat:#32ADE6; --c-brow:#5856D6; --c-crown:#AF52DE;
+  --font-display:"Fraunces","Playfair Display",Georgia,serif;
+  --font-head:"Space Grotesk",system-ui,sans-serif;
+  --font-body:"Inter",system-ui,-apple-system,sans-serif;
+  --font-mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+  --d-micro:160ms; --d-std:280ms; --d-panel:420ms; --d-hero:640ms;
+  --d-exposure:1800ms; --d-breath:12s;
+  --spring-smooth:cubic-bezier(.22,1,.36,1);
+  --spring-snappy:cubic-bezier(.28,.84,.42,1);
+  --spring-controlled:cubic-bezier(.34,1.3,.64,1);
+  --spring-bouncy:cubic-bezier(.34,1.56,.64,1);
+  --ease-remap:cubic-bezier(.33,0,.2,1);
+  --r-panel:20px; --r-card:16px; --r-chip:999px;
+}
+*{box-sizing:border-box}
+html{background:var(--void)}
+body{
+  margin:0; background:var(--void); color:var(--moon);
+  font-family:var(--font-body); font-size:16px; line-height:1.65;
+  -webkit-font-smoothing:antialiased;
+}
+h1,h2,h3{font-family:var(--font-head); line-height:1.2; margin:0}
+.display{font-family:var(--font-display); font-weight:600}
+.label{
+  font-family:var(--font-mono); font-size:10px; font-weight:700;
+  letter-spacing:.14em; text-transform:uppercase;
+}
+.num{font-variant-numeric:tabular-nums; font-family:var(--font-mono)}
+.ll-panel{
+  background:linear-gradient(180deg,var(--abyss2),var(--abyss));
+  border:1px solid color-mix(in srgb,var(--smoke) 38%, transparent);
+  border-radius:var(--r-panel); padding:20px 22px;
+}
+.ll-card{
+  background:var(--abyss); border-radius:var(--r-card);
+  border:1px solid color-mix(in srgb,var(--smoke) 30%, transparent);
+  padding:16px 18px; position:relative; overflow:hidden;
+}
+.ll-chip{
+  display:inline-flex; align-items:center; gap:6px;
+  border-radius:var(--r-chip); padding:4px 12px; min-height:28px;
+  border:1px solid color-mix(in srgb,var(--smoke) 45%, transparent);
+  background:color-mix(in srgb,var(--abyss) 80%, transparent);
+  color:var(--moon); font-family:var(--font-mono); font-size:11px;
+  cursor:pointer; transition:transform var(--d-micro) var(--spring-snappy),
+    border-color var(--d-std) var(--spring-smooth),
+    box-shadow var(--d-std) var(--spring-smooth);
+}
+.ll-chip:hover{border-color:var(--ultra)}
+.ll-chip:active{transform:translateY(1px) scale(.98)}
+.ll-btn{
+  min-height:44px; padding:10px 20px; border-radius:14px; border:0;
+  font-family:var(--font-head); font-weight:600; font-size:15px;
+  cursor:pointer; transition:transform var(--d-micro) var(--spring-snappy),
+    filter var(--d-std) var(--spring-smooth),
+    box-shadow var(--d-std) var(--spring-smooth);
+}
+.ll-btn.primary{background:var(--throne); color:var(--moon)}
+.ll-btn.primary:hover{filter:brightness(1.15)}
+.ll-btn:active{transform:translateY(1px) scale(.98)}
+.ll-btn[disabled]{opacity:.45; cursor:default}
+.ll-hairline{border:0; border-top:1px solid color-mix(in srgb,var(--smoke) 35%, transparent)}
+@keyframes ll-arrive{from{opacity:.2; transform:translateY(12px)} to{opacity:1; transform:translateY(0)}}
+.ll-arrive{animation:ll-arrive var(--d-panel) var(--spring-smooth) both}
+@keyframes ll-blur-out{to{opacity:0; filter:blur(16px)}}
+@keyframes ll-blur-in{from{opacity:0; filter:blur(16px)} to{opacity:1; filter:blur(0)}}
+.ll-blur-out{animation:ll-blur-out calc(var(--d-std)*.55) var(--ease-remap) both}
+.ll-blur-in{animation:ll-blur-in calc(var(--d-std)*.55) var(--ease-remap) both}
+@keyframes ll-ignite{0%{opacity:.1}12%{opacity:.9}24%{opacity:.25}41%{opacity:1}57%{opacity:.4}73%{opacity:1}100%{opacity:1}}
+.ll-ignite{animation:ll-ignite 360ms linear both}
+@keyframes ll-glowpulse{0%,100%{box-shadow:0 0 18px -6px var(--glow-c,var(--mint))}
+  50%{box-shadow:0 0 50px -4px var(--glow-c,var(--mint))}}
+.ll-live{animation:ll-glowpulse 1.5s ease-in-out infinite}
+.ll-ping{position:relative}
+.ll-ping::after{content:""; position:absolute; inset:0; border-radius:inherit;
+  border:1px solid var(--glow-c,var(--mint)); opacity:0; pointer-events:none;
+  animation:ll-pingring 1.8s var(--ease-remap) infinite}
+@keyframes ll-pingring{0%{transform:scale(1); opacity:.8} 100%{transform:scale(1.9); opacity:0}}
+@keyframes ll-shake{0%,100%{transform:translateX(0)}15%{transform:translateX(-8px)}
+  35%{transform:translateX(6px)} 55%{transform:translateX(-4px)} 75%{transform:translateX(2px)}}
+.ll-shake{animation:ll-shake 320ms linear both}
+.ll-shine{position:relative; overflow:hidden}
+.ll-shine::before{content:""; position:absolute; top:-20%; bottom:-20%; width:45%;
+  left:-60%; transform:skewX(-18deg); pointer-events:none;
+  background:linear-gradient(90deg,transparent,
+    color-mix(in srgb,var(--shine-c,var(--b-cyan)) 34%, transparent),transparent);
+  mix-blend-mode:screen}
+.ll-shine.go::before{animation:ll-sheen 700ms var(--ease-remap) both}
+@keyframes ll-sheen{to{left:130%}}
+@keyframes ll-iris{from{clip-path:circle(0% at var(--iris-x,50%) var(--iris-y,50%))}
+  to{clip-path:circle(142% at var(--iris-x,50%) var(--iris-y,50%))}}
+.ll-iris{animation:ll-iris var(--d-hero) var(--spring-smooth) both}
+@keyframes ll-exposure{from{filter:brightness(0)} to{filter:brightness(1)}}
+.ll-exposure{animation:ll-exposure var(--d-exposure) ease-in-out both}
+@keyframes ll-breath{0%{transform:scale(1)} 57.5%{transform:scale(1.013)}
+  60%{transform:scale(1.013)} 100%{transform:scale(1)}}
+.ll-breath{animation:ll-breath var(--d-breath) ease-in-out infinite}
+.ll-odo{display:inline-flex; overflow:hidden; vertical-align:bottom}
+.ll-odo .ll-digit{display:inline-block; overflow:hidden; height:1em; line-height:1}
+.ll-odo .ll-strip{display:flex; flex-direction:column; transition:none; will-change:transform}
+.ll-odo .ll-strip span{height:1em; line-height:1; display:block}
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{animation-duration:.01ms !important; animation-iteration-count:1 !important;
+    transition-duration:.01ms !important; scroll-behavior:auto !important}
+  .ll-breath{animation:ll-breath var(--d-breath) ease-in-out infinite !important}
+  .ll-live{animation:none !important}
+}
+html[data-calm="1"] .ll-live, html[data-calm="1"] .ll-ping::after{animation:none !important}
+/* ============================================================
+   UI v2 — OBSERVATORY LAYER (2026-11-23; inlined with the kit,
+   same text as 8792's living-light.css v2 block)
+   Grading ladder: six state rungs as reusable classes — an
+   ADDITIVE grade (inset ring / soft glow) over the element's
+   own signal colours; the word always remains. A rung is
+   applied by JS only when a real state field carries that
+   condition (honest-motion law, design system §5); stale is
+   computed from the real last-update timestamp against a
+   stated threshold and shown with its age (.rung-age).
+   ============================================================ */
+.ll-rung-idle{box-shadow:none}
+.ll-rung-live{box-shadow:0 0 16px -6px var(--mint), inset 0 0 0 1px color-mix(in srgb,var(--mint) 35%, transparent)}
+.ll-rung-stale{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--amber) 70%, transparent)}
+.ll-rung-diverged{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--rose) 75%, transparent), 0 0 14px -6px var(--rose)}
+.ll-rung-awaiting-ruling{--glow-c:var(--amber); box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--amber) 70%, transparent), 0 0 18px -6px var(--amber);
+  animation:ll-glowpulse 1.5s ease-in-out infinite}
+.ll-rung-delivered{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--gold) 65%, transparent), 0 0 22px -6px var(--b-gold)}
+/* G-38 (wave 3): delivery bloom — the sovereign rung (g5: full light,
+   32px bloom) fired exactly once when a packet's real state crosses
+   into delivered (state diff in the packet render, never on first
+   render), decaying to the delivered rest above. Reduced motion:
+   no bloom — the "delivered" word chip in the row is the substitute. */
+@keyframes ll-delivery-bloom{0%{box-shadow:0 0 32px 2px var(--b-gold), inset 0 0 0 1px var(--gold)}100%{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--gold) 65%, transparent), 0 0 22px -6px var(--b-gold)}}
+.delivery-bloom{animation:ll-delivery-bloom 1.8s ease-out 1}
+@media (prefers-reduced-motion: reduce){.delivery-bloom{animation:none}}
+.rung-age{font-family:var(--font-mono); font-size:11px; color:var(--amber); white-space:nowrap}
+.actor-line{font-family:var(--font-mono); font-size:11px; color:var(--smoke-violet); white-space:normal}
+/* Kala-phase ambient — DECLARED client-clock grammar, NOT the
+   measured Kala register (8794/8791): tints the ambient layer
+   only via --kala-glow/--kala-op; never layout, never signals. */
+:root{--kala-glow:transparent; --kala-op:.08}
+html[data-kala-phase="dawn"]{--kala-glow:#FF9500; --kala-op:.14}
+html[data-kala-phase="day"]{--kala-glow:#32ADE6; --kala-op:.06}
+html[data-kala-phase="dusk"]{--kala-glow:#FF5C7A; --kala-op:.12}
+html[data-kala-phase="night"]{--kala-glow:#5856D6; --kala-op:.10}
+.kala-ambient{position:fixed; inset:0; pointer-events:none; z-index:0;
+  background:radial-gradient(60% 42% at 50% 0%, var(--kala-glow), transparent 70%);
+  opacity:var(--kala-op)}
+@keyframes ll-breath-soft{0%{transform:scale(1)} 57.5%{transform:scale(1.008)}
+  60%{transform:scale(1.008)} 100%{transform:scale(1)}}
+@media (prefers-reduced-motion: reduce){
+  .ll-breath{animation:ll-breath-soft var(--d-breath) ease-in-out infinite !important}
+  .ll-rung-awaiting-ruling{animation:none}
+  .kala-ambient{transition:none}
+}
+
+
+/* ============================================================
+   SPANDANA STUDIO — surface styles in the Living Light system.
+   Class names from the pre-regen file are preserved (the render
+   code and the manifest's DOM hooks depend on them); only the
+   visual language changes.
+   ============================================================ */
+  body{background:radial-gradient(1200px 600px at 70% -10%,#1D1136 0%,var(--void) 55%)}
   .wrap{max-width:1180px;margin:0 auto;padding:28px 18px 80px}
-  h1{font-size:34px;margin:0;letter-spacing:.5px}
-  h1 .glow{color:var(--gold);text-shadow:0 0 22px rgba(230,195,92,.45)}
-  .sub{color:var(--muted);margin-top:4px;font-size:15px}
-  .tech{font-family:ui-monospace,Menlo,monospace;font-size:11px;color:var(--muted);
-        letter-spacing:.4px;text-transform:uppercase}
-  .hero{margin:30px 0 8px;background:linear-gradient(180deg,var(--panel2),var(--panel));
-        border:1px solid var(--line);border-radius:14px;padding:22px}
-  .hero label{font-size:18px}
-  .row{display:flex;gap:10px;margin-top:12px;flex-wrap:wrap}
-  textarea{flex:1;min-width:280px;min-height:64px;background:#0a0f1f;color:var(--text);
-           border:1px solid var(--line);border-radius:10px;padding:12px;font-size:16px;
-           font-family:inherit;resize:vertical}
-  button{background:linear-gradient(180deg,#f0d47a,var(--gold));color:#231a02;border:0;
-         border-radius:10px;padding:12px 22px;font-size:16px;font-weight:bold;cursor:pointer}
-  button:disabled{opacity:.5;cursor:wait}
-  .hint{color:var(--muted);font-size:13px;margin-top:8px}
+  h1{font-family:var(--font-display);font-size:42px;font-weight:600;letter-spacing:.5px}
+  h1 .glow{color:var(--b-gold);text-shadow:0 0 26px rgba(255,217,122,.45)}
+  .sub{color:var(--smoke-violet);margin-top:4px;font-size:16px}
+  .tech{font-family:var(--font-mono);font-size:10px;color:var(--smoke-violet);
+        letter-spacing:.14em;text-transform:uppercase}
+  .hero{margin:30px 0 8px;background:linear-gradient(180deg,var(--abyss2),var(--abyss));
+        border:1px solid color-mix(in srgb,var(--smoke) 38%, transparent);
+        border-radius:var(--r-panel);padding:22px}
+  .hero label{font-family:var(--font-head);font-size:18px}
+  .row{display:flex;gap:10px;margin-top:12px;flex-wrap:wrap;align-items:flex-start}
+  textarea{flex:1;min-width:280px;min-height:64px;background:var(--void);color:var(--moon);
+           border:1px solid color-mix(in srgb,var(--smoke) 45%, transparent);border-radius:12px;
+           padding:12px;font-size:16px;font-family:var(--font-body);line-height:1.65;resize:vertical;
+           transition:border-color var(--d-std) var(--spring-smooth)}
+  textarea:focus{outline:none;border-color:var(--throne-hi)}
+  button{background:var(--throne);color:var(--moon);border:0;min-height:44px;
+         border-radius:14px;padding:10px 22px;font-family:var(--font-head);
+         font-size:15px;font-weight:600;cursor:pointer;
+         transition:transform var(--d-micro) var(--spring-snappy),
+           filter var(--d-std) var(--spring-smooth)}
+  button:hover{filter:brightness(1.15)}
+  button:active{transform:translateY(1px) scale(.98)}
+  button:disabled{opacity:.45;cursor:wait}
+  .hint{color:var(--smoke-violet);font-size:13px;margin-top:8px}
   section{margin-top:34px}
-  h2{font-size:22px;margin:0 0 4px;color:var(--text)}
+  h2{font-size:26px;margin:0 0 4px;color:var(--moon)}
   h2 .tech{margin-left:8px}
-  .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;
-        padding:16px 18px;margin-top:12px}
+  .card{background:var(--abyss);border:1px solid color-mix(in srgb,var(--smoke) 30%, transparent);
+        border-radius:var(--r-card);padding:16px 18px;margin-top:12px;position:relative}
+  .k{color:var(--b-gold);font-family:var(--font-mono);font-size:11px;font-weight:700;
+     text-transform:uppercase;letter-spacing:.14em}
   .brief-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px}
-  .brief-grid .cell{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:12px}
-  .cell .k{color:var(--gold);font-size:13px;text-transform:uppercase;letter-spacing:.6px}
-  .protect{border-color:var(--pink);background:#170f22}
-  .protect .k{color:var(--pink)}
+  .brief-grid .cell{background:var(--abyss2);border:1px solid color-mix(in srgb,var(--smoke) 30%, transparent);
+        border-radius:12px;padding:12px}
+  .cell .k{color:var(--b-gold)}
+  .protect{border-color:var(--rose);background:#1D0E20}
+  .protect .k{color:var(--b-rose)}
   ul{margin:6px 0 6px 18px;padding:0}
   li{margin:4px 0}
   table{width:100%;border-collapse:collapse;margin-top:12px;font-size:13.5px}
-  th,td{border:1px solid var(--line);padding:8px 9px;vertical-align:top;text-align:left}
-  th{background:var(--panel2);color:var(--gold);font-weight:normal;font-size:12.5px;
-     text-transform:uppercase;letter-spacing:.5px}
+  th,td{border:1px solid color-mix(in srgb,var(--smoke) 35%, transparent);padding:8px 9px;vertical-align:top;text-align:left}
+  th{background:var(--abyss2);color:var(--b-gold);font-family:var(--font-mono);font-weight:700;font-size:11px;
+     text-transform:uppercase;letter-spacing:.14em}
   td.beat{white-space:nowrap;color:var(--cyan)}
-  .asset{display:inline-block;background:#1a2440;border:1px solid var(--line);
-         border-radius:6px;padding:0 6px;margin:1px 2px;font-family:ui-monospace,Menlo,monospace;
-         font-size:12px;color:var(--gold)}
+  .asset{display:inline-block;background:var(--abyss2);border:1px solid color-mix(in srgb,var(--smoke) 40%, transparent);
+         border-radius:6px;padding:0 6px;margin:1px 2px;font-family:var(--font-mono);
+         font-size:12px;color:var(--b-gold)}
   .caps{display:grid;grid-template-columns:repeat(auto-fit,minmax(330px,1fr));gap:12px;margin-top:12px}
-  .cap{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 16px}
-  .cap .id{font-family:ui-monospace,Menlo,monospace;color:var(--gold);font-size:13px}
-  .cap .kind{float:right;color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:.5px}
+  .cap{background:var(--abyss);border:1px solid color-mix(in srgb,var(--smoke) 30%, transparent);border-radius:var(--r-card);padding:14px 16px}
+  .cap .id{font-family:var(--font-mono);color:var(--b-gold);font-size:13px}
+  .cap .kind{float:right;color:var(--smoke-violet);font-family:var(--font-mono);font-size:11px;text-transform:uppercase;letter-spacing:.14em}
   .cap .what{font-size:15.5px;margin:6px 0 8px}
-  .cap .f{font-size:13px;color:var(--muted);margin:3px 0}
-  .cap .f b{color:var(--text);font-weight:normal}
-  .cap .why{border-left:3px solid var(--violet);padding-left:9px;color:var(--text);font-size:13.5px;margin-top:8px}
+  .cap .f{font-size:13px;color:var(--smoke-violet);margin:3px 0}
+  .cap .f b{color:var(--moon);font-weight:normal}
+  .cap .why{border-left:3px solid var(--ultra);padding-left:9px;color:var(--moon);font-size:13.5px;margin-top:8px}
   .sort{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px;margin-top:12px}
-  .sort .col{border-radius:12px;padding:14px 16px;border:1px solid var(--line);background:var(--panel)}
-  .sort .matters{border-color:var(--red)} .sort .fill{border-color:var(--cyan)}
-  .sort .needs{border-color:var(--gold)}
+  .sort .col{border-radius:var(--r-card);padding:14px 16px;border:1px solid color-mix(in srgb,var(--smoke) 30%, transparent);background:var(--abyss)}
+  .sort .matters{border-color:var(--rose)} .sort .fill{border-color:var(--cyan)}
+  .sort .needs{border-color:var(--amber)}
   .sort h3{margin:0 0 6px;font-size:16px}
   .steps{margin-top:12px}
-  .step{display:flex;gap:12px;padding:8px 10px;border-bottom:1px solid var(--line);font-size:14.5px}
-  .step .n{font-family:ui-monospace,Menlo,monospace;color:var(--muted);min-width:26px;text-align:right}
-  .step .ph{color:var(--violet);min-width:118px;font-size:12.5px;text-transform:uppercase;letter-spacing:.5px;padding-top:3px}
-  .step .st{color:var(--muted);font-size:13.5px}
-  .pkt{font-family:ui-monospace,Menlo,monospace;font-size:12.5px}
-  .st-approved{color:var(--cyan)} .st-verified{color:var(--green)}
-  .st-awaiting_ruling{color:var(--gold)} .st-failed{color:var(--red)}
-  .artifact{border:1px dashed var(--violet);border-radius:12px;padding:18px;margin-top:12px;
-            background:#120e24;text-align:center}
+  /* production steps — phase choreography (§8): each step carries its
+     phase as a spectral edge; willAppear → identity → didDisappear is
+     expressed by the faint-arrival on first appearance / real status
+     change only (honest-motion law: unchanged steps never re-animate). */
+  .step{display:flex;gap:12px;padding:8px 10px;border-bottom:1px solid color-mix(in srgb,var(--smoke) 30%, transparent);
+        font-size:14.5px;border-left:3px solid transparent}
+  .step[data-phase]{border-left-color:color-mix(in srgb,var(--ultra) 55%, transparent)}
+  .step .n{font-family:var(--font-mono);color:var(--smoke-violet);min-width:26px;text-align:right}
+  .step .ph{color:var(--b-violet);min-width:118px;font-family:var(--font-mono);font-size:11px;font-weight:700;
+        text-transform:uppercase;letter-spacing:.14em;padding-top:3px}
+  .step .st{color:var(--smoke-violet);font-size:13.5px}
+  .pkt{font-family:var(--font-mono);font-size:12.5px}
+  /* packet states — colour ALWAYS paired with the state word (the word
+     is rendered beside the class, exactly as before) */
+  .st-approved{color:var(--cyan)} .st-verified{color:var(--mint)}
+  .st-awaiting_ruling{color:var(--amber)} .st-failed{color:var(--rose)}
+  .artifact{border:1px dashed var(--ultra);border-radius:var(--r-card);padding:18px;margin-top:12px;
+            background:var(--abyss);text-align:center}
   .artifact .big{font-size:17px}
-  .tag{display:inline-block;border:1px solid var(--line);border-radius:6px;padding:0 7px;
-       margin:1px 2px;font-size:12px;font-family:ui-monospace,Menlo,monospace}
-  .tag.meas{color:var(--cyan)} .tag.gram{color:var(--violet)} .tag.warn{color:var(--gold);border-color:var(--gold)}
-  .tag.unk{color:var(--muted)}
-  .trow{display:flex;gap:10px;padding:6px 10px;border-bottom:1px solid var(--line);font-size:14px;flex-wrap:wrap}
-  .trow .tw{font-family:ui-monospace,Menlo,monospace;color:var(--muted);font-size:12.5px}
-  .lvl{font-size:20px;color:var(--gold)}
-  .foot{color:var(--muted);font-size:12.5px;margin-top:40px}
-  .err{color:var(--red)}
+  .tag{display:inline-block;border:1px solid color-mix(in srgb,var(--smoke) 45%, transparent);border-radius:6px;padding:0 7px;
+       margin:1px 2px;font-size:12px;font-family:var(--font-mono)}
+  .tag.meas{color:var(--cyan)} .tag.gram{color:var(--b-violet)} .tag.warn{color:var(--amber);border-color:var(--amber)}
+  .tag.unk{color:var(--smoke-violet)}
+  .trow{display:flex;gap:10px;padding:6px 10px;border-bottom:1px solid color-mix(in srgb,var(--smoke) 30%, transparent);font-size:14px;flex-wrap:wrap;align-items:baseline}
+  .trow .tw{font-family:var(--font-mono);color:var(--smoke-violet);font-size:12.5px}
+  .lvl{font-size:20px;color:var(--b-gold);font-family:var(--font-head)}
+  .foot{color:var(--smoke-violet);font-size:12.5px;margin-top:40px}
+  .err{color:var(--rose)}
   .style-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:12px;margin-top:12px}
-  .style-card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 16px;cursor:pointer}
-  .style-card:hover{border-color:var(--violet)}
-  .style-card.sel{border-color:var(--gold);box-shadow:0 0 14px rgba(230,195,92,.25)}
-  .style-card .sname{font-size:17px;color:var(--text)}
-  .style-card .stag{color:var(--muted);font-size:13.5px;margin:2px 0 8px}
-  .style-icon{float:right;color:var(--gold)}
-  .arch-chip{display:inline-block;background:var(--panel2);border:1px solid var(--line);border-radius:8px;
+  .style-card{background:var(--abyss);border:1px solid color-mix(in srgb,var(--smoke) 30%, transparent);
+        border-radius:var(--r-card);padding:14px 16px;cursor:pointer;
+        transition:border-color var(--d-std) var(--spring-smooth),box-shadow var(--d-std) var(--spring-smooth),
+          transform var(--d-micro) var(--spring-snappy)}
+  .style-card:hover{border-color:var(--ultra)}
+  .style-card:active{transform:translateY(1px) scale(.99)}
+  .style-card.sel{border-color:var(--gold);box-shadow:0 0 18px -4px var(--b-gold)}
+  .style-card .sname{font-family:var(--font-head);font-size:17px;color:var(--moon)}
+  .style-card .stag{color:var(--smoke-violet);font-size:13.5px;margin:2px 0 8px}
+  .style-icon{float:right;color:var(--b-gold)}
+  .arch-chip{display:inline-block;background:var(--abyss2);border:1px solid color-mix(in srgb,var(--smoke) 40%, transparent);border-radius:8px;
              padding:3px 8px;margin:2px 3px 2px 0;font-size:12.5px}
-  .arch-chip .insp{display:block;color:var(--muted);font-size:11.5px}
-  .chan{display:flex;gap:10px;padding:7px 10px;border-bottom:1px solid var(--line);font-size:14px;flex-wrap:wrap}
-  .chan .cl{min-width:150px;color:var(--gold);font-size:12.5px;text-transform:uppercase;letter-spacing:.5px;padding-top:2px}
+  .arch-chip .insp{display:block;color:var(--smoke-violet);font-size:11.5px}
+  .chan{display:flex;gap:10px;padding:7px 10px;border-bottom:1px solid color-mix(in srgb,var(--smoke) 30%, transparent);font-size:14px;flex-wrap:wrap;align-items:baseline}
+  .chan .cl{min-width:150px;color:var(--b-gold);font-family:var(--font-mono);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.14em;padding-top:2px}
   .map-row{display:flex;gap:8px;align-items:center;margin:8px 0;flex-wrap:wrap}
-  .map-row input[type=number]{width:84px;background:#0a0f1f;color:var(--text);border:1px solid var(--line);
-             border-radius:8px;padding:8px;font-family:inherit;font-size:14px}
-  .map-row select{background:#0a0f1f;color:var(--text);border:1px solid var(--line);border-radius:8px;
-             padding:8px;font-family:inherit;font-size:14px;min-width:150px}
-  .btn-small{padding:7px 13px;font-size:13.5px;border-radius:8px}
-  .btn-ghost{background:var(--panel2);color:var(--text);border:1px solid var(--line)}
-  .var-chip{display:inline-block;background:var(--panel2);border:1px solid var(--violet);border-radius:10px;
+  .map-row input[type=number]{width:84px;background:var(--void);color:var(--moon);border:1px solid color-mix(in srgb,var(--smoke) 45%, transparent);
+             border-radius:8px;padding:8px;font-family:var(--font-body);font-size:14px;min-height:44px}
+  .map-row select{background:var(--void);color:var(--moon);border:1px solid color-mix(in srgb,var(--smoke) 45%, transparent);border-radius:8px;
+             padding:8px;font-family:var(--font-body);font-size:14px;min-width:150px;min-height:44px}
+  .btn-small{padding:7px 13px;font-size:13.5px;border-radius:8px;min-height:44px}
+  .btn-ghost{background:var(--abyss2);color:var(--moon);border:1px solid color-mix(in srgb,var(--smoke) 45%, transparent)}
+  .var-chip{display:inline-block;background:var(--abyss2);border:1px solid var(--ultra);border-radius:10px;
             padding:8px 12px;margin:4px 6px 4px 0;font-size:13.5px}
-  .var-chip .vid{font-family:ui-monospace,Menlo,monospace;color:var(--gold);font-size:12.5px}
+  .var-chip .vid{font-family:var(--font-mono);color:var(--b-gold);font-size:12.5px}
+
+  /* ---- UI v2 surface additions ---- */
+  .wrap{position:relative; z-index:1}
+  #staleBanner{max-width:1180px; margin:14px auto 0; font-size:14px}
+  .step.ll-rung-stale,.step.ll-rung-diverged,.step.ll-rung-awaiting-ruling,.step.ll-rung-delivered,.step.ll-rung-live{border-radius:6px}
+  /* Reduced-motion audit (surface-local pieces): every local
+     transition/animation collapses to opacity/identity. The kit
+     global rule already zeroes durations; these explicit rules
+     cover the surface's own hover/active transforms so no
+     transform survives under reduced motion. */
+  @media (prefers-reduced-motion: reduce){
+    .style-card,button,textarea,.ll-chip,.ll-btn{transition:none !important}
+    .style-card:active,button:active,.ll-btn:active,.ll-chip:active{transform:none}
+    .ll-arrive{animation:none; opacity:1; transform:none}
+    .ll-iris,.ll-exposure,.ll-ignite,.ll-shake{animation:none}
+    .ll-ping::after{animation:none}
+    h1 .glow{text-shadow:none}
+  }
 </style>
+<link rel="stylesheet" href="surface-kit.css">
+<link rel="stylesheet" href="chat-panel.css">
 </head>
 <body>
+<div class="kala-ambient" aria-hidden="true"></div>
 <div class="wrap">
   <h1>Spandana <span class="glow">Studio</span></h1>
   <div class="sub">One sentence of intent — a governed cinematic production.
     <span class="tech">intent service → director's brief → beat trace → capture list → job packets (Buddhi backend)</span></div>
 
-  <div class="hero">
+  <div class="hero ll-panel">
     <label for="intent">Your intent — the film, the occasion, the feeling</label>
     <div class="row">
       <textarea id="intent">I want my daughter to feel that she won the dance battle and Dad loved losing</textarea>
-      <button id="produce">Produce</button>
+      <button id="produce" class="ll-btn primary">Produce</button>
     </div>
     <div class="hint">Type one sentence and press Produce. The studio recovers the project,
       compiles the director's brief, traces every important beat from the feeling to the exact
@@ -126,6 +343,7 @@
     <div class="hint err" id="err"></div>
   </div>
 
+  <div id="staleBanner" class="hint err" role="status" hidden></div>
   <div id="view"><div class="card">Loading the production…</div></div>
 
   <div class="foot">Spandana Studio runs on the Buddhi agentic backend (orchestrator · bus · scheduler ·
@@ -135,8 +353,113 @@
 </div>
 
 <script>
-const EMBEDDED = __PRODUCTION_JSON__;
-let currentPid = "__DEFAULT_PID__";
+/* ============================================================
+   LIVING LIGHT KIT — motion.js INLINED VERBATIM from
+   ~/workspace/live-dashboard/shared/motion.js (same reason as
+   the CSS above: the studio server cannot serve ../shared/).
+   ============================================================ */
+(function(global){
+"use strict";
+function springParams(T, zeta){ return { k:(2*Math.PI/T)*(2*Math.PI/T), c:4*Math.PI*zeta/T }; }
+var PRESETS = {
+  track:  springParams(0.15, 0.86),
+  settle: springParams(0.50, 0.85),
+  smooth: springParams(0.50, 1.00),
+  gentle: springParams(0.65, 0.90)
+};
+function springTo(obj, target, preset, onUpdate, onDone){
+  var p = PRESETS[preset] || PRESETS.settle;
+  var x = obj.x, v = obj.v || 0, tgt = target, raf = null, last = null, dead = false;
+  function frame(ts){
+    if(dead) return;
+    if(last == null) last = ts;
+    var dt = Math.min((ts - last)/1000, 1/30); last = ts;
+    var a = -p.k*(x - tgt) - p.c*v;
+    v += a*dt; x += v*dt;
+    obj.x = x; obj.v = v;
+    onUpdate && onUpdate(x, v);
+    if(Math.abs(x - tgt) < 0.05 && Math.abs(v) < 0.5){ obj.x = tgt; obj.v = 0; onUpdate && onUpdate(tgt, 0); dead = true; onDone && onDone(); return; }
+    raf = requestAnimationFrame(frame);
+  }
+  raf = requestAnimationFrame(frame);
+  return { retarget:function(t){ tgt = t; if(dead){ dead = false; last = null; raf = requestAnimationFrame(frame); } },
+           cancel:function(){ dead = true; if(raf) cancelAnimationFrame(raf); },
+           get value(){ return x; }, get velocity(){ return v; } };
+}
+function smoothstep(t){ t = Math.max(0, Math.min(1, t)); return t*t*(3 - 2*t); }
+function buildOdo(el, str){
+  el.classList.add("ll-odo"); el.innerHTML = "";
+  var cols = [];
+  for(var i = 0; i < str.length; i++){
+    var ch = str[i];
+    if(/\d/.test(ch)){
+      var d = document.createElement("span"); d.className = "ll-digit";
+      var strip = document.createElement("span"); strip.className = "ll-strip";
+      for(var n = 0; n < 10; n++){ var s = document.createElement("span"); s.textContent = n; strip.appendChild(s); }
+      d.appendChild(strip); el.appendChild(d);
+      cols.push({ strip: strip, digit: +ch });
+      strip.style.transform = "translateY(" + (-ch) + "em)";
+    } else {
+      var p = document.createElement("span"); p.textContent = ch; el.appendChild(p);
+      cols.push({ strip: null, digit: null });
+    }
+  }
+  return cols;
+}
+function renderOdo(el, value, opts){
+  opts = opts || {};
+  var str = String(value);
+  var prev = el.getAttribute("data-odo");
+  if(prev === str) return false;
+  var cols = buildOdo(el, str);
+  el.setAttribute("data-odo", str);
+  /* Reduced motion (UI v2 audit): digit roll collapses to an
+     instant identity set — no transition is ever applied. */
+  var reduced = global.matchMedia && global.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  requestAnimationFrame(function(){
+    cols.forEach(function(c){
+      if(!c.strip) return;
+      c.strip.style.transition = reduced ? "none" : "transform 600ms cubic-bezier(.22,1,.36,1)";
+      c.strip.style.transform = "translateY(" + (-c.digit) + "em)";
+    });
+  });
+  return true;
+}
+function flipTo(el, applyChange, preset){
+  var first = el.getBoundingClientRect();
+  applyChange();
+  var lastR = el.getBoundingClientRect();
+  var dx = first.left - lastR.left, dy = first.top - lastR.top;
+  var sx = lastR.width ? first.width/lastR.width : 1, sy = lastR.height ? first.height/lastR.height : 1;
+  var state = { x: 0 };
+  var from = { scale: sx, dx: dx, dy: dy };
+  el.style.transformOrigin = "top left";
+  return springTo(state, 1, preset || "settle", function(t){
+    var s = smoothstep(t);
+    var cdx = from.dx*(1-s), cdy = from.dy*(1-s);
+    var csx = from.scale + (1-from.scale)*s, csy = from.scale + (1-from.scale)*s;
+    el.style.transform = "translate(" + cdx + "px," + cdy + "px) scale(" + csx + "," + csy + ")";
+  }, function(){ el.style.transform = ""; });
+}
+function staggerIn(nodes, baseDelay){
+  nodes = Array.prototype.slice.call(nodes);
+  nodes.forEach(function(n, i){
+    n.style.animationDelay = (i*(baseDelay || 40)) + "ms";
+    n.classList.add("ll-arrive");
+  });
+}
+function shine(el, color){ if(color) el.style.setProperty("--shine-c", color);
+  el.classList.remove("go"); void el.offsetWidth; setTimeout(function(){ el.classList.add("go"); }, 500); }
+function ignite(el){ el.classList.remove("ll-ignite"); void el.offsetWidth; el.classList.add("ll-ignite"); }
+function shake(el){ el.classList.remove("ll-shake"); void el.offsetWidth; el.classList.add("ll-shake"); }
+global.LivingLight = { springTo: springTo, springParams: springParams, PRESETS: PRESETS,
+  smoothstep: smoothstep, renderOdo: renderOdo, flipTo: flipTo,
+  staggerIn: staggerIn, shine: shine, ignite: ignite, shake: shake };
+})(window);
+</script>
+<script>
+const EMBEDDED = {"production_id": "daughter-birthday-film", "intent_sentence": "I want my daughter to feel that she won the dance battle and Dad loved losing", "project_id": "daughter-birthday-film", "compiled_at": "2026-11-23T01:11:22Z", "resubmission": true, "artifact_hashes": {"brief.json": "06291d5f8c77b022e348500a998167df39a79669670b1148ee5c8b5aebe76f66", "beats.json": "3fbe860c56ccea91010dce55ae55ddca5847ae864e36d14affe550ed004d45fb", "creator_form.json": "c9444d19bdbe90b2612b616c2298b63f351a2d23ec1d200bdb52d81c7c296a7e", "style_map.json": "a7ff718988f20280a3f1896c3e6e748e9b24a915a13ae8f6baa96c35ed47cbda", "captures.json": "ac54885bd17da5aa4664b3743479e1fccabf73e147b8259ccb83db0e05db29bf", "sort.json": "4a7abbdcf060d3bc586c89def41c5c134d956b9834cea32ab48b19a0a006ebdd"}, "brief": {"intent_sentence": "I want my daughter to feel that she won the dance battle and Dad loved losing", "occasion": "her 13th birthday", "audience": "the Daughter first; family as the principal directs", "compiled_at": "2026-11-23T01:11:22Z", "compilation_mode": "deterministic compilation over the recovered project record (daughter-birthday-film); creative text grounded in the principal-adopted corpus named in the record's sources; no cascade lane call - none genuinely needed, the compilation already exists in the adopted record", "recipient": "the Daughter (the film's recipient; delivery through her mother first)", "desired_feeling": "that she won the dance battle and Dad loved losing - the intent sentence's feeling, adopted as the production's governing judgment (pipeline section 11.2)", "dramatic_promise": "A father and daughter dance a 116-bar musical battle in which her answer out-dances his call - and his delight at losing is the prize the whole film is built to land.", "hard_constraints": ["24 fps / 232 s / 5,568 frames (CG-028) - the song and sheet are locked; no picture work may re-cut the song (changes are numbered Mods only)", "Her voice/persona is never synthesized or cloned; no biometric template of her is ever made (D-17)", "Her on-screen character is built from a cartoonized picture only; no real photo or footage of her is requested, uploaded, or placed in the film", "Delivery through her mother first, always; external sharing requires the principal's explicit word", "Intelligibility gate (ASR >= 90% + blind dry listen) before any vocal span enters a mix", "Mastering -16 LUFS / <= -1 dBTP, measured on the delivery copy"], "preferences": ["Warm competitive tone; she lands equal or ahead; the trick is teased, never exposed", "Phone captures batched into few, short sessions (a recording session with a call sheet, not a drip of single asks)", "Editorial absorbs each finished piece the hour it lands; a blocked span blocks nothing"], "reserved_decisions": ["The captures: P-1..P-6, V-1..V-6, V-11 (his face, voice, timing, performance) and V-7..V-10 (recordings of her real voice that he holds) - asked once, with the why attached (the capture list)", "Sweatbox verdicts (Steps 5 and 14) - his eye and ear are the final creative gate", "V-5's words: his own greeting vs the sheet's dictated H-23 text - if his words differ, the change enters as a numbered Mod on his say-so", "Delivery (Step 18) and any sharing (Step 19) - his acts, never inferred"], "protections_verbatim": "The Daughter's real photos/footage are local-only, never uploaded anywhere, never in the finished film; a cartoonized picture of her may be uploaded anywhere and may appear; her voice/persona is never synthesized or cloned; her real voice may be used as-is (editing only) and only via the on-machine DJ desk for scratching/EQ; in circulating material she is named only \"the Daughter\".", "project": {"project_id": "daughter-birthday-film", "title": "The Daughter's Birthday Film - NEYTRA AT 13", "kind": "daddy-and-daughter dance musical", "sources": ["neytra-birthday-video/premiere-build/PRODUCTION-PIPELINE-2026-11-22.md", "neytra-birthday-video/premiere-build/RECORDING-SHEET.md", "neytra-birthday-video/premiere-build/ARRANGEMENT-MAP.md"], "facts": {"form": "116 bars at 120 BPM; bar = 2.0 s; 232 seconds; 5,568 frames at 24 fps (24 FPS IS THE LAW, CG-028)", "spine": "Route A is the confirmed spine; the song is fixed by RECORDING-SHEET.md (closed Telugu lexicon of exactly 10 words; ducking law D-1..D-12; governing key F minor)", "voices": "His spans are his (fresh phone takes first, his clone - Qwen3-TTS 0.6B, engine of record - as guide and gap-filler). The Character is sung by the Miyo DiffSinger bank. Her real voice appears only as placed recordings, as-is.", "sound_law": "Every vocal span passes the intelligibility gate dry (ASR >= 90% word recovery + a blind listen) before any mix. Mastering: -16 LUFS / <= -1 dBTP. His tonic is measured (135.3 Hz), never forced.", "delivery": "The finished film goes through her mother first, always. Any further sharing only as the principal directs.", "licence_frame": "Personal, non-commercial use (USA + India). Miyo and MusicGen/AudioGen beds are personal/non-commercial only; their NC tag passes into derivatives. LIEE and the Piper lessac voice are prohibited everywhere."}}}, "beats": [{"id": "B-CHANT", "bars": "1-4", "name": "The chant head", "intended_feeling": "A street learning her name - celebration from the first second.", "story_action": "His caller voice opens the film chanting her name; her recorded answers slot into the pockets inside his chant.", "cue": "H-1 (bars 1-3, his chant + ad-lib) with her placed chant answers (V-8) in bars 1-2; bar 4 pre-roll into the verse.", "gesture": "His shout-sing, big street energy, answer gaps left open for her calls.", "framing_edit": "Opening image establishes Dad as a whole-body dancer, not a talking head (plate P-1).", "required_assets": ["V-1", "V-8", "P-1"], "recipient_check": "A cold viewer hears call and answer between father and daughter within the first bars and knows whose name the street is learning.", "project_id": "daughter-birthday-film", "style": [{"style_id": "native", "style_name": "Native — The Film As Ruled", "bars": "1-4", "status": "baseline_as_ruled", "channels": {"vocal_delivery": "Deliver exactly as the locked sheet rules: his cloned voice (Qwen3-TTS finals) sings the call, her real voice answers as-is, and the battle-rap sheet phrasing stays dry and intelligible before any mix.", "music_arrangement": "The production's own arrangement as ruled — the score that serves the sheet, with no genre bed substituted underneath it.", "choreography": "Nāṭya is the spine and the only grammar here: father and daughter trade kite-battle phrases across the rooftop exactly as the beats trace, with no surface genre layer on top.", "scene_backdrop": "The Johnson City rooftop as ruled: open sky, kite lines against late light, the town below — the real place the battle happens, not a genre set.", "avatar_styling": "The characters as ruled in the production record — his plates from his captures, her character plate cartoonized only, identities unaltered by any costume concept."}}]}, {"id": "B-VERSE", "bars": "5-12", "name": "The Cowboys verse", "intended_feeling": "The old trick done properly - a father performing the song that carries the family's story.", "story_action": "He performs the verse from memory; her placed giggle answers at the John Wayne landmark.", "cue": "H-2 (bars 5-11), performed from memory - the sheet deliberately does not write its words; the take is the text.", "gesture": "His performed delivery at a steady clip; a breath of space after the John Wayne line, where her giggle lands.", "framing_edit": "The animation dances to his take; its measured timing conforms the span.", "required_assets": ["V-2", "V-7"], "recipient_check": "The verse reads as his performance, and her giggle lands in the breath he leaves for it.", "project_id": "daughter-birthday-film", "style": [{"style_id": "native", "style_name": "Native — The Film As Ruled", "bars": "5-12", "status": "baseline_as_ruled", "channels": {"vocal_delivery": "Deliver exactly as the locked sheet rules: his cloned voice (Qwen3-TTS finals) sings the call, her real voice answers as-is, and the battle-rap sheet phrasing stays dry and intelligible before any mix.", "music_arrangement": "The production's own arrangement as ruled — the score that serves the sheet, with no genre bed substituted underneath it.", "choreography": "Nāṭya is the spine and the only grammar here: father and daughter trade kite-battle phrases across the rooftop exactly as the beats trace, with no surface genre layer on top.", "scene_backdrop": "The Johnson City rooftop as ruled: open sky, kite lines against late light, the town below — the real place the battle happens, not a genre set.", "avatar_styling": "The characters as ruled in the production record — his plates from his captures, her character plate cartoonized only, identities unaltered by any costume concept."}}]}, {"id": "B-SOLO", "bars": "29-44", "name": "Her solo, his asides", "intended_feeling": "She takes the floor as the film's joyful young dancer; Dad watches, delighted, from the edges.", "story_action": "Her animated character dances her solo (bars 29-44) built from her cartoonized plate; his asides frame it; her real count calls ride inside the countdown at bars 35-36.", "cue": "Character spans C-series for her solo bars; his aside spans per the sheet; placed cue ledger for bars 35-36.", "gesture": "Her solo movement from the cartoonized plate's stance and silhouette; his reactions at the edges.", "framing_edit": "Her character is present only in the one form her protections allow - cartoonized (P-3).", "required_assets": ["P-3", "V-10"], "recipient_check": "A cold viewer reads the solo as hers - joyful and centre-stage - with Dad's delight framing it.", "project_id": "daughter-birthday-film", "style": [{"style_id": "native", "style_name": "Native — The Film As Ruled", "bars": "29-44", "status": "baseline_as_ruled", "channels": {"vocal_delivery": "Deliver exactly as the locked sheet rules: his cloned voice (Qwen3-TTS finals) sings the call, her real voice answers as-is, and the battle-rap sheet phrasing stays dry and intelligible before any mix.", "music_arrangement": "The production's own arrangement as ruled — the score that serves the sheet, with no genre bed substituted underneath it.", "choreography": "Nāṭya is the spine and the only grammar here: father and daughter trade kite-battle phrases across the rooftop exactly as the beats trace, with no surface genre layer on top.", "scene_backdrop": "The Johnson City rooftop as ruled: open sky, kite lines against late light, the town below — the real place the battle happens, not a genre set.", "avatar_styling": "The characters as ruled in the production record — his plates from his captures, her character plate cartoonized only, identities unaltered by any costume concept."}}]}, {"id": "B-BATTLE", "bars": "45-60", "name": "Battle A, Battle B, and the merger (the section-11.2 worked example)", "intended_feeling": "She won the dance battle and Dad loved losing (judgment - his, adopted).", "story_action": "Her answer out-dances his call; the battle resolves into the merger, not a verdict.", "cue": "Battle A/B exchanges (H-5/H-6 <-> C-6..C-9), the thesis bar (bar 50, C-7), the knot stop (bar 58), the merger (bars 59-60, H-7/C-10). The music must leave room after her winning answer - room is a mix/edit fact, checked against the arrangement, not a hope.", "gesture": "Her winning move, fully danced; his reaction - the held straight face cracking into delight (capture V-11), his delighted aside on the 51->52 seam, his laugh answering hers at bar 56, his full-body delighted surrender (P-6).", "framing_edit": "At the winning move, framing wide enough that her feet are readable; his reaction held on screen after her reply (a checkable hold, measured in frames at QC); no tighter angle may be substituted for coverage convenience.", "required_assets": ["P-3", "P-1", "P-2", "P-6", "V-11"], "recipient_check": "A cold viewer, watching once on a phone, can say who won the exchange and how Dad felt about it - without production notes. If they cannot, the beat fails review however excellent its animation metrics are.", "project_id": "daughter-birthday-film", "creator_form": [{"pattern_id": "CF-SEQUENCE-LAW", "pattern_name": "Unskippable sequence law", "evidence_kind": "OUR_ADAPTATION", "status": "available_not_applied", "why": "The battle exchange is a sequence that cannot be skipped: setup (apparatus) lands before the exchange, the turn comes last.", "application_basis": "Pattern available to Step 12 (editorial hub); applying it to this production is the principal's ruling."}, {"pattern_id": "CF-ESCALATION-TURN", "pattern_name": "Escalation, turn, punchline (zero-setup template)", "evidence_kind": "OBSERVED", "status": "available_not_applied", "why": "Battle A escalates, Battle B turns, the merger lands the resolution - escalation/turn structure at section scale.", "application_basis": "Pattern available to Step 12 (editorial hub); applying it to this production is the principal's ruling."}], "style": [{"style_id": "native", "style_name": "Native — The Film As Ruled", "bars": "45-60", "status": "baseline_as_ruled", "channels": {"vocal_delivery": "Deliver exactly as the locked sheet rules: his cloned voice (Qwen3-TTS finals) sings the call, her real voice answers as-is, and the battle-rap sheet phrasing stays dry and intelligible before any mix.", "music_arrangement": "The production's own arrangement as ruled — the score that serves the sheet, with no genre bed substituted underneath it.", "choreography": "Nāṭya is the spine and the only grammar here: father and daughter trade kite-battle phrases across the rooftop exactly as the beats trace, with no surface genre layer on top.", "scene_backdrop": "The Johnson City rooftop as ruled: open sky, kite lines against late light, the town below — the real place the battle happens, not a genre set.", "avatar_styling": "The characters as ruled in the production record — his plates from his captures, her character plate cartoonized only, identities unaltered by any costume concept."}}]}, {"id": "B-MIDDLE", "bars": "69-80", "name": "The breathing middle and the giggle solo", "intended_feeling": "Warmth and rest - home, food, and quiet between the battles and the finale; then her real laugh as the lead instrument.", "story_action": "The traded tiffin lines (bars 69-72) rest in the tiffin/chai world; her giggle solo (bars 73-74) leads; his recognition line lands low at bar 74.", "cue": "Tiffin exchange spans (bars 69-72); placed cue: her giggle solo (V-7, bars 73-74); H-10 recognition line (bar 74, last beat).", "gesture": "Her real laugh, placed as-is; his near-whisper recognition, close and low.", "framing_edit": "The world is his real tiffin/chai corner as it naturally sits (P-5) - staged would read as staged.", "required_assets": ["P-5", "V-7", "V-6"], "recipient_check": "The middle breathes; her laugh is unmistakably a real child's laugh, and his quiet line reads as recognition, not narration.", "project_id": "daughter-birthday-film", "creator_form": [{"pattern_id": "CF-AUDIO-PRIMACY-HOLD", "pattern_name": "Audio-primacy still hold", "evidence_kind": "OBSERVED", "status": "available_not_applied", "why": "Bars 69-80 are the breathing middle / giggle solo: the RCA's S5 shape - one unbroken vocal event holding attention by depth rather than novelty.", "application_basis": "Pattern available to Step 12 (editorial hub); applying it to this production is the principal's ruling."}, {"pattern_id": "CF-SONG-ARC", "pattern_name": "Ikaro song arc", "evidence_kind": "OBSERVED", "status": "available_not_applied", "why": "The middle's pacing follows invocation -> deepening -> completion -> clearing rather than escalation.", "application_basis": "Pattern available to Step 12 (editorial hub); applying it to this production is the principal's ruling."}], "style": [{"style_id": "native", "style_name": "Native — The Film As Ruled", "bars": "69-80", "status": "baseline_as_ruled", "channels": {"vocal_delivery": "Deliver exactly as the locked sheet rules: his cloned voice (Qwen3-TTS finals) sings the call, her real voice answers as-is, and the battle-rap sheet phrasing stays dry and intelligible before any mix.", "music_arrangement": "The production's own arrangement as ruled — the score that serves the sheet, with no genre bed substituted underneath it.", "choreography": "Nāṭya is the spine and the only grammar here: father and daughter trade kite-battle phrases across the rooftop exactly as the beats trace, with no surface genre layer on top.", "scene_backdrop": "The Johnson City rooftop as ruled: open sky, kite lines against late light, the town below — the real place the battle happens, not a genre set.", "avatar_styling": "The characters as ruled in the production record — his plates from his captures, her character plate cartoonized only, identities unaltered by any costume concept."}}]}, {"id": "B-COUNT", "bars": "81-95", "name": "The Count (full film)", "intended_feeling": "Her real voice calls the numbers that climb to thirteen.", "story_action": "Her placed real count calls 1-4 (bars 81-84) are answered by his rhymes (H-12); the Count builds across bars 81-95. Full film only - the premiere cut does not need it to start.", "cue": "Placed cues (V-10) at bars 81-84; H-12 answers; Count architecture per the sheet.", "gesture": "Her counting, placed as-is - real samples, never composed or synthesized.", "framing_edit": "Calls are hers by law of the sheet; the edit places them, nothing manufactures them.", "required_assets": ["V-10"], "recipient_check": "A cold viewer hears her real voice counting and his rhymes answering - the climb to thirteen is carried by the family itself.", "project_id": "daughter-birthday-film", "creator_form": [{"pattern_id": "CF-SERIES-NUMBERED", "pattern_name": "Numbered series architecture", "evidence_kind": "OBSERVED", "status": "available_not_applied", "why": "The Count is the numbered-series grammar inside one film: the number itself is the progress marker the audience follows.", "application_basis": "Pattern available to Step 12 (editorial hub); applying it to this production is the principal's ruling."}], "style": [{"style_id": "native", "style_name": "Native — The Film As Ruled", "bars": "81-95", "status": "baseline_as_ruled", "channels": {"vocal_delivery": "Deliver exactly as the locked sheet rules: his cloned voice (Qwen3-TTS finals) sings the call, her real voice answers as-is, and the battle-rap sheet phrasing stays dry and intelligible before any mix.", "music_arrangement": "The production's own arrangement as ruled — the score that serves the sheet, with no genre bed substituted underneath it.", "choreography": "Nāṭya is the spine and the only grammar here: father and daughter trade kite-battle phrases across the rooftop exactly as the beats trace, with no surface genre layer on top.", "scene_backdrop": "The Johnson City rooftop as ruled: open sky, kite lines against late light, the town below — the real place the battle happens, not a genre set.", "avatar_styling": "The characters as ruled in the production record — his plates from his captures, her character plate cartoonized only, identities unaltered by any costume concept."}}]}, {"id": "B-FINALE", "bars": "107-116", "name": "Finale count-up, the greeting, and the name-fade", "intended_feeling": "A crescendo of pride arriving at her number; a father who cannot contain it; then the film comes down to two voices and a breath.", "story_action": "His Telugu count-up accelerates to 'Padakondu - ELEVEN!' (bars 107-109); his spoken birthday greeting lands on the crowd eruption at bar 109; the unison laugh releases into the whispered name-fade (bars 113-114); bar 115 is true silence; THOM closes.", "cue": "H-20 count-up (bars 107-109) under the Character's crown line (C-20); H-23 greeting (bar 109 tail, Mod-37 staging); H-10/H-20 subtraction tail (bars 113-114); bar 115 silence.", "gesture": "The acceleration performed, never faked with a fader; the greeting in his own words from the heart; the fade performed at true whisper level, never manufactured by turning a loud take down.", "framing_edit": "His bar-113 whisper is the level reference for her placed soft call at bar 114 (within +/-1 dB, dry, tail cleared before the silent bar 115).", "required_assets": ["V-4", "V-5", "V-6", "V-3", "V-8"], "recipient_check": "The peak feels performed, not produced; after the silence, a cold viewer carries her name away whispered, not shouted.", "project_id": "daughter-birthday-film", "creator_form": [{"pattern_id": "CF-BIBLIOGRAPHY-CLOSER", "pattern_name": "Bibliography closer", "evidence_kind": "OBSERVED", "status": "available_not_applied", "why": "Available as the film's closer form: sources and credits riding inside the artifact at the name-fade.", "application_basis": "Pattern available to Step 12 (editorial hub); applying it to this production is the principal's ruling."}], "style": [{"style_id": "native", "style_name": "Native — The Film As Ruled", "bars": "107-116", "status": "baseline_as_ruled", "channels": {"vocal_delivery": "Deliver exactly as the locked sheet rules: his cloned voice (Qwen3-TTS finals) sings the call, her real voice answers as-is, and the battle-rap sheet phrasing stays dry and intelligible before any mix.", "music_arrangement": "The production's own arrangement as ruled — the score that serves the sheet, with no genre bed substituted underneath it.", "choreography": "Nāṭya is the spine and the only grammar here: father and daughter trade kite-battle phrases across the rooftop exactly as the beats trace, with no surface genre layer on top.", "scene_backdrop": "The Johnson City rooftop as ruled: open sky, kite lines against late light, the town below — the real place the battle happens, not a genre set.", "avatar_styling": "The characters as ruled in the production record — his plates from his captures, her character plate cartoonized only, identities unaltered by any costume concept."}}]}], "creator_form": {"knowledge_class": "DECLARED_GRAMMAR - design knowledge recovered from published creator work; never a measured capability", "application_state": "available_not_applied - the layer informs the editorial step; applying any pattern to this production's ruled material is the principal's ruling", "patterns_total": 10, "applicable": [{"pattern_id": "CF-SEQUENCE-LAW", "pattern_name": "Unskippable sequence law", "binds_to_beat": "B-BATTLE", "why": "The battle exchange is a sequence that cannot be skipped: setup (apparatus) lands before the exchange, the turn comes last."}, {"pattern_id": "CF-ESCALATION-TURN", "pattern_name": "Escalation, turn, punchline (zero-setup template)", "binds_to_beat": "B-BATTLE", "why": "Battle A escalates, Battle B turns, the merger lands the resolution - escalation/turn structure at section scale."}, {"pattern_id": "CF-AUDIO-PRIMACY-HOLD", "pattern_name": "Audio-primacy still hold", "binds_to_beat": "B-MIDDLE", "why": "Bars 69-80 are the breathing middle / giggle solo: the RCA's S5 shape - one unbroken vocal event holding attention by depth rather than novelty."}, {"pattern_id": "CF-SONG-ARC", "pattern_name": "Ikaro song arc", "binds_to_beat": "B-MIDDLE", "why": "The middle's pacing follows invocation -> deepening -> completion -> clearing rather than escalation."}, {"pattern_id": "CF-SERIES-NUMBERED", "pattern_name": "Numbered series architecture", "binds_to_beat": "B-COUNT", "why": "The Count is the numbered-series grammar inside one film: the number itself is the progress marker the audience follows."}, {"pattern_id": "CF-BIBLIOGRAPHY-CLOSER", "pattern_name": "Bibliography closer", "binds_to_beat": "B-FINALE", "why": "Available as the film's closer form: sources and credits riding inside the artifact at the name-fade."}], "patterns": [{"id": "CF-SERIES-NUMBERED", "name": "Numbered series architecture", "category": "series_architecture", "provenance": {"creator": "Sync In / Anushray Singh (@sync.into)", "record": "FRAGMENT-002 partial extraction, 2026-10-09"}, "evidence_kind": "OBSERVED", "rule": "A body of work is organised as numbered multi-part series (e.g. a 50-part 'Studies in Sakta Theology', 'Decoding Tantra'); each episode pairs ONE ancient concept with ONE modern mechanism. The number itself is the audience's progress marker and return reason."}, {"id": "CF-BIBLIOGRAPHY-CLOSER", "name": "Bibliography closer", "category": "caption_text_treatment", "provenance": {"creator": "Sync In / Anushray Singh (@sync.into)", "record": "FRAGMENT-002 partial extraction, 2026-10-09"}, "evidence_kind": "OBSERVED", "rule": "Each video closes with an academic bibliography - the sources ride inside the artifact, making the evidence chain part of the viewing experience rather than a separate document."}, {"id": "CF-EVIDENCE-SNAPSHOT", "name": "Captioned evidence snapshots", "category": "caption_text_treatment", "provenance": {"creator": "Sync In / Anushray Singh (@sync.into)", "record": "FRAGMENT-002 transfer candidate (2), 2026-10-09"}, "evidence_kind": "OBSERVED", "rule": "Claims on screen are accompanied by captioned evidence snapshots - a visible evidence chain inside the frame, not asserted narration alone."}, {"id": "CF-TALKING-HEAD-COLLAGE", "name": "Talking-head / split-screen collage", "category": "visual_grammar", "provenance": {"creator": "Sync In / Anushray Singh (@sync.into)", "record": "FRAGMENT-002 partial extraction, 2026-10-09"}, "evidence_kind": "OBSERVED", "rule": "Format alternates talking-head address with split-screen collage of source imagery - the speaker's face carries authority, the collage carries the material."}, {"id": "CF-CHAPTERED-MYTH-ENGINE", "name": "Chaptered myth-as-engine retelling", "category": "chaptering", "provenance": {"creator": "Pardeep Sehrawat (@theunholyindianmagician)", "record": "Reel DeewevGof1X, mined 2026-10-16"}, "evidence_kind": "OBSERVED", "rule": "A long narrative is cut into TITLED chapters (The Curse / The Counsel / The Apparatus / The Churning / The Poison / The Fourteen Ratnas / Amrita & Mohini / Reactor Initialisation), each chapter reframing one story phase as a stage of an engineered process, under one thesis line carried in the caption ('Every Myth is an engine of Reality'). Wireframe/diagram visual grammar over a starfield ground."}, {"id": "CF-SEQUENCE-LAW", "name": "Unskippable sequence law", "category": "chaptering", "provenance": {"creator": "Pardeep Sehrawat (@theunholyindianmagician)", "record": "Muse's structural mining of reel DeewevGof1X, 2026-10-16"}, "evidence_kind": "OUR_ADAPTATION", "rule": "Transferred sequence discipline: apparatus is built BEFORE the churning starts; the hazardous product surfaces FIRST, into a container designated in advance; the base bears the load rather than pulling; both sides pull the rope (adversarial collaboration); the prize comes LAST and the sequence cannot be skipped. Analogy for production order, never a mechanism claim."}, {"id": "CF-AUDIO-PRIMACY-HOLD", "name": "Audio-primacy still hold", "category": "audio_primacy", "provenance": {"creator": "Maestra Shibiba Virginia Ahuanari (via @capitan.blez)", "record": "Reel DelEMeCx4vm, studied 2026-10-18"}, "evidence_kind": "OBSERVED", "rule": "One still figure, one unbroken song, no instruments, no cuts: attention is held by depth rather than novelty. The song is the active agent; the visual is deliberately minimal so the audio carries the entire event."}, {"id": "CF-SONG-ARC", "name": "Ikaro song arc", "category": "audio_primacy", "provenance": {"creator": "Maestra Shibiba Virginia Ahuanari (via @capitan.blez)", "record": "Reel DelEMeCx4vm, studied 2026-10-18"}, "evidence_kind": "OBSERVED", "rule": "An unbroken vocal performance arcs invocation -> deepening (the work reaches deeper and deeper) -> completion (brought to completion, again and again) -> clearing (bad winds / harmful energies removed) -> rest. Repetition of the completion motif is structural, not filler."}, {"id": "CF-TEACHING-OVERLAY", "name": "Teaching overlay + translated caption", "category": "caption_text_treatment", "provenance": {"creator": "@capitan.blez (posting account, ikaro reel)", "record": "Reel DelEMeCx4vm, studied 2026-10-18"}, "evidence_kind": "OBSERVED", "rule": "Overlaid text teaches what the form IS while it happens; the caption carries the full translated lyrics plus an invitation to reflect and share; the video closes by thanking the viewer for listening to the end - the completion of listening is itself acknowledged."}, {"id": "CF-ESCALATION-TURN", "name": "Escalation, turn, punchline (zero-setup template)", "category": "hook_structure", "provenance": {"creator": "@getintoai / @mom_agency_ ('King Jensen' skit)", "record": "Funny-video production research brief, 2026-10-07"}, "evidence_kind": "OBSERVED", "rule": "Short skit beat structure: petitioners arrive with escalating demands -> a structural TURN reframes the scene (a debate becomes an auction) -> the rebrand is the punchline. A globally understood template grammar (a royal court) needs zero exposition, which is what makes 30-60 s possible. Reusable per-character 'DNA' (one hyper-specific visual descriptor per cast member) makes the cast a franchise across episodes."}]}, "style_map": {"knowledge_class": "DECLARED_GRAMMAR / OUR_ADAPTATION direction records — a style layer, never a rendered result", "map": [{"from_bar": 1, "to_bar": 116, "style_id": "native"}], "is_default": true, "application_state": "baseline_as_ruled — the default native map; the production of record as ruled, unchanged", "styles_used": ["native"], "playback_honesty": "Switching a style map recompiles DIRECTION instantly; a rendered variation (audio/video in the new style) is a production job, not an instant switch."}, "variations": [{"variation_id": "var-45064973d5", "compiled_at": "2026-11-23T01:11:23Z", "map_summary": "45-52:rap · 53-60:reggae"}], "captures": [{"id": "P-1", "kind": "photo", "what": "You, full body, ready to dance. Head-to-toe, arms slightly away from your body, plain wall behind you, good light, the outfit you'd dance in.", "beat_served": "Step 6 character plate; your dancing character across the film, first established in the chant head and teaching verse (bars 1-28) and used through both battles (bars 45-60).", "intended_feeling": "Recognition and delight - the audience meets Dad as a whole-body dancer, not a talking head.", "creates": "Your character's main plate: full silhouette, stance, proportions, and outfit for the Daddy the film animates.", "why": "Arms slightly away from the body and a plain wall keep the whole outline readable, so the plate can be separated and animated cleanly; a cropped or cluttered photo would force the system to invent body details only you can supply.", "how": "Original resolution, no filters, sent as a file."}, {"id": "P-2", "kind": "photo", "what": "You, face close-up, smiling. Front-on, plain background, your warmest 'that's my girl' smile.", "beat_served": "Step 6 face/expression reference; the battle exchanges (bars 45-60, where the sheet's law M-5 says you smile first in every exchange), the stolen punchline (bar 98), and the finale release (bar 109).", "intended_feeling": "The Daughter - and the audience - should feel that Dad is thrilled to be beaten by her.", "creates": "The face and expression reference for delighted, loving competition: the smile that leads every battle exchange.", "why": "Front-on and plain-background keeps eyes, smile, and expression unobstructed; this specific warmth is a performance only you can give - a neutral portrait would make the animators guess at the exact feeling the battles turn on.", "how": "Original resolution, no filters, sent as a file."}, {"id": "P-3", "kind": "photo", "what": "The Daughter, CARTOONIZED only. A cartoonized picture of her (made with any cartoonizer app on your phone - the real photo never leaves your phone), full-body dancing pose if you have one.", "beat_served": "Step 6 character plate; her animated character in her solo (bars 29-44), her battle answers (bars 46-58), and the merger (bars 59-60).", "intended_feeling": "She appears as the film's joyful, victorious young dancer - present in the film in the one form her protections allow.", "creates": "Her character's plate - the only form of her image the film may use.", "why": "Full-body and dancing, if you have it, gives the animators her stance and movement silhouette, not just a face; cartoonized-only is the protection itself - the real photo never leaves your phone, and no real photo or footage of her is requested here or anywhere in this pipeline.", "how": "Cartoonize on your phone first; send only the cartoonized file."}, {"id": "P-4", "kind": "photo", "what": "Kite and sky. A photo of a kite (yours/the family's) against the sky, or your rooftop/terrace view of open sky.", "beat_served": "Step 6 world plates; the teaching verse (bars 13-28) and both battles (bars 45-60), with the sky returning at the reopening (bars 79-80).", "intended_feeling": "Openness and lift - the rooftop world where father and daughter play above the street.", "creates": "The kite-world plates: real sky, light, and rooftop geography the animated action is staged against.", "why": "Your actual sky and rooftop carry the family's real place in them; a stock sky would be generic, and the battles' geography (tank, lines, ledge) has to match the world the verses describe.", "how": "Original resolution, no filters, sent as a file."}, {"id": "P-5", "kind": "photo", "what": "Tiffin and chai corner. Your kitchen counter or table with tiffin boxes / chai things as they naturally sit.", "beat_served": "Step 6 world plate; the breathing middle (bars 69-80), including the traded tiffin lines (bars 69-72) and the giggle solo (bars 73-74).", "intended_feeling": "Warmth and rest - home, food, and quiet between the battles and the finale.", "creates": "The breathing-middle world: the tiffin/chai setting the film rests in.", "why": "'As they naturally sit' is the point - the scene's truth is in the real arrangement of real things, and staging it would make it look staged; this is a world only your home can provide.", "how": "Original resolution, no filters, sent as a file. Do not tidy it first."}, {"id": "P-6", "kind": "photo", "what": "NEW - You, delighted surrender, full body. Head-to-toe again, plain background: hands up in happy surrender, laughing, shoulders dropped - the pose of a man delighted to lose. Same outfit as P-1 if you can.", "beat_served": "The merger (bars 59-60, H-7/C-10) and the reaction tail of Battle A/B (bars 51-58), where the battle resolves into shared laughter.", "intended_feeling": "Losing to her is the prize - Dad's surrender is joy, not defeat.", "creates": "A full-body gesture/pose reference for the surrender and merger staging, matching P-1's plate so the same character can be animated into it.", "why": "The trace (section 11.2) shows the merger's feeling lives in his body, not only his face - hands, shoulders, and stance are the performance. P-2 gives the face; this gives the body language the animators must not invent.", "how": "Original resolution, no filters, sent as a file."}, {"id": "V-1", "kind": "voice", "what": "The chant (bars 1-3). Shout-sing, big street energy: 'NEY-TRA! NEY-TRA!' four times, then the ad-lib line: 'Roof-nine - you hearing this?'", "beat_served": "H-1, bars 1-3 - the chant head; her placed chant answers (V-8) slot into the pockets inside bars 1-2, and your ad-lib rides bar 3.", "intended_feeling": "A street learning her name - celebration from the first second.", "creates": "The film's opening sound and its rhythmic grid: your caller voice, with answer gaps left for her recorded calls.", "why": "The chant is the hook every later section quotes, and its warmth and timing are yours alone; leaving the answer gaps in the take is what lets her real voice answer you inside the same bars.", "how": "Quiet room, phone ~20 cm from your mouth, WAV or M4A, one file."}, {"id": "V-2", "kind": "voice", "what": "The Cowboys verse (bars 5-11). Perform it the way you do from memory, riding an imaginary beat at a steady clip; leave a breath of space after the John Wayne line.", "beat_served": "H-2, bars 5-11 - your performed verse span; her placed giggle answers at the John Wayne landmark inside the span.", "intended_feeling": "The old trick done properly - a father performing the song that carries the family's story.", "creates": "The take the animation dances to for the whole verse; its measured timing conforms the span.", "why": "This span exists as your performance from memory - the sheet deliberately does not write its words; the take is the text. The breath after the John Wayne line is where her giggle lands, so the space is part of the music.", "how": "Quiet room, phone ~20 cm from your mouth, WAV or M4A, one file."}, {"id": "V-3", "kind": "voice", "what": "Crowd pieces (bars 25-26, 61-68, 104-106). Three separate short files: (a) 'POP ON THE ROOFTOP!' as a shout; (b) 'VISION ON!' as a shout; (c) 'TOP!' one sharp shout. Plus (d) your natural laugh, 3-5 seconds, unforced.", "beat_served": "The solo-tail crowd answer (bars 25-26), the duet-hook crowd bed (bars 61-68), and the finale convergence shouts (bars 104-106, into ALL: 'VISION ON!').", "intended_feeling": "One father's voice becoming the whole street celebrating his daughter.", "creates": "The crowd layers - your voice multiplied - plus the laugh that joins the Character's in the finale's unison release.", "why": "Separate short files let the mix place each shout on its exact bar without cutting up a long take; the laugh must be natural and unforced because it is used as your laugh at the film's emotional release, and a performed laugh reads as performed.", "how": "Quiet room, phone ~20 cm from your mouth, WAV or M4A, one file per piece."}, {"id": "V-4", "kind": "voice", "what": "The count-up (bars 107-109). Count in Telugu with rising excitement, accelerating: 'okati - rendu - moodu - nalugu - aidu' (1-5), then 'aru - edu - enimidi - tommidi - padi' (6-10), then one huge shout: 'Padakondu - ELEVEN!'", "beat_served": "H-20, bars 107-109 - the finale build: your calls lead the ramp at 107, join the crowd in unison at 108, and shout the climax numbers at 109 under the Character's crown line (C-20).", "intended_feeling": "A crescendo of pride arriving at her number - thirteen.", "creates": "The finale's engine: the count is the crescendo the film peaks on, performed, not faded up.", "why": "The acceleration and rising excitement must be in the performance itself - the sheet forbids faking the fade/build with a fader, and your voice leading the crowd is the sound of Dad counting his daughter up.", "how": "Quiet room, phone ~20 cm from your mouth, WAV or M4A, one file."}, {"id": "V-5", "kind": "voice", "what": "The birthday greeting (bar 109). Your spoken birthday shout for her, over an imaginary erupting crowd - exuberant, ~10 seconds, your own words from the heart.", "beat_served": "H-23, bar 109 tail - your spoken greeting lands on the crowd eruption at the film's peak, followed by the unison laugh (Mod-37 staging).", "intended_feeling": "A father who cannot contain it - exuberant, personal, spoken straight to her at the loudest moment of the film.", "creates": "The dedication at the peak: your real spoken voice over the eruption, before the laugh releases into the name-fade.", "why": "This is the one moment the film asks for you, not a performance of a line - your own words, your own register. (The sheet's H-23 carries a dictated text; if you record your own words instead, that is a Mod-level change the pipeline will log, not a silent swap.)", "how": "Quiet room, phone ~20 cm from your mouth, WAV or M4A, one file."}, {"id": "V-6", "kind": "voice", "what": "The quiet lines (bars 74, 113-114). Three soft files, near-whisper, close to the phone: (a) '...that's the one.' - low, spoken, recognising her; (b) your chant trace, whispered: 'NEY-TRA' fading; (c) the same again, breath more than voice.", "beat_served": "H-10 (bar 74, last beat - the recognition line after the giggle solo) and H-20's subtraction tail (bars 113-114 - the near-whisper and breath-whisper of the name-fade; your bar-113 whisper is also the level reference for her placed call at bar 114).", "intended_feeling": "After all the noise, the film comes down to a father recognising his daughter - and then to two voices and a breath.", "creates": "The quietest sounds in the film: the recognition moment and the name-fade.", "why": "These must be recorded at true whisper level, close to the phone - the sheet requires the fade to be performed, never manufactured by turning a loud take down; a sung-quiet take has the wrong breath and the wrong intimacy.", "how": "Quiet room, phone close to your mouth, WAV or M4A, one file per line."}, {"id": "V-11", "kind": "video", "what": "NEW - Dad's reaction: trying not to smile, then losing happily (short VIDEO, ~15 seconds). Film your face and shoulders, front-on, good light. Silently imagine her winning move landing in front of you: hold a straight face for ~3 seconds, let it crack, break into a delighted grin and laugh, and finish with a small hands-up surrender. One unbroken take; a second take only if the first feels acted.", "beat_served": "Battle A/B reaction tail and the merger - his delighted aside at bar 51 (landing on the 51->52 seam), his laugh answering hers at bar 56, and the shared discovery at bars 59-60; the same reaction family colours bar 98 ('Yours!') and the bar-109 release.", "intended_feeling": "She won the dance battle and Dad loved losing - the worked example of section 11.2, in performance form.", "creates": "The exact facial performance and timing the animators copy: how long he holds, where it cracks, how the laugh arrives. This is a performance reference for animation - the film animates his character; the video itself is not a film asset.", "why": "The trace shows the scene's meaning lives in a duration - his reaction needs screen time after her winning move, and the music needs room for it. Two seconds of you trying to keep a straight face may be the most valuable capture in the whole list, because no animator can invent your losing-face timing, and the pipeline would rather ask for 15 seconds now than guess at the film's emotional hinge.", "how": "Original phone video, sent as a file, used for this stated purpose and no wider purpose."}, {"id": "V-7", "kind": "her-voice", "what": "Her giggle. The clearest recording you have of her real laugh, ideally a few seconds with a clean start.", "beat_served": "Placed cue ledger - the giggle solo (bars 73-74, where her laugh is the lead instrument), the chopped giggle as percussion at bar 48, the giggle answering the John Wayne landmark (bars 5-11) and 'lub-dub' (bar 22), and the far giggle at bar 112.", "intended_feeling": "Her real presence inside the film - the sound the whole breathing middle is built around.", "creates": "The lead instrument of bars 73-74 and the placed giggle cues across the film, from her actual recorded laugh.", "why": "Her voice is never synthesized or cloned - the giggle solo can only be built from a real recording, and a clean start gives the desk the most usable material. Used as-is (editing/chopping of giggles only, per the desk law), on the studio machine's DJ desk only.", "how": "Send the file as-is; used as-is, editing only, on-machine DJ desk only."}, {"id": "V-8", "kind": "her-voice", "what": "Her chant calls. Any recording of her calling 'NEY-TRA!' or chanting along.", "beat_served": "Placed cue ledger - her answers inside the chant head (bars 1-2, inside your V-1 takes) and her soft chant call inside your whisper (bar 114, beats 3-4, within +/-1 dB of your whisper, dry, tail cleared before the silent bar 115).", "intended_feeling": "Call and answer between father and daughter - she is in the chant with you from the first bars, and again, softly, at the very end.", "creates": "Her placed chant answers and the bar-114 soft call.", "why": "These answers must be her real voice placed as-is - no one sings her part, ever; the bar-114 call additionally needs a recording clean and dry enough to sit inside a whisper without a tail touching the silence at bar 115.", "how": "Send the file as-is; placed as-is, editing only."}, {"id": "V-9", "kind": "her-voice", "what": "Her 'Daddy' chant. The recording of her chanting 'Daddy'.", "beat_served": "DJ scratch seams - scratch answers in the gaps within the battles (bars 45-60) and the one-bar family loop low under the duet hook (bars 61-68).", "intended_feeling": "Her call woven into the film's rhythm as sound and memory.", "creates": "DJ-desk scratch material only - chopped and scratched as sound on the studio machine's desk.", "why": "This recording has exactly one lawful life - desk scratching of a chant (non-word material), never sung, never synthesized, never cloned, never made an outside or downloadable sample. The request names that boundary so the file is sent, held, and used under it.", "how": "Send the file as-is; on-machine DJ desk only, never a downloadable sample."}, {"id": "V-10", "kind": "her-voice", "what": "Her counting. Any recording of her counting numbers aloud (for the full film's Count, bars 81-95).", "beat_served": "The Count (bars 81-84, full film) - her real count calls 1-4, which your rhymes (H-12) answer; her calls also ride inside the countdown at bars 35-36.", "intended_feeling": "Her real voice calls the numbers that climb to thirteen.", "creates": "Her placed real count calls for the full film's Count.", "why": "The Count's calls are hers by law of the sheet - real samples, placed as-is, never composed or synthesized. The premiere cut does not need this to start; the full film cannot finish its Count without it.", "how": "Send the file as-is; placed as-is, editing only."}], "sort": {"matters": ["C1 (section 9): the issued timeline map and skeleton are 30 fps / 220 s against the 24 fps / 232 s law - the map must be re-issued before picture work builds on it", "C3 (section 9 / 11.6) - CLOSED by the principal's ruling 2026-11-22 19:37 EST ('Qwen sings my finals - XTTS guides only'): Qwen3-TTS 0.6B renders ALL final vocals; the XTTS-built guide pack is guide-duty only, never a finals source", "Every vocal span's intelligibility (ASR >= 90% + blind listen) - the gate's floor is currently unmet by the pilot (0.62 mix / 0.67 stem), so no span may enter a mix on pilot evidence"], "fill_creatively": ["Camera heights, transition lengths, and crowd densities not fixed by a beat record - reversible staging defaults, marked as filled defaults with their revision, overturnable cheaply at review", "Staging of spans whose beat record fixes feeling, cue, gesture, and framing but not micro-blocking"], "needs_principal": ["The captures: P-1..P-6, V-1..V-6, V-11 (his face, voice, timing, performance) and V-7..V-10 (recordings of her real voice that he holds) - asked once, with the why attached (the capture list)", "Sweatbox verdicts (Steps 5 and 14) - his eye and ear are the final creative gate", "V-5's words: his own greeting vs the sheet's dictated H-23 text - if his words differ, the change enters as a numbered Mod on his say-so", "Delivery (Step 18) and any sharing (Step 19) - his acts, never inferred"]}, "steps": [{"n": 1, "phase": "Development", "name": "Lock the song and the sheet", "status": "in force (done, maintained)"}, {"n": 2, "phase": "Development", "name": "Freeze the canon numbers and the two cuts", "status": "in force - with named conflict C1 (timeline map/skeleton at 30 fps / 220 s vs the 24 fps / 232 s law; map re-issue owed)"}, {"n": 3, "phase": "Development", "name": "Asset & licence register sweep", "status": "in force (licence ledger: 54 entries validated)"}, {"n": 4, "phase": "Pre-production", "name": "Build the story reel (animatic of the entire film)", "status": "in progress - 36 of 72 clone guide lines rendered and verified; resume-aware runner advances it each memory window"}, {"n": 5, "phase": "Pre-production", "name": "Sweatbox pass 1: his eye on the reel", "status": "awaiting the principal's viewing"}, {"n": 6, "phase": "Pre-production", "name": "Character & world plates locked (look development)", "status": "waiting on captures P-1..P-6"}, {"n": 7, "phase": "Pre-production", "name": "Choreography & rig timing charts (previz of the dance)", "status": "pending Step 6"}, {"n": 8, "phase": "Production", "name": "His voice: phone sessions + clone gap-fill", "status": "waiting on captures V-1..V-6, V-11 (Sessions 1-2)"}, {"n": 9, "phase": "Production", "name": "The Character's voice: Miyo line set C-1..C-22", "status": "queued in the render queue (family P1c)"}, {"n": 10, "phase": "Production", "name": "Her real voice: placed cues + the DJ desk", "status": "waiting on captures V-7..V-10"}, {"n": 11, "phase": "Production", "name": "Animation production, per span, music-driven", "status": "pending Steps 6-10"}, {"n": 12, "phase": "Production", "name": "Editorial assembly, continuously (the hub)", "status": "active - absorbs each finished piece as it lands"}, {"n": 13, "phase": "Post", "name": "Picture lock (premiere cut first, then full film)", "status": "pending production"}, {"n": 14, "phase": "Post", "name": "Sweatbox pass 2: his eye/ear on the near-final assembly", "status": "pending picture lock"}, {"n": 15, "phase": "Post", "name": "The mix: ducking law performed, stems out", "status": "pending picture lock"}, {"n": 16, "phase": "Post", "name": "Colour, conform, and titles", "status": "pending picture lock"}, {"n": 17, "phase": "Post", "name": "QC: the film against its own laws", "status": "pending picture lock"}, {"n": 18, "phase": "Delivery", "name": "Delivery to her mother", "status": "gated - the principal's act, at the end, always first"}, {"n": 19, "phase": "Delivery", "name": "Sharing, only as he directs", "status": "gated - his explicit word required"}, {"n": 20, "phase": "Delivery", "name": "Archive and the full-film completion loop", "status": "pending delivery"}], "artifact_slot": {"label": "Current playable artifact", "state": "No playable master yet. The story reel (Step 4) is assembling: 36 of 72 clone guide lines rendered and verified; the booth skeleton is the watchable form until the reel completes."}, "bus_events": {"production_commissioned": "bev-000104", "production_compiled": "bev-000105"}, "packets": [{"id": "daughter-birthday-film-step4-story-reel", "state": "verified", "note": "already in the job store - not re-filed"}, {"id": "daughter-birthday-film-step6-plates", "state": "approved", "note": "already in the job store - not re-filed"}, {"id": "daughter-birthday-film-step12-editorial-hub", "state": "approved", "note": "already in the job store - not re-filed"}, {"id": "daughter-birthday-film-step18-delivery", "state": "awaiting_ruling", "note": "already in the job store - not re-filed"}], "timing": {"status": "COMPUTED", "production_id": "daughter-birthday-film", "computed_at": "2026-11-22T20:11:22.358409-05:00", "register_date": "2026-11-22", "register_verification": "VERIFIED", "commission_instant": {"at": "2026-11-22T20:11:22.358409-05:00", "classification": "clean", "detail": "outside every declared avoid-window", "next_clean_window": "now (outside avoid-windows)", "type": "DECLARED_GRAMMAR"}, "sentinel_exposure": [{"id": "s9-observations-expiry-2026-11-27", "title": "AnandaSangha S9 provider observations — earliest observations expire; re-verification has no other owner", "due": "2026-11-27", "kind": "expiry", "source": "Peak Sentinel REGISTRY.json (verified at build)", "days_remaining": 5, "in_warning_band": true, "warning_band_days": 7, "type": "MEASURED"}, {"id": "power-plan-charge-2026-12-08", "title": "Power Plan charge $21.90", "due": "2026-12-08", "kind": "charge", "source": "Peak Sentinel REGISTRY.json (verified at build)", "days_remaining": 16, "in_warning_band": false, "warning_band_days": 7, "type": "MEASURED"}, {"id": "azure-credit-expiry-2026-12-20", "title": "Azure $200 credit expires (cancel-reminder cron 2026-12-17)", "due": "2026-12-20", "kind": "expiry", "source": "programme record (principal's brief 2026-11-22); NOT a Sentinel REGISTRY.json entry", "days_remaining": 28, "in_warning_band": false, "warning_band_days": 7, "type": "MEASURED"}, {"id": "abfm-apply-2027-01-19", "title": "ABFM re-entry application deadline (apply by); downstream: complete by 2027-02-25, exam window 2027-04-05..26; fees $300 + $1,300; 47.5 points governing, one new PI activity owed", "due": "2027-01-19", "kind": "deadline", "source": "Peak Sentinel REGISTRY.json (verified at build)", "days_remaining": 58, "in_warning_band": false, "warning_band_days": 7, "type": "MEASURED"}, {"id": "tn-licence-cliff-2027-01-31", "title": "Tennessee licence reinstatement cliff — licence #50548 (expired 2024-01-31, no disciplinary actions); reinstatement fee $510; board packet prepared", "due": "2027-01-31", "kind": "deadline", "source": "Peak Sentinel REGISTRY.json (verified at build)", "days_remaining": 70, "in_warning_band": false, "warning_band_days": 7, "type": "MEASURED"}], "sentinel_in_warning_band": [{"id": "s9-observations-expiry-2026-11-27", "title": "AnandaSangha S9 provider observations — earliest observations expire; re-verification has no other owner", "due": "2026-11-27", "kind": "expiry", "source": "Peak Sentinel REGISTRY.json (verified at build)", "days_remaining": 5, "in_warning_band": true, "warning_band_days": 7, "type": "MEASURED"}], "nearest_sentinel": {"id": "s9-observations-expiry-2026-11-27", "title": "AnandaSangha S9 provider observations — earliest observations expire; re-verification has no other owner", "due": "2026-11-27", "kind": "expiry", "source": "Peak Sentinel REGISTRY.json (verified at build)", "days_remaining": 5, "in_warning_band": true, "warning_band_days": 7, "type": "MEASURED"}, "sentinel_law": "dated exposures are calendar facts (MEASURED arithmetic on recorded dates): surfaced hard, never softened into advice; what they bind is decided by the principal's rulings and the programme's own dated mechanisms, not by this section", "grammar_windows_today": [{"window": "brahma_muhurta", "label": "declared preferred window (brahma-muhurta)", "plain_label": "pre-dawn practice window (brahma-muhurta)", "kind": "preferred_window", "start": "2026-11-22T05:22:13.905757-05:00", "end": "2026-11-22T06:17:58.196601-05:00", "boundary_type": "MEASURED", "status_type": "DECLARED_GRAMMAR", "efficacy_claim": null, "note": "Brahma-muhurta: penultimate night muhurta. Declared window for practice/study/commencement of inner work (corpus s.1.4)."}, {"window": "abhijit", "label": "declared preferred window (abhijit)", "plain_label": "midday favourable window (abhijit)", "kind": "preferred_window", "start": "2026-11-22T11:55:19.440871-05:00", "end": "2026-11-22T12:35:33.291360-05:00", "boundary_type": "MEASURED", "status_type": "DECLARED_GRAMMAR", "efficacy_claim": null, "note": "Abhijit: 8th daytime muhurta, centred on apparent noon. Traditionally declared universally favourable - the programme's first offer window for consequential launches (corpus s.1.4)."}, {"window": "rahu_kala", "label": "declared avoid-window (rahu-kala)", "plain_label": "declared avoid-window (rahu-kala)", "kind": "avoid_window", "start": "2026-11-22T16:01:44.275118-05:00", "end": "2026-11-22T17:17:10.244785-05:00", "boundary_type": "MEASURED", "status_type": "DECLARED_GRAMMAR", "efficacy_claim": null, "note": "Rahu-kala: declared avoid-window for BEGINNINGS only; work under way and rounds continue (corpus s.1.5)."}, {"window": "yama_ganda", "label": "declared avoid-window (yama-ganda)", "plain_label": "declared avoid-window (yama-ganda)", "kind": "avoid_window", "start": "2026-11-22T12:15:26.366116-05:00", "end": "2026-11-22T13:30:52.335783-05:00", "boundary_type": "MEASURED", "status_type": "DECLARED_GRAMMAR", "efficacy_claim": null, "note": "Yama-ganda: declared avoid-window for beginnings (corpus s.1.5)."}, {"window": "gulika", "label": "declared caution window (gulika)", "plain_label": "declared caution window (gulika-kala)", "kind": "caution_window", "start": "2026-11-22T14:46:18.305450-05:00", "end": "2026-11-22T16:01:44.275118-05:00", "boundary_type": "MEASURED", "status_type": "DECLARED_GRAMMAR", "efficacy_claim": null, "note": "Gulika-kala: declared caution segment (corpus s.1.5)."}], "body": {"status": "UNKNOWN", "sleep_input_status": "ABSENT", "sleep_input_type": "MEASURED", "sessions_on_record": 0, "rhythm_basis": {"type": "DECLARED_GRAMMAR", "status": "DEFAULT", "note": "programme default rhythm: wake anchor = sunrise; sleep input ABSENT (see sleep_input) - declared default, not principal-declared, not measured"}, "note": "no sleep records are synced, so the body layer is UNKNOWN - stated as absent, never faked. The rhythm in use is the programme-declared default (wake anchor = sunrise), typed DECLARED_GRAMMAR in the register, not measured physiology"}, "grammar_effect_on_schedule": "none", "advisory_law": "Kala advises and records; grammar windows never block, delay, or reorder production steps - the principal's rulings bind"}, "prediction_error": {"status": "DRAINED", "drained_at": "2026-11-23T01:11:22Z", "records_for_this_production": [], "records_drained_total": 0, "stream": "state/prediction-errors.jsonl", "note": "one prediction-error record per scored dispatch outcome on this production's packets; packets still awaiting dispatch or a ruling have no outcome yet and no record"}, "rsi_cdt": {"verdict_label": {"rsi_level": "L1", "reasons": ["artifact checked against defined criteria by an executed check"], "missing_for_next": ["method_changed_on_evidence", "tested_on_subsequent_task", "regression_checked"], "evidence": {"criteria_defined": true, "checked_against_criteria": true, "method_changed_on_evidence": false, "tested_on_subsequent_task": false, "regression_checked": false, "held_out_cases": false, "costs_checked": false, "baseline_preserved": false}, "evidence_basis": "criteria_defined: every beat record carries a recipient-facing check (section 11.1) - met; checked_against_criteria: a packet reached VERIFIED through the orchestrator's executed receipt verification - met", "packet_states": ["verified", "approved", "approved", "awaiting_ruling"]}, "cost_per_approved_second": {"metric": "cost_per_approved_second", "ts": "2026-11-23T01:11:22Z", "status": "UNDEFINED", "value_usd_per_approved_second": null, "cost_usd": null, "compute_seconds": 4440, "compute_basis": "declared packet duration_s (planned, not metered)", "jobs_counted": 10, "approved_seconds": 0.0, "released_entries": 0, "released_with_duration": 0, "attempts": 2, "quality_term_prediction_error": {"alive-vibrant-production-proof": {"n": 1, "mean_divergence": 0.0, "mean_brier": 0.16000000000000003}, "studio-production-dispatch": {"n": 1, "mean_divergence": 0.0, "mean_brier": 0.03999999999999998}}, "reasons": ["no per-lane cost rate on record (cascade.json carries no cost fields) - the monetary cost term is UNDEFINED, not estimated", "no approved output seconds on record (0 RELEASED of 2 attempts) - division by zero is reported as UNDEFINED, never smoothed"], "use": "feeds proposals only; never auto-tunes (Goodhart guard, CONVERGENCE section 7)"}, "lane_beliefs": {"mode": "SHADOW-ONLY", "live_routing_consumption": false, "consumer_of_record": "routing_shadow.shadow_compare (beliefs may look at routing; they may not touch it)", "belief_pairs_on_record": 0, "shadow_comparisons_on_record": 4, "gate": "promotion of lane_beliefs into live routing is Phase 7 item P4 - a separate principal-gated act through the signed Phase 7 gate; NOT performed by this build and NOT performed in the Studio path"}}, "live_packets": [{"id": "daughter-birthday-film-step12-editorial-hub", "desk": "editorial", "lane": "vm", "state": "approved", "updated_at": "2026-11-23T00:10:01Z", "duration_s": 600, "taint": "daughter", "deadline_s": null, "weight": 1, "lineage": "daughter-birthday-film"}, {"id": "daughter-birthday-film-step18-delivery", "desk": "delivery", "lane": "vm", "state": "awaiting_ruling", "updated_at": "2026-11-23T00:10:01Z", "duration_s": 60, "taint": "daughter", "deadline_s": null, "weight": 1, "lineage": "daughter-birthday-film"}, {"id": "daughter-birthday-film-step4-story-reel", "desk": "editorial", "lane": "vm", "state": "verified", "updated_at": "2026-11-23T00:10:01Z", "duration_s": 900, "taint": "daughter", "deadline_s": null, "weight": 1, "lineage": "daughter-birthday-film"}, {"id": "daughter-birthday-film-step6-plates", "desk": "characters", "lane": "vm", "state": "approved", "updated_at": "2026-11-23T00:10:00Z", "duration_s": 600, "taint": "daughter", "deadline_s": null, "weight": 1, "lineage": "daughter-birthday-film"}], "temporal": {"status": "COMPUTED", "date": "2026-11-25", "contract_version": "kala-1.0.0", "register_verification": "VERIFIED", "location_label": "Johnson City, TN", "astronomy": {"sunrise": {"value": "2026-11-25T07:16:39.403163-05:00", "type": "MEASURED", "provenance": "Skyfield de421.bsp (JPL DE440 family) primary; Swiss Ephemeris (pyswisseph, internal-only) cross-verification; Lahiri ayanamsa via Swiss sidereal mode; alignment contract kala-1.0.0", "data_class": "COMPUTED"}, "sunset": {"value": "2026-11-25T17:15:58.092088-05:00", "type": "MEASURED", "provenance": "Skyfield de421.bsp (JPL DE440 family) primary; Swiss Ephemeris (pyswisseph, internal-only) cross-verification; Lahiri ayanamsa via Swiss sidereal mode; alignment contract kala-1.0.0", "data_class": "COMPUTED"}, "solar_noon": {"value": "2026-11-25T12:16:27.052047-05:00", "type": "MEASURED", "provenance": "Skyfield de421.bsp (JPL DE440 family) primary; Swiss Ephemeris (pyswisseph, internal-only) cross-verification; Lahiri ayanamsa via Swiss sidereal mode; alignment contract kala-1.0.0", "data_class": "COMPUTED"}, "day_length_min": {"value": 599.31, "type": "MEASURED", "provenance": "Skyfield de421.bsp (JPL DE440 family) primary; Swiss Ephemeris (pyswisseph, internal-only) cross-verification; Lahiri ayanamsa via Swiss sidereal mode; alignment contract kala-1.0.0", "data_class": "COMPUTED"}, "night_length_min": {"value": 840.32, "type": "MEASURED", "provenance": "Skyfield de421.bsp (JPL DE440 family) primary; Swiss Ephemeris (pyswisseph, internal-only) cross-verification; Lahiri ayanamsa via Swiss sidereal mode; alignment contract kala-1.0.0", "data_class": "COMPUTED"}, "vara": {"value": {"name": "Budhavara", "ruler": "Budha (Mercury)", "runs": "sunrise-to-sunrise"}, "type": "MEASURED", "provenance": "civil weekday of the sunrise beginning this daytime (corpus s.1.3)", "data_class": "COMPUTED"}, "at_noon": {"tithi": {"index": 17, "name": "Krishna Dwitiya", "elongation_deg": 195.1731}, "nakshatra": {"index": 5, "name": "Mrigashira", "pada": 1}, "yoga": {"index": 21, "name": "Siddha"}, "karana": {"index": 32, "name": "Taitila"}, "type": "MEASURED", "plain_label": "the day's panchanga limbs at solar noon (lunar day / mansion / combination / half-day) - measured astronomy"}}, "classification_now": {"classification": "clean", "detail": "outside every declared avoid-window", "next_clean_window": "abhijit 2026-11-25T11:56:20.124661-05:00 .. 2026-11-25T12:36:17.370590-05:00"}, "grammar_windows": [{"window": "brahma_muhurta", "label": "declared preferred window (brahma-muhurta)", "plain_label": "pre-dawn practice window (brahma-muhurta)", "kind": "preferred_window", "start": "2026-11-25T05:24:36.843717-05:00", "end": "2026-11-25T06:20:38.123440-05:00", "boundary_type": "MEASURED", "status_type": "DECLARED_GRAMMAR", "efficacy_claim": null, "note": "Brahma-muhurta: penultimate night muhurta. Declared window for practice/study/commencement of inner work (corpus s.1.4)."}, {"window": "abhijit", "label": "declared preferred window (abhijit)", "plain_label": "midday favourable window (abhijit)", "kind": "preferred_window", "start": "2026-11-25T11:56:20.124661-05:00", "end": "2026-11-25T12:36:17.370590-05:00", "boundary_type": "MEASURED", "status_type": "DECLARED_GRAMMAR", "efficacy_claim": null, "note": "Abhijit: 8th daytime muhurta, centred on apparent noon. Traditionally declared universally favourable - the programme's first offer window for consequential launches (corpus s.1.4)."}, {"window": "rahu_kala", "label": "declared avoid-window (rahu-kala)", "plain_label": "declared avoid-window (rahu-kala)", "kind": "avoid_window", "start": "2026-11-25T12:16:18.747625-05:00", "end": "2026-11-25T13:31:13.583741-05:00", "boundary_type": "MEASURED", "status_type": "DECLARED_GRAMMAR", "efficacy_claim": null, "note": "Rahu-kala: declared avoid-window for BEGINNINGS only; work under way and rounds continue (corpus s.1.5)."}, {"window": "yama_ganda", "label": "declared avoid-window (yama-ganda)", "plain_label": "declared avoid-window (yama-ganda)", "kind": "avoid_window", "start": "2026-11-25T08:31:34.239279-05:00", "end": "2026-11-25T09:46:29.075394-05:00", "boundary_type": "MEASURED", "status_type": "DECLARED_GRAMMAR", "efficacy_claim": null, "note": "Yama-ganda: declared avoid-window for beginnings (corpus s.1.5)."}, {"window": "gulika", "label": "declared caution window (gulika)", "plain_label": "declared caution window (gulika-kala)", "kind": "caution_window", "start": "2026-11-25T11:01:23.911510-05:00", "end": "2026-11-25T12:16:18.747625-05:00", "boundary_type": "MEASURED", "status_type": "DECLARED_GRAMMAR", "efficacy_claim": null, "note": "Gulika-kala: declared caution segment (corpus s.1.5)."}], "sentinel": [{"id": "s9-observations-expiry-2026-11-27", "title": "AnandaSangha S9 provider observations — earliest observations expire; re-verification has no other owner", "due": "2026-11-27", "kind": "expiry", "source": "Peak Sentinel REGISTRY.json (verified at build)", "days_remaining": 2, "in_warning_band": true, "warning_band_days": 7, "type": "MEASURED", "data_class": "COMPUTED"}, {"id": "power-plan-charge-2026-12-08", "title": "Power Plan charge $21.90", "due": "2026-12-08", "kind": "charge", "source": "Peak Sentinel REGISTRY.json (verified at build)", "days_remaining": 13, "in_warning_band": false, "warning_band_days": 7, "type": "MEASURED", "data_class": "COMPUTED"}, {"id": "azure-credit-expiry-2026-12-20", "title": "Azure $200 credit expires (cancel-reminder cron 2026-12-17)", "due": "2026-12-20", "kind": "expiry", "source": "programme record (principal's brief 2026-11-22); NOT a Sentinel REGISTRY.json entry", "days_remaining": 25, "in_warning_band": false, "warning_band_days": 7, "type": "MEASURED", "data_class": "COMPUTED"}, {"id": "abfm-apply-2027-01-19", "title": "ABFM re-entry application deadline (apply by); downstream: complete by 2027-02-25, exam window 2027-04-05..26; fees $300 + $1,300; 47.5 points governing, one new PI activity owed", "due": "2027-01-19", "kind": "deadline", "source": "Peak Sentinel REGISTRY.json (verified at build)", "days_remaining": 55, "in_warning_band": false, "warning_band_days": 7, "type": "MEASURED", "data_class": "COMPUTED"}, {"id": "tn-licence-cliff-2027-01-31", "title": "Tennessee licence reinstatement cliff — licence #50548 (expired 2024-01-31, no disciplinary actions); reinstatement fee $510; board packet prepared", "due": "2027-01-31", "kind": "deadline", "source": "Peak Sentinel REGISTRY.json (verified at build)", "days_remaining": 67, "in_warning_band": false, "warning_band_days": 7, "type": "MEASURED", "data_class": "COMPUTED"}, {"id": "github-bridge-pat-expiry-2027-02-21", "title": "GitHub fine-grained PAT 'vinayaki-bridge' for the split-brain bridge (NovaTerra123/vinayaki-rendezvous + NovaTerra123/vinayaki-surfaces, Contents RW) expires — the bridge daemon's git channel (SB_TRANSPORT=git) dies silently on this date and the hosted surfaces stop cycling. EXPIRY DATE CONFIRMED: Sun Feb 21, 2027, read from the token at creation in the principal's browser (harness-verified). Renewal = fresh token from Trishul + Secure Vault reconnect (his act); flag before it lapses.", "due": "2027-02-21", "kind": "expiry", "source": "Peak Sentinel REGISTRY.json (verified at build)", "days_remaining": 88, "in_warning_band": false, "warning_band_days": 7, "type": "MEASURED", "data_class": "COMPUTED"}, {"id": "github-pat-expiry-2027-11-22", "title": "GitHub fine-grained PAT \"vinayaki-bench-workflows\" expires — the Route 2 direct-push lane for vinayaki-model-bench workflow files dies silently on this date. RENEWED 2026-11-22: token regenerated with expiry Mon Nov 22, 2027 and reconnected through the Secure Vault (verified live 2026-11-22, see last_result). Next renewal = fresh token from Trishul + Secure Vault reconnect (his act); flag before it lapses.", "due": "2027-11-22", "kind": "expiry", "source": "Peak Sentinel REGISTRY.json (verified at build)", "days_remaining": 362, "in_warning_band": false, "warning_band_days": 7, "type": "MEASURED", "data_class": "COMPUTED"}], "sentinel_law": "dated exposures are calendar facts (MEASURED arithmetic on recorded dates): surfaced hard, never softened into advice; what they bind is decided by the principal's rulings and the programme's own dated mechanisms, not by this section", "body": {"status": "UNKNOWN", "sleep_input_status": "ABSENT", "sleep_input_type": "MEASURED", "sessions_on_record": 0, "rhythm_basis": {"type": "DECLARED_GRAMMAR", "data_class": "DECLARED_GRAMMAR", "status": "DEFAULT", "note": "programme default rhythm: wake anchor = sunrise; sleep input ABSENT (see sleep_input) - declared default, not principal-declared, not measured"}, "note": "no sleep records are synced, so the body layer is UNKNOWN - stated as absent, never faked. The rhythm in use is the programme-declared default (wake anchor = sunrise), typed DECLARED_GRAMMAR in the register, not measured physiology"}, "advisory_law": "Kala advises and records; grammar windows never block, delay, or reorder production steps - the principal's rulings bind"}, "step_annotations": {"production_id": "daughter-birthday-film", "source": "scheduler.schedule() deterministic re-run at read time", "annotations": [{"job_id": "daughter-birthday-film-step4-story-reel", "lane": "actions-cpu", "start_s": 0, "end_s": 900, "classification": "day_level", "windows_present": [{"window": "brahma_muhurta", "plain_label": "pre-dawn practice window (brahma-muhurta)", "kind": "preferred_window", "status_type": "DECLARED_GRAMMAR"}, {"window": "abhijit", "plain_label": "midday favourable window (abhijit)", "kind": "preferred_window", "status_type": "DECLARED_GRAMMAR"}, {"window": "rahu_kala", "plain_label": "declared avoid-window (rahu-kala)", "kind": "avoid_window", "status_type": "DECLARED_GRAMMAR"}, {"window": "yama_ganda", "plain_label": "declared avoid-window (yama-ganda)", "kind": "avoid_window", "status_type": "DECLARED_GRAMMAR"}, {"window": "gulika", "plain_label": "declared caution window (gulika-kala)", "kind": "caution_window", "status_type": "DECLARED_GRAMMAR"}], "hard_constraint": false, "note": "declared grammar for this day, attached as annotation only - grammar is never a CP-SAT constraint and did not influence this schedule", "source": "scheduler.schedule() deterministic re-run at read time (annotation consumed from its output; the scheduler's format is unchanged)"}, {"job_id": "daughter-birthday-film-step18-delivery", "lane": "kaggle-gpu", "start_s": 0, "end_s": 60, "classification": "day_level", "windows_present": [{"window": "brahma_muhurta", "plain_label": "pre-dawn practice window (brahma-muhurta)", "kind": "preferred_window", "status_type": "DECLARED_GRAMMAR"}, {"window": "abhijit", "plain_label": "midday favourable window (abhijit)", "kind": "preferred_window", "status_type": "DECLARED_GRAMMAR"}, {"window": "rahu_kala", "plain_label": "declared avoid-window (rahu-kala)", "kind": "avoid_window", "status_type": "DECLARED_GRAMMAR"}, {"window": "yama_ganda", "plain_label": "declared avoid-window (yama-ganda)", "kind": "avoid_window", "status_type": "DECLARED_GRAMMAR"}, {"window": "gulika", "plain_label": "declared caution window (gulika-kala)", "kind": "caution_window", "status_type": "DECLARED_GRAMMAR"}], "hard_constraint": false, "note": "declared grammar for this day, attached as annotation only - grammar is never a CP-SAT constraint and did not influence this schedule", "source": "scheduler.schedule() deterministic re-run at read time (annotation consumed from its output; the scheduler's format is unchanged)"}, {"job_id": "daughter-birthday-film-step6-plates", "lane": "kaggle-gpu", "start_s": 60, "end_s": 660, "classification": "day_level", "windows_present": [{"window": "brahma_muhurta", "plain_label": "pre-dawn practice window (brahma-muhurta)", "kind": "preferred_window", "status_type": "DECLARED_GRAMMAR"}, {"window": "abhijit", "plain_label": "midday favourable window (abhijit)", "kind": "preferred_window", "status_type": "DECLARED_GRAMMAR"}, {"window": "rahu_kala", "plain_label": "declared avoid-window (rahu-kala)", "kind": "avoid_window", "status_type": "DECLARED_GRAMMAR"}, {"window": "yama_ganda", "plain_label": "declared avoid-window (yama-ganda)", "kind": "avoid_window", "status_type": "DECLARED_GRAMMAR"}, {"window": "gulika", "plain_label": "declared caution window (gulika-kala)", "kind": "caution_window", "status_type": "DECLARED_GRAMMAR"}], "hard_constraint": false, "note": "declared grammar for this day, attached as annotation only - grammar is never a CP-SAT constraint and did not influence this schedule", "source": "scheduler.schedule() deterministic re-run at read time (annotation consumed from its output; the scheduler's format is unchanged)"}, {"job_id": "daughter-birthday-film-step12-editorial-hub", "lane": "vm", "start_s": 0, "end_s": 600, "classification": "day_level", "windows_present": [{"window": "brahma_muhurta", "plain_label": "pre-dawn practice window (brahma-muhurta)", "kind": "preferred_window", "status_type": "DECLARED_GRAMMAR"}, {"window": "abhijit", "plain_label": "midday favourable window (abhijit)", "kind": "preferred_window", "status_type": "DECLARED_GRAMMAR"}, {"window": "rahu_kala", "plain_label": "declared avoid-window (rahu-kala)", "kind": "avoid_window", "status_type": "DECLARED_GRAMMAR"}, {"window": "yama_ganda", "plain_label": "declared avoid-window (yama-ganda)", "kind": "avoid_window", "status_type": "DECLARED_GRAMMAR"}, {"window": "gulika", "plain_label": "declared caution window (gulika-kala)", "kind": "caution_window", "status_type": "DECLARED_GRAMMAR"}], "hard_constraint": false, "note": "declared grammar for this day, attached as annotation only - grammar is never a CP-SAT constraint and did not influence this schedule", "source": "scheduler.schedule() deterministic re-run at read time (annotation consumed from its output; the scheduler's format is unchanged)"}], "annotation_sha256": "9c9309e54d6bdab4af14066c39de024bb9c83e7e2e7634afebf2adcbb96be69d", "receipt_event": null}, "verdict_label": {"rsi_level": "L1", "reasons": ["artifact checked against defined criteria by an executed check"], "missing_for_next": ["method_changed_on_evidence", "tested_on_subsequent_task", "regression_checked"], "evidence": {"criteria_defined": true, "checked_against_criteria": true, "method_changed_on_evidence": false, "tested_on_subsequent_task": false, "regression_checked": false, "held_out_cases": false, "costs_checked": false, "baseline_preserved": false}, "evidence_basis": "criteria_defined: every beat record carries a recipient-facing check (section 11.1) - met; checked_against_criteria: a packet reached VERIFIED through the orchestrator's executed receipt verification - met", "packet_states": ["approved", "awaiting_ruling", "verified", "approved"]}, "cost_per_approved_second": {"metric": "cost_per_approved_second", "ts": "2026-11-25T06:35:49Z", "status": "UNDEFINED", "value_usd_per_approved_second": null, "cost_usd": null, "compute_seconds": 11880, "compute_basis": "declared packet duration_s (planned, not metered)", "jobs_counted": 75, "approved_seconds": 0.0, "released_entries": 0, "released_with_duration": 0, "attempts": 2, "quality_term_prediction_error": {"alive-vibrant-production-proof": {"n": 1, "mean_divergence": 0.0, "mean_brier": 0.16000000000000003}, "studio-production-dispatch": {"n": 1, "mean_divergence": 0.0, "mean_brier": 0.03999999999999998}, "origination-rca": {"n": 2, "mean_divergence": 0.0, "mean_brier": 0.08124999999999999}, "origination-audit": {"n": 2, "mean_divergence": 0.0, "mean_brier": 0.07625000000000001}, "origination-production_gap": {"n": 8, "mean_divergence": 0.125, "mean_brier": 0.20625}, "design-intelligence-commission": {"n": 1, "mean_divergence": 0.0, "mean_brier": null}, "tantricsync-voice-observatory-commission": {"n": 1, "mean_divergence": 0.0, "mean_brier": null}, "buddhi-full-ui-build-commission": {"n": 1, "mean_divergence": 0.0, "mean_brier": null}, "buddhi-vision-commission": {"n": 2, "mean_divergence": 0.5, "mean_brier": null}, "buddhi-vinayaki-chat-commission": {"n": 1, "mean_divergence": 0.0, "mean_brier": null}}, "reasons": ["no per-lane cost rate on record (cascade.json carries no cost fields) - the monetary cost term is UNDEFINED, not estimated", "no approved output seconds on record (0 RELEASED of 2 attempts) - division by zero is reported as UNDEFINED, never smoothed"], "use": "feeds proposals only; never auto-tunes (Goodhart guard, CONVERGENCE section 7)"}, "lane_beliefs": {"mode": "SHADOW-ONLY", "live_routing_consumption": false, "consumer_of_record": "routing_shadow.shadow_compare (beliefs may look at routing; they may not touch it)", "belief_pairs_on_record": 0, "shadow_comparisons_on_record": 4, "gate": "promotion of lane_beliefs into live routing is Phase 7 item P4 - a separate principal-gated act through the signed Phase 7 gate; NOT performed by this build and NOT performed in the Studio path"}};
+let currentPid = "daughter-birthday-film";
 
 function esc(s){return String(s==null?"":s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]))}
 function assets(list){return (list||[]).map(a=>'<span class="asset">'+esc(a)+'</span>').join(" ")}
@@ -146,6 +469,64 @@ function annFor(p, jobId){
   const anns = (p.step_annotations && p.step_annotations.annotations) || [];
   return anns.find(a=>a.job_id===jobId) || null;
 }
+
+// ---- Choreography state (Living Light §4/§5) ----
+// Honest-motion law: an element animates ONLY when the underlying
+// value actually changed between renders. These page-level maps are
+// the diff record; unchanged values on the 30 s poll never re-animate.
+let hasRendered = false;
+let prevPacketStates = {};   // packet id -> state word
+let prevStepStatus = {};     // step n -> status text
+let prevSentinelDays = {};   // sentinel title -> days_remaining
+const PACKET_SHINE = {approved:'#8FF2FF', verified:'#7CFFC4',
+                      awaiting_ruling:'#FFD97A', failed:'#FF8FA3'};
+
+// ---- UI v2: grading ladder + honest staleness ----
+// Rungs are applied ONLY from real state fields (packet state,
+// step status text, artifact state, prediction divergence,
+// style-map application_state) — never decoratively (§5).
+// STALE thresholds, stated: a packet whose updated_at is older
+// than 15 min is graded stale (shown with its age); the whole
+// view is stale after 90 s without a successful refresh (three
+// missed 30 s polls), also shown with its age.
+const PKT_STALE_MS = 900000;
+const VIEW_STALE_MS = 90000;
+let lastOkAt = null;
+function rungForState(v){
+  const u = String(v||'').toLowerCase();
+  if(u.indexOf('awaiting')!==-1 || u.indexOf('ruling')!==-1) return 'll-rung-awaiting-ruling';
+  if(u.indexOf('fail')!==-1 || u.indexOf('diverg')!==-1 || u.indexOf('error')!==-1 || u.indexOf('conflict')!==-1) return 'll-rung-diverged';
+  if(u.indexOf('deliver')!==-1 || u.indexOf('released')!==-1 || u.indexOf('complete')!==-1 || u.indexOf('done')!==-1) return 'll-rung-delivered';
+  if(u.indexOf('verified')!==-1 || u.indexOf('approved')!==-1 || u.indexOf('active')!==-1 || u.indexOf('running')!==-1 || u.indexOf('assembling')!==-1 || u.indexOf('live')!==-1) return 'll-rung-live';
+  return 'll-rung-idle';
+}
+function fmtAge(ms){
+  const sec = Math.max(0, Math.round(ms/1000));
+  if(sec < 60) return sec + 's';
+  const min = Math.floor(sec/60);
+  if(min < 60) return min + 'm ' + (sec % 60) + 's';
+  return Math.floor(min/60) + 'h ' + (min % 60) + 'm';
+}
+function markStudioStale(){
+  const b = document.getElementById('staleBanner');
+  if(!b || !lastOkAt) return;
+  const age = Date.now() - lastOkAt;
+  if(age > VIEW_STALE_MS){
+    b.hidden = false;
+    b.textContent = 'Stale — last successful refresh ' + fmtAge(age) + ' ago (threshold 90s); the view below is the last good production record.';
+    document.getElementById('view').classList.add('ll-rung-stale');
+  }
+}
+// Kala-phase ambient — DECLARED client-clock grammar only,
+// computed from the CLIENT clock. NOT the measured Kala
+// register (8794/8791); it tints the ambient layer alone.
+function applyKalaPhase(){
+  const h = new Date().getHours();
+  const phase = (h>=5 && h<8) ? 'dawn' : (h>=8 && h<17) ? 'day' : (h>=17 && h<20) ? 'dusk' : 'night';
+  document.documentElement.setAttribute('data-kala-phase', phase);
+}
+applyKalaPhase();
+setInterval(applyKalaPhase, 60000);
 
 // ---- Style Deck state (kept in page variables so the 30s refresh
 // re-renders the deck from them and never loses in-progress edits) ----
@@ -276,7 +657,7 @@ function styleDeckHTML(p){
   // Current map + honesty
   const sm = p.style_map || {};
   const segs = sm.map || sm.segments || [];
-  h += '<div class="card"><div class="k" style="color:var(--gold);font-size:13px;text-transform:uppercase;letter-spacing:.6px">Current style map — what is active on this production</div>';
+  h += '<div class="card '+rungForState(sm.application_state||'')+'"><div class="k">Current style map — what is active on this production</div>';
   if(segs.length){
     h += '<div style="margin-top:6px">' + segs.map(sg=>'<span class="tag">bars '+esc(sg.from_bar)+'–'+esc(sg.to_bar)+' · '+esc(sg.style_id)+'</span>').join(' ') + '</div>';
   } else {
@@ -308,7 +689,7 @@ function styleDeckHTML(p){
   // Per-channel preview
   const sel = selectedStyle();
   if(sel){
-    h += '<div class="card"><div class="k" style="color:var(--gold);font-size:13px;text-transform:uppercase;letter-spacing:.6px">DIRECTION preview — what would change, as production direction. Not audio, not a render.</div>';
+    h += '<div class="card"><div class="k">DIRECTION preview — what would change, as production direction. Not audio, not a render.</div>';
     h += '<div style="margin-top:6px;font-size:16px">'+esc(sel.name)+'</div>';
     const chans = sel.channels || {};
     for(const [key, label] of STYLE_CHANNELS){
@@ -319,7 +700,7 @@ function styleDeckHTML(p){
   }
 
   // Bar-range map editor
-  h += '<div class="card"><div class="k" style="color:var(--gold);font-size:13px;text-transform:uppercase;letter-spacing:.6px">Bar-range map editor — bars 1–116</div>';
+  h += '<div class="card"><div class="k">Bar-range map editor — bars 1–116</div>';
   styleMapRows.forEach((r, i)=>{
     h += '<div class="map-row"><span class="hint">from</span>'
       + '<input type="number" min="1" max="116" value="'+esc(r.from_bar)+'" oninput="styleRowChange('+i+',\'from_bar\',this.value)">'
@@ -343,9 +724,9 @@ function styleDeckHTML(p){
     vars.push({variation_id: lastVariation.variation_id, compiled_at: lastVariation.compiled_at,
                map_summary: lastVariation.map_summary || fmtSummary(lastVariation.style_map || lastVariation.style_section || '')});
   }
-  h += '<div class="card"><div class="k" style="color:var(--gold);font-size:13px;text-transform:uppercase;letter-spacing:.6px">Variations — compiled style maps on record</div><div style="margin-top:8px">';
+  h += '<div class="card"><div class="k">Variations — compiled style maps on record</div><div style="margin-top:8px">';
   if(vars.length){
-    h += vars.map(v=>'<span class="var-chip"><span class="vid">'+esc(v.variation_id)+'</span><br>compiled '+esc(v.compiled_at||'')+'<br><span class="hint">'+esc(fmtSummary(v.map_summary))+'</span></span>').join('');
+    h += vars.map(v=>'<span class="var-chip '+((lastVariation && v.variation_id===lastVariation.variation_id)?'ll-rung-delivered':'ll-rung-idle')+'"><span class="vid">'+esc(v.variation_id)+'</span><br>compiled '+esc(v.compiled_at||'')+'<br><span class="hint">'+esc(fmtSummary(v.map_summary))+'</span></span>').join('');
   } else {
     h += '<span class="hint">No variations compiled yet for this production.</span>';
   }
@@ -359,7 +740,7 @@ function styleDeckHTML(p){
       }
     }
     if(detail){
-      h += '<div style="margin-top:10px"><div class="k" style="color:var(--gold);font-size:13px;text-transform:uppercase;letter-spacing:.6px">Just compiled — '+esc(lastVariation.variation_id)+' · per-beat style changes</div>'+detail+'</div>';
+      h += '<div style="margin-top:10px"><div class="k">Just compiled — '+esc(lastVariation.variation_id)+' · per-beat style changes</div>'+detail+'</div>';
     } else if(lastVariation.style_section){
       h += '<div class="hint" style="margin-top:8px">Just compiled: '+esc(lastVariation.variation_id)+' — '+esc(fmtSummary(lastVariation.style_section))+'</div>';
     }
@@ -371,21 +752,52 @@ function styleDeckHTML(p){
   return h;
 }
 
+// Post-render choreography: runs AFTER the new markup is in the DOM.
+// Only elements whose underlying value changed (per the diff maps
+// above) receive motion; first appearance gets the faint-arrival
+// stagger. Labels and words are never altered by motion.
+function choreograph(){
+  const view = document.getElementById('view');
+  if(!window.LivingLight) return;
+  if(!hasRendered){
+    LivingLight.staggerIn(view.querySelectorAll('section .card, section .cap, section .col, section table'), 40);
+  }
+  view.querySelectorAll('.pkt-row.pkt-changed').forEach(row=>{
+    LivingLight.ignite(row);
+    const c = PACKET_SHINE[row.getAttribute('data-state')];
+    row.classList.add('ll-shine');
+    if(c) LivingLight.shine(row, c);
+  });
+  view.querySelectorAll('.sent-days').forEach(el=>{
+    const key = el.getAttribute('data-key');
+    const val = el.getAttribute('data-val');
+    if(hasRendered && key in prevSentinelDays && String(prevSentinelDays[key]) !== String(val)){
+      // Odometer of record: digits roll toward the new day count
+      // (down toward the deadline as the count falls).
+      LivingLight.renderOdo(el, val, {down:true});
+    }
+  });
+}
+
 function render(p){
   if(!p){document.getElementById('view').innerHTML='<div class="card">No production loaded yet — type an intent and press Produce.</div>';return}
   currentPid = p.production_id;
   lastProduction = p;
+  lastOkAt = Date.now();
+  const sb = document.getElementById('staleBanner');
+  if(sb) sb.hidden = true;
+  document.getElementById('view').classList.remove('ll-rung-stale');
   const b = p.brief || {};
   let h = '';
 
   h += '<section><h2>The production <span class="tech">'+esc(p.production_id)+'</span></h2>';
-  h += '<div class="card"><div style="font-size:17px">“'+esc(p.intent_sentence)+'”</div>';
+  h += '<div class="card ll-rung-live"><div style="font-size:17px">“'+esc(p.intent_sentence)+'”</div>';
   h += '<div class="hint">Compiled '+esc(p.compiled_at||'')+' · compilation: '+esc(b.compilation_mode||'')+'</div></div>';
 
   // Commission timing (Gap 3) - from the production record itself
   const tm = p.timing;
   if(tm){
-    h += '<div class="card"><div class="k" style="color:var(--gold);font-size:13px;text-transform:uppercase;letter-spacing:.6px">Commission timing — the moment this production was commissioned <span class="tech">kāla register · commission-time section</span></div>';
+    h += '<div class="card"><div class="k">Commission timing — the moment this production was commissioned <span class="tech">kāla register · commission-time section</span></div>';
     if(tm.status==='COMPUTED' && tm.commission_instant){
       const ci = tm.commission_instant;
       h += '<div style="margin-top:6px">Commission instant classified <b>'+esc(ci.classification)+'</b> '
@@ -410,10 +822,10 @@ function render(p){
   h += '<div class="cell"><div class="k">The dramatic promise</div>'+esc(b.dramatic_promise||'—')+'</div>';
   h += '</div>';
   if(b.protections_verbatim){
-    h += '<div class="card protect"><div class="k" style="color:var(--pink);font-size:13px;text-transform:uppercase;letter-spacing:.6px">Protections — governing every step</div><div style="margin-top:6px">'+esc(b.protections_verbatim)+'</div></div>';
+    h += '<div class="card protect"><div class="k">Protections — governing every step</div><div style="margin-top:6px">'+esc(b.protections_verbatim)+'</div></div>';
   }
   if((b.hard_constraints||[]).length){
-    h += '<div class="card"><div class="k" style="color:var(--gold);font-size:13px;text-transform:uppercase;letter-spacing:.6px">Hard constraints — never traded away</div><ul>'
+    h += '<div class="card"><div class="k">Hard constraints — never traded away</div><ul>'
       + b.hard_constraints.map(c=>'<li>'+esc(c)+'</li>').join("") + '</ul></div>';
   }
   h += '</section>';
@@ -422,7 +834,7 @@ function render(p){
   h += '<section><h2>Beat trace — from the feeling to the shot <span class="tech">traceable production record · §11.1</span></h2>';
   h += '<table><tr><th>Beat</th><th>Intended feeling</th><th>Story action</th><th>Line / musical cue</th><th>Performed gesture</th><th>Framing &amp; edit</th><th>Assets</th><th>Recipient-facing check</th></tr>';
   for(const bt of (p.beats||[])){
-    h += '<tr><td class="beat">'+esc(bt.id)+'<br><span style="color:var(--muted)">bars '+esc(bt.bars)+'</span><br>'+esc(bt.name)+'</td>'
+    h += '<tr><td class="beat">'+esc(bt.id)+'<br><span style="color:var(--smoke-violet)">bars '+esc(bt.bars)+'</span><br>'+esc(bt.name)+'</td>'
       + '<td>'+esc(bt.intended_feeling)+'</td><td>'+esc(bt.story_action)+'</td><td>'+esc(bt.cue)+'</td>'
       + '<td>'+esc(bt.gesture)+'</td><td>'+esc(bt.framing_edit)+'</td><td>'+assets(bt.required_assets)+'</td>'
       + '<td>'+esc(bt.recipient_check)+'</td></tr>';
@@ -461,15 +873,14 @@ function render(p){
       h += '<div class="card">The temporal layer is unavailable right now: '+esc(tp.reason||'')+'</div>';
     } else {
       const a = tp.astronomy || {};
-      const val = r => r ? esc(r.value) : '—';
-      h += '<div class="card"><div class="k" style="color:var(--gold);font-size:13px;text-transform:uppercase;letter-spacing:.6px">Measured astronomy — facts of computation <span class="tag meas">MEASURED</span></div>'
+      h += '<div class="card"><div class="k">Measured astronomy — facts of computation <span class="tag meas">MEASURED</span></div>'
         + '<div class="trow"><span>Sunrise</span><span class="tw">'+hm(a.sunrise&&a.sunrise.value)+'</span><span>Sunset</span><span class="tw">'+hm(a.sunset&&a.sunset.value)+'</span><span>Solar noon</span><span class="tw">'+hm(a.solar_noon&&a.solar_noon.value)+'</span><span>Day length</span><span class="tw">'+esc(a.day_length_min?a.day_length_min.value:'—')+' min</span></div>'
         + '<div class="trow"><span>Weekday (vara)</span><span>'+esc(a.vara?a.vara.value.name:'—')+' — '+esc(a.vara?a.vara.value.ruler:'')+'</span>'
         + (a.at_noon ? '<span>At noon:</span><span class="tw">lunar day (tithi) '+esc(a.at_noon.tithi.name)+' · lunar mansion (nakshatra) '+esc(a.at_noon.nakshatra.name)+' · combination (yoga) '+esc(a.at_noon.yoga.name)+' · half-day (karana) '+esc(a.at_noon.karana.name)+'</span>' : '')
         + '</div>'
         + '<div class="hint">Register verification: '+esc(tp.register_verification||'')+' · '+esc(tp.location_label||'')+' · register date '+esc(tp.date||'')+'</div></div>';
 
-      h += '<div class="card"><div class="k" style="color:var(--gold);font-size:13px;text-transform:uppercase;letter-spacing:.6px">Grammar windows — the tradition’s declared scheduling grammar <span class="tag gram">DECLARED_GRAMMAR</span></div>';
+      h += '<div class="card"><div class="k">Grammar windows — the tradition’s declared scheduling grammar <span class="tag gram">DECLARED_GRAMMAR</span></div>';
       for(const w of (tp.grammar_windows||[])){
         h += '<div class="trow"><span>'+esc(w.plain_label)+'</span><span class="tw">'+hm(w.start)+'–'+hm(w.end)+'</span><span class="tag gram">'+esc(w.status_type)+'</span><span class="hint">efficacy claim: none — binding because adopted, never because measured</span></div>';
       }
@@ -478,15 +889,15 @@ function render(p){
       }
       h += '</div>';
 
-      h += '<div class="card"><div class="k" style="color:var(--gold);font-size:13px;text-transform:uppercase;letter-spacing:.6px">Dated exposures — hard dates, surfaced as facts <span class="tag meas">MEASURED</span></div>';
+      h += '<div class="card"><div class="k">Dated exposures — hard dates, surfaced as facts <span class="tag meas">MEASURED</span></div>';
       for(const e of (tp.sentinel||[])){
-        h += '<div class="trow"><span>'+esc(e.title)+'</span><span class="tw">due '+esc(e.due)+' · '+esc(e.days_remaining)+' day(s) remaining</span>'
+        h += '<div class="trow"><span>'+esc(e.title)+'</span><span class="tw">due '+esc(e.due)+' · <span class="sent-days" data-key="'+esc(e.title)+'" data-val="'+esc(e.days_remaining)+'">'+esc(e.days_remaining)+'</span> day(s) remaining</span>'
           + (e.in_warning_band ? '<span class="tag warn">IN WARNING BAND</span>' : '') + '</div>';
       }
       h += '<div class="hint">'+esc(tp.sentinel_law||'')+'</div></div>';
 
       const bd = tp.body || {};
-      h += '<div class="card"><div class="k" style="color:var(--gold);font-size:13px;text-transform:uppercase;letter-spacing:.6px">Body layer — circadian state</div>'
+      h += '<div class="card"><div class="k">Body layer — circadian state</div>'
         + '<div style="margin-top:6px">Status: <b>'+esc(bd.status||'')+'</b> <span class="tag unk">sleep input: '+esc(bd.sleep_input_status||'')+'</span></div>'
         + '<div class="hint">'+esc(bd.note||'')+'</div></div>';
 
@@ -495,25 +906,55 @@ function render(p){
     h += '</section>';
   }
 
-  // Steps + live packets
+  // Steps + live packets — phase choreography: a step faint-arrives
+  // (willAppear → identity) only on first appearance or when its
+  // status text actually changed; didDisappear is the asymmetric
+  // exit — steps that vanish simply leave with the rebuild, exactly
+  // as before (no exit claim is made for state we no longer hold).
   h += '<section><h2>Production steps &amp; live jobs <span class="tech">pipeline steps · orchestrator packets</span></h2>';
   h += '<div class="card steps">';
-  for(const st of (p.steps||[])){
-    h += '<div class="step"><span class="n">'+esc(st.n)+'</span><span class="ph">'+esc(st.phase)+'</span><span>'+esc(st.name)+'<div class="st">'+esc(st.status)+'</div></span></div>';
-  }
+  (p.steps||[]).forEach((st, i)=>{
+    const key = String(st.n);
+    const arrived = !hasRendered || !(key in prevStepStatus) || prevStepStatus[key] !== String(st.status||'');
+    h += '<div class="step'+(arrived?' ll-arrive':'')+' '+rungForState(st.status)+'" data-step-key="step-'+esc(st.n)+'" data-phase="'+esc(st.phase||'')+'"'
+      + (arrived ? ' style="animation-delay:'+(i*40)+'ms"' : '')
+      + '><span class="n">'+esc(st.n)+'</span><span class="ph">'+esc(st.phase)+'</span><span>'+esc(st.name)+'<div class="st">'+esc(st.status)+'</div></span></div>';
+  });
   h += '</div>';
   const pkts = p.live_packets && p.live_packets.length ? p.live_packets : (p.packets||[]);
   if(pkts.length){
-    h += '<div class="card"><div class="k" style="color:var(--gold);font-size:13px;text-transform:uppercase;letter-spacing:.6px">Job packets — live from the job store</div>';
+    // Svadhiṣṭhāna binding: lineage labels from the packets' own
+    // lineage field (the payload carries it verbatim); attempts
+    // per lineage are counted from this same packet list. The
+    // generation QUOTA itself is not a field of this payload —
+    // that spot stays HOLLOW here (see the hint under the list).
+    const lineageCounts = {};
+    for(const pk0 of pkts){ if(pk0.lineage) lineageCounts[pk0.lineage] = (lineageCounts[pk0.lineage]||0) + 1; }
+    h += '<div class="card"><div class="k">Job packets — live from the job store</div>';
     for(const pk of pkts){
       const ann = annFor(p, pk.id);
-      h += '<div class="step"><span class="pkt">'+esc(pk.id)+'</span><span class="st-'+esc(pk.state)+'">'+esc(pk.state)+'</span><span class="st">lane '+esc(pk.lane||'')+' · desk '+esc(pk.desk||'')
+      const changed = hasRendered && (pk.id in prevPacketStates) && prevPacketStates[pk.id] !== String(pk.state||'');
+      const justDelivered = changed && /deliver/.test(String(pk.state||'')) && !/deliver/.test(String(prevPacketStates[pk.id]||''));
+      let pktRung = rungForState(pk.state);
+      let pktAge = '';
+      if(pk.updated_at){
+        const upd = new Date(pk.updated_at);
+        if(!isNaN(upd)){
+          const ageMs = Date.now() - upd.getTime();
+          pktAge = ' · updated ' + fmtAge(ageMs) + ' ago';
+          if(ageMs > PKT_STALE_MS && (pktRung==='ll-rung-live' || pktRung==='ll-rung-idle' || pktRung==='ll-rung-delivered')) pktRung = 'll-rung-stale';
+        }
+      }
+      h += '<div class="step pkt-row ' + pktRung + (changed?' pkt-changed':'') + (justDelivered?' delivery-bloom':'') + '" data-step-key="pkt-'+esc(pk.id)+'" data-state="'+esc(pk.state||'')+'"><span class="pkt">'+esc(pk.id)+'</span><span class="st-'+esc(pk.state)+'">'+esc(pk.state)+'</span>' + (justDelivered?'<span class="st"><b>delivered</b></span>':'') + '<span class="st">lane '+esc(pk.lane||'')+' · desk '+esc(pk.desk||'')
+        + (pk.lineage ? ' · lineage '+esc(pk.lineage)+' · '+lineageCounts[pk.lineage]+' packet(s) in lineage' : '')
+        + pktAge
         + (ann ? '<br>⏱ schedule timing (the scheduler’s own annotation): classification <b>'+esc(ann.classification)+'</b>'
               + (ann.windows_present && ann.windows_present.length ? ' · windows present today: '+ann.windows_present.map(w=>esc(w.plain_label)).join(', ') : '')
               + ' · hard constraint: '+esc(String(ann.hard_constraint))+' — annotation only, never a constraint' : '')
         + '</span></div>';
     }
-    h += '<div class="hint">Delivery waits at the gate (awaiting_ruling) — it is the principal’s act, never the studio’s.</div></div>';
+    h += '<div class="hint">Delivery waits at the gate (awaiting_ruling) — it is the principal’s act, never the studio’s.</div>'
+       + '<div class="hint">Generation quota: this production payload carries lineage labels (shown per packet) but no quota field — the quota spot is HOLLOW on this surface; the quota of record (6 attempts per lineage, the 7th holds for a ruling) is displayed on Spandana Control (8792).</div></div>';
   }
   h += '</section>';
 
@@ -528,8 +969,9 @@ function render(p){
         + '</div>';
     }
     if(pe){
-      h += '<div class="card"><div class="k" style="color:var(--gold);font-size:13px;text-transform:uppercase;letter-spacing:.6px">Prediction errors — predicted vs observed dispatch outcomes</div>';
       const recs = pe.records_for_this_production || [];
+      const anyDiverged = recs.some(r=>r.divergence!==null && r.divergence!==undefined && Number(r.divergence)!==0);
+      h += '<div class="card'+(anyDiverged?' ll-rung-diverged':' ll-rung-idle')+'"><div class="k">Prediction errors — predicted vs observed dispatch outcomes</div>';
       if(recs.length){
         for(const r of recs){
           h += '<div class="trow"><span class="tw">'+esc(r.job_id)+'</span><span>divergence '+esc(r.divergence)+'</span><span class="hint">per-field: '+esc(Object.entries(r.per_field||{}).map(([k,v])=>k+' '+v).join(' · '))+'</span>'
@@ -538,15 +980,16 @@ function render(p){
       } else {
         h += '<div class="hint">No scored outcomes yet for this production — packets that have not dispatched have no outcome, and no record is written for them.</div>';
       }
+      if(anyDiverged){ h += '<div class="hint"><b>Question for you:</b> these prediction records disagree with what actually happened (divergence ≠ 0 above) — which record stands? Nothing here is merged or corrected on its own; your answer rides the ruling path.</div>'; }
       h += '<div class="hint">Stream: '+esc(pe.stream||'')+' · drained '+esc(pe.drained_at||'')+' · total records drained this compile: '+esc(pe.records_drained_total)+'</div></div>';
     }
     if(cp){
-      h += '<div class="card"><div class="k" style="color:var(--gold);font-size:13px;text-transform:uppercase;letter-spacing:.6px">Cost per approved second</div>'
+      h += '<div class="card"><div class="k">Cost per approved second</div>'
         + '<div style="margin-top:6px"><b>'+esc(cp.status||'')+'</b> — '+(cp.reasons||[]).map(esc).join('; ')+'</div>'
         + '<div class="hint">Approved seconds on record: '+esc(cp.approved_seconds)+' · released entries: '+esc(cp.released_entries)+' · compute basis: '+esc(cp.compute_basis||'')+'</div></div>';
     }
     if(lb){
-      h += '<div class="card"><div class="k" style="color:var(--gold);font-size:13px;text-transform:uppercase;letter-spacing:.6px">Lane beliefs — which lanes the evidence trusts</div>'
+      h += '<div class="card"><div class="k">Lane beliefs — which lanes the evidence trusts</div>'
         + '<div style="margin-top:6px">Mode: <b>'+esc(lb.mode||'')+'</b> · belief pairs on record: '+esc(lb.belief_pairs_on_record)+' · shadow comparisons: '+esc(lb.shadow_comparisons_on_record)+'</div>'
         + '<div class="hint">'+esc(lb.gate||'')+'</div></div>';
     }
@@ -556,9 +999,46 @@ function render(p){
   // Artifact slot
   const a = p.artifact_slot || {};
   h += '<section><h2>'+esc(a.label||'Current playable artifact')+' <span class="tech">frame of reception</span></h2>'
-     + '<div class="artifact"><div class="big">'+esc(a.state||'—')+'</div></div></section>';
+     + '<div class="artifact '+rungForState(a.state)+'"><div class="big">'+esc(a.state||'—')+'</div></div></section>';
 
-  document.getElementById('view').innerHTML = h;
+  // Phase choreography (§8): willAppear = ll-arrive on first
+  // appearance / real status change (above); identity = the
+  // steady rung-graded state; didDisappear = rows present in the
+  // current DOM whose step/packet key is absent from the new
+  // payload fade out behind the blur veil BEFORE the swap — an
+  // exit claim is made only for rows we actually held. Under
+  // reduced motion the swap is immediate (identity only).
+  const newKeys = {};
+  for(const st of (p.steps||[])) newKeys['step-'+String(st.n)] = true;
+  for(const pk of pkts) newKeys['pkt-'+String(pk.id)] = true;
+  const departing = [];
+  if(hasRendered){
+    document.querySelectorAll('#view .step[data-step-key]').forEach(elm=>{
+      if(!newKeys[elm.getAttribute('data-step-key')]) departing.push(elm);
+    });
+  }
+  const finishRender = ()=>{
+    document.getElementById('view').innerHTML = h;
+    choreograph();
+    // Update the diff record AFTER choreography has read the old one.
+    const np = {};
+    for(const pk of pkts) np[pk.id] = String(pk.state||'');
+    prevPacketStates = np;
+    const ns = {};
+    for(const st of (p.steps||[])) ns[String(st.n)] = String(st.status||'');
+    prevStepStatus = ns;
+    const nd = {};
+    if(tp && tp.sentinel) for(const e of tp.sentinel) nd[e.title] = e.days_remaining;
+    prevSentinelDays = nd;
+    hasRendered = true;
+  };
+  const reducedNow = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if(departing.length && !reducedNow){
+    departing.forEach(elm=>elm.classList.add('ll-blur-out'));
+    setTimeout(finishRender, 170);
+  } else {
+    finishRender();
+  }
 }
 
 async function produce(){
@@ -572,7 +1052,19 @@ async function produce(){
     const data = await r.json();
     if(!r.ok) throw new Error(data.error||('HTTP '+r.status));
     render(data);
-  }catch(e){ err.textContent = 'The studio could not compile that intent: '+e.message; }
+    // Iris into the production view (§8): the aperture opens from
+    // the Produce button's position over the freshly rendered view.
+    const view = document.getElementById('view');
+    if(window.LivingLight && view){
+      const br = btn.getBoundingClientRect(), vr = view.getBoundingClientRect();
+      if(vr.width) view.style.setProperty('--iris-x', (((br.left + br.width/2) - vr.left) / vr.width * 100) + '%');
+      view.style.setProperty('--iris-y', '0%');
+      view.classList.remove('ll-iris'); void view.offsetWidth; view.classList.add('ll-iris');
+    }
+  }catch(e){
+    err.textContent = 'The studio could not compile that intent: '+e.message;
+    if(window.LivingLight) LivingLight.shake(document.querySelector('.hero'));
+  }
   btn.disabled = false; btn.textContent = 'Produce';
 }
 document.getElementById('produce').addEventListener('click', produce);
@@ -583,7 +1075,82 @@ else{
     .catch(()=>render(null));
 }
 setInterval(()=>{ fetch('/api/production/'+currentPid).then(r=>r.ok?r.json():null)
-  .then(p=>{ if(p) render(p); }).catch(()=>{}); }, 30000);
+  .then(p=>{ if(p) render(p); else markStudioStale(); }).catch(()=>markStudioStale()); }, 30000);
+</script>
+<div style="max-width:1100px;margin:0 auto;padding:0 16px">
+  <div id="gateStrip"></div>
+  <section><h2>Ask about this production <span class="tech">conversation beside the job packet — asking is not commissioning</span></h2>
+  <div id="voiceListenMount"></div>
+  <div id="buddhi-chat-mount"></div></section>
+</div>
+<script src="surface-kit.js"></script>
+<script src="chat-panel.js"></script>
+<script>
+(function(){ if (window.SurfaceKit) {
+  SurfaceKit.gateStrip(document.getElementById("gateStrip"));
+  SurfaceKit.voiceListen(document.getElementById("voiceListenMount"));
+} })();
+</script>
+<div style="max-width:1100px;margin:0 auto;padding:0 16px"><section id="integratedTechPanel" aria-label="Integrated Technologies"><h2>Integrated Technologies <span style="color:#F8BB3C">· the kept set, at work</span></h2><p class="kt-sub" id="ktStamp">Integrated 2026-11-25 01:25 EST · 20 kept technologies · everything the 2026-11-25 reclamation deliberately kept, now registered, staged, or catalogued — root to crown, the centre kept open. Served by the Studio surface from the backend model registry (model-registry/kept-tech-integration.json + pipeline-stages.json).</p><div class="kt-grid" id="ktGrid">
+<article class="kt-card" style="border-left:3px solid #2FA37C"><div class="kt-row"><span class="kt-name">Character Creation motion seat</span><span class="kt-class" style="color:#2FA37C">Pipeline stage</span></div><p class="kt-role">Premiere character-generation stage (Characters desk, Svādhiṣṭhāna); consumes registry model dreamshaperxl-turbo</p><p class="kt-status">INTEGRATED — named stage with entry points as found on disk (ComfyUI/main.py, scripts/gen.py); not smoke-run</p><p class="kt-meta">Svādhiṣṭhāna · characters desk · entry: ComfyUI/main.py (ComfyUI server, resident in-seat) · scripts/gen.py (ComfyUI API runner for the character-creation pipeline) · model-registry/pipeline-stages.json</p><p class="kt-meta">/home/hatch/workspace/neytra-birthday-video/motion/character-creation</p></article>
+<article class="kt-card" style="border-left:3px solid #2FA37C"><div class="kt-row"><span class="kt-name">Lip-sync Stress Test motion seat (incl. wav2lip/s3fd/piper per-project copies)</span><span class="kt-class" style="color:#2FA37C">Pipeline stage</span></div><p class="kt-role">Premiere lip-sync stage (Stage desk, Anāhata); consumes registry model musetalk; wav2lip + piper copies are in-seat components</p><p class="kt-status">INTEGRATED — named stage with entry points as found on disk (musetalk/, work/wav2lip/inference.py); probe outputs present; not smoke-run</p><p class="kt-meta">Anāhata · stage desk · entry: musetalk/ (MuseTalk harness; registered in models.json as musetalk) · work/wav2lip/inference.py (Wav2Lip inference) · model-registry/pipeline-stages.json</p><p class="kt-meta">/home/hatch/workspace/neytra-birthday-video/motion/lipsync-stress-test</p></article>
+<article class="kt-card" style="border-left:3px solid #2FA37C"><div class="kt-row"><span class="kt-name">Music Tests seat</span><span class="kt-class" style="color:#2FA37C">Pipeline stage</span></div><p class="kt-role">Premiere music test/render stage (Music Workbench desk, Viśuddha); engine-v2 Node renderer</p><p class="kt-status">INTEGRATED — named stage with entry points as found on disk (engine-v2/render.js); not smoke-run</p><p class="kt-meta">Viśuddha · music-workbench desk · entry: engine-v2/render.js (Node render entry; writes mix-guide.wav + stems via engine-core.js) · engine-v2/engine-core.js (engine core) · model-registry/pipeline-stages.json</p><p class="kt-meta">/home/hatch/workspace/neytra-birthday-video/music-tests</p></article>
+<article class="kt-card" style="border-left:3px solid #F8BB3C"><div class="kt-row"><span class="kt-name">Laya-Multilingual (canonical layout)</span><span class="kt-class" style="color:#F8BB3C">Model registry</span></div><p class="kt-role">Classification engine (bench candidate); the registered asset for the multilingual checkpoint</p><p class="kt-status">INTEGRATED-VERIFIED — registry entry pre-existing; canonical determination + mirror field added 2026-11-25; reconcile-derived state LANDED</p><p class="kt-meta">model-registry/models.json</p><p class="kt-meta">/home/hatch/workspace/models/Laya-Multilingual</p></article>
+<article class="kt-card" style="border-left:3px solid #F8BB3C"><div class="kt-row"><span class="kt-name">Laya multilingual mirror (inside models/Laya/multilingual/)</span><span class="kt-class" style="color:#F8BB3C">Model registry</span></div><p class="kt-role">Byte-identical mirror of the canonical asset (sha256 9d628fd9…), shipped inside the base Laya repo checkout</p><p class="kt-status">INTEGRATED-VERIFIED — recorded as named mirror; not deleted; not a second registered asset</p><p class="kt-meta">model-registry/models.json (mirror field on laya-multilingual + note on laya)</p><p class="kt-meta">/home/hatch/workspace/models/Laya/multilingual/model.safetensors</p></article>
+<article class="kt-card" style="border-left:3px solid #F8BB3C"><div class="kt-row"><span class="kt-name">Renri DiffSinger bank + renri_x extraction</span><span class="kt-class" style="color:#F8BB3C">Model registry</span></div><p class="kt-role">Singing-voice audition bank (2026-11-19 audition set)</p><p class="kt-status">INTEGRATED-VERIFIED — new registry entry; canonical = flattened banks/renri (3/3 onnx content-identical to _x extraction, measured); state LANDED via reconcile</p><p class="kt-meta">model-registry/models.json</p><p class="kt-meta">/home/hatch/workspace/voice-audition-free/banks/renri (canonical) · banks/renri_x (mirror)</p></article>
+<article class="kt-card" style="border-left:3px solid #F8BB3C"><div class="kt-row"><span class="kt-name">Miyo DiffSinger bank + miyo_x duplicate set</span><span class="kt-class" style="color:#F8BB3C">Model registry</span></div><p class="kt-role">The Character voice (principal ruling 2026-11-19); render-queue family P1c</p><p class="kt-status">INTEGRATED-VERIFIED — registry entry pre-existing; mirror field added (6/6 onnx md5-identical, measured); state LANDED</p><p class="kt-meta">model-registry/models.json</p><p class="kt-meta">/home/hatch/workspace/voice-audition-free/banks/miyo (canonical) · banks/miyo_x (mirror)</p></article>
+<article class="kt-card" style="border-left:3px solid #F8BB3C"><div class="kt-row"><span class="kt-name">LIEE DiffSinger bank + liee_x extraction</span><span class="kt-class" style="color:#F8BB3C">Model registry</span></div><p class="kt-role">Audition bank — REMOVED from the production Character-voice role by principal ruling 2026-11-19; retained as an addressable asset with that status explicit</p><p class="kt-status">INTEGRATED-VERIFIED — new registry entry (role audition-bank, never production); canonical = flattened banks/liee (9/9 onnx content-identical to _x extraction, measured); state LANDED via reconcile</p><p class="kt-meta">model-registry/models.json</p><p class="kt-meta">/home/hatch/workspace/voice-audition-free/banks/liee (canonical) · banks/liee_x (mirror)</p></article>
+<article class="kt-card" style="border-left:3px solid #F8BB3C"><div class="kt-row"><span class="kt-name">XTTS-v2 (HF hub cache)</span><span class="kt-class" style="color:#F8BB3C">Model registry</span></div><p class="kt-role">Guide-duty TTS for the voice-clone pipeline (finals are Qwen3-TTS per ruling 2026-11-22); load path = Coqui TTS API id tts_models/multilingual/multi-dataset/xtts_v2, HF_HUB_OFFLINE=1</p><p class="kt-status">INTEGRATED-VERIFIED — new registry entry with load_path (consumers enumerated); state LANDED via reconcile; licence CPML non-commercial from LICENSE.txt on disk</p><p class="kt-meta">model-registry/models.json</p><p class="kt-meta">/home/hatch/.cache/huggingface/hub/models--tts-hub--XTTS-v2/snapshots</p></article>
+<article class="kt-card" style="border-left:3px solid #F8BB3C"><div class="kt-row"><span class="kt-name">faster-whisper-small (HF hub cache twin)</span><span class="kt-class" style="color:#F8BB3C">Model registry</span></div><p class="kt-role">faster-whisper-format twin of the fleet whisper-small; canonical = models/whisper-small (transcription_pointer active/fallback; desk_dispatch resolves it usable)</p><p class="kt-status">INTEGRATED-VERIFIED — recorded as mirror of the ACTIVE canonical entry; dispatch path exercised in verification</p><p class="kt-meta">model-registry/models.json (mirror field on whisper-small)</p><p class="kt-meta">/home/hatch/.cache/huggingface/hub/models--Systran--faster-whisper-small/snapshots</p></article>
+<article class="kt-card" style="border-left:3px solid #F8BB3C"><div class="kt-row"><span class="kt-name">Remaining HF hub cache models (HTDemucs · faster-whisper-tiny · Qwen3-TTS base · SepFormer)</span><span class="kt-class" style="color:#F8BB3C">Model registry</span></div><p class="kt-role">Fleet assets already registered before this integration (htdemucs VERIFIED in-registry; qwen3-tts-0.6b ACTIVE via its production path)</p><p class="kt-status">INTEGRATED-VERIFIED — confirmed present in registry/cache at integration time; no new work needed or claimed</p><p class="kt-meta">model-registry/models.json (pre-existing entries)</p><p class="kt-meta">/home/hatch/.cache/huggingface/hub</p></article>
+<article class="kt-card" style="border-left:3px solid #E8A0B4"><div class="kt-row"><span class="kt-name">Google Takeout zip (browser_downloads/sess-243585136)</span><span class="kt-class" style="color:#E8A0B4">Catalogued</span></div><p class="kt-role">Source material (possible unique source); NOT a technology — catalogued, not unpacked wholesale</p><p class="kt-status">CATALOGUED — 2,147,621,708 bytes, present at seat; contents not enumerated (no wholesale unpack per brief)</p><p class="kt-meta">this record + INTEGRATION.md catalogue</p><p class="kt-meta">/home/hatch/workspace/browser_downloads/sess-243585136/browser-download-20261115T020757.487673732Z-0-takeout-20261114T013018Z-1-001.zip</p></article>
+<article class="kt-card" style="border-left:3px solid #E8A0B4"><div class="kt-row"><span class="kt-name">your_files deliverables (incl. duet-samples, brenda-final-master-peak)</span><span class="kt-class" style="color:#E8A0B4">Catalogued</span></div><p class="kt-role">The principal&#x27;s delivered files — reference only, no pipeline integration by design</p><p class="kt-status">CATALOGUED — 5,818,695,036 bytes at seat; untouched</p><p class="kt-meta">this record + INTEGRATION.md catalogue</p><p class="kt-meta">/home/hatch/workspace/your_files</p></article>
+<article class="kt-card" style="border-left:3px solid #E8A0B4"><div class="kt-row"><span class="kt-name">md-files-2026-11-24.zip</span><span class="kt-class" style="color:#E8A0B4">Catalogued</span></div><p class="kt-role">The principal&#x27;s deliverable (10,857 .md files) — reference only</p><p class="kt-status">CATALOGUED — 169,251,046 bytes, present at seat; untouched</p><p class="kt-meta">this record + INTEGRATION.md catalogue</p><p class="kt-meta">/home/hatch/workspace/your_files/md-files-2026-11-24.zip</p></article>
+<article class="kt-card" style="border-left:3px solid #E8A0B4"><div class="kt-row"><span class="kt-name">Brenda build6 sibling FINAL variants (incl. v3 peak set)</span><span class="kt-class" style="color:#E8A0B4">Catalogued</span></div><p class="kt-role">Finished-film variant masters + their build scripts (assemble_v3.py etc.) — delivered-work assets, not pipeline stages</p><p class="kt-status">CATALOGUED — 2,967,168,696 bytes at seat; the V3 FINAL PEAK master is the your_files canonical (duplicate deleted in reclamation)</p><p class="kt-meta">this record + INTEGRATION.md catalogue</p><p class="kt-meta">/home/hatch/workspace/brenda-birthday/build6</p></article>
+<article class="kt-card" style="border-left:3px solid #E8A0B4"><div class="kt-row"><span class="kt-name">space-versions (Space build provenance)</span><span class="kt-class" style="color:#E8A0B4">Catalogued</span></div><p class="kt-role">Build provenance archive for Spaces — evidence, not a runtime technology</p><p class="kt-status">CATALOGUED — 839,935,729 bytes at seat; untouched</p><p class="kt-meta">this record + INTEGRATION.md catalogue</p><p class="kt-meta">/home/hatch/workspace/space-versions</p></article>
+<article class="kt-card" style="border-left:3px solid #E8A0B4"><div class="kt-row"><span class="kt-name">spandana-studio restic backup repo</span><span class="kt-class" style="color:#E8A0B4">Catalogued</span></div><p class="kt-role">Live backup system for the Studio (source-manifest.json present) — infrastructure of record, catalogued; not modified</p><p class="kt-status">CATALOGUED — 685,629,535 bytes at seat; untouched (password file not read)</p><p class="kt-meta">this record + INTEGRATION.md catalogue</p><p class="kt-meta">/home/hatch/workspace/spandana-studio-backups/restic-repo</p></article>
+<article class="kt-card" style="border-left:3px solid #E8A0B4"><div class="kt-row"><span class="kt-name">ts-spaces/foundry-probe/node_modules</span><span class="kt-class" style="color:#E8A0B4">Catalogued</span></div><p class="kt-role">Dependency tree of the foundry-probe Space; NO lockfile — regeneration not guaranteed, which is why reclamation kept it</p><p class="kt-status">CATALOGUED — 115,860,187 bytes at seat; untouched; the probe Space itself is a ts-space, not a Studio/Buddhi pipeline component</p><p class="kt-meta">this record + INTEGRATION.md catalogue</p><p class="kt-meta">/home/hatch/workspace/ts-spaces/foundry-probe/node_modules</p></article>
+<article class="kt-card" style="border-left:3px solid #E8A0B4"><div class="kt-row"><span class="kt-name">voice-audition-free/banks/miyo_prev (bank source zips)</span><span class="kt-class" style="color:#E8A0B4">Catalogued</span></div><p class="kt-role">Source archives of the DiffSinger banks (Canary / Miyo / DANROU zips) — provenance for the registered banks</p><p class="kt-status">CATALOGUED — present at seat; the complete DANROU zip here is the canonical retained copy named in the reclamation manifest</p><p class="kt-meta">this record + INTEGRATION.md catalogue</p><p class="kt-meta">/home/hatch/workspace/voice-audition-free/banks/miyo_prev</p></article>
+<article class="kt-card" style="border-left:3px solid #B2012D"><div class="kt-row"><span class="kt-name">Per-project venv site-packages duplicates (voice-clone/venv, character-creation/venv, piperenv, voice-audition venv, qwen3-venv…)</span><span class="kt-class" style="color:#B2012D">Not a technology</span></div><p class="kt-role">Execution substrate of the armed pipelines — each venv is its pipeline&#x27;s interpreter environment, not a technology to integrate; the pipelines that own them are the integrated units</p><p class="kt-status">CATALOGUED as NOT-A-TECHNOLOGY — per-environment installs by design (a shared env would break the pipelines&#x27; pinned stacks); no action taken or needed</p><p class="kt-meta">this record (classification only)</p><p class="kt-meta">per-project venvs across ~/workspace</p></article>
+</div></section></div>
+<style>
+#integratedTechPanel{background:#0A0A12;border:1px solid rgba(248,187,60,.45);
+ box-shadow:0 0 18px rgba(248,187,60,.12), inset 0 0 24px rgba(35,41,70,.35);
+ border-radius:18px;padding:22px 20px;margin:26px auto;color:#F5EFE4}
+#integratedTechPanel h2{font-size:22px;line-height:1.3;margin:0 0 6px;color:#FFFFFF}
+#integratedTechPanel .kt-sub{font-size:15px;line-height:1.55;color:#CFC7B8;margin:0 0 16px}
+#integratedTechPanel .kt-grid{display:grid;grid-template-columns:1fr;gap:12px}
+@media(min-width:760px){#integratedTechPanel .kt-grid{grid-template-columns:1fr 1fr}}
+.kt-card{background:rgba(35,41,70,.28);border:1px solid rgba(245,239,228,.14);
+ border-radius:12px;padding:14px 16px;min-height:44px}
+.kt-row{display:flex;justify-content:space-between;gap:12px;align-items:baseline;flex-wrap:wrap}
+.kt-name{font-size:17px;font-weight:600;color:#FFFFFF}
+.kt-class{font-size:13px;letter-spacing:.04em;text-transform:uppercase}
+.kt-role{font-size:15.5px;line-height:1.5;margin:8px 0 0;color:#F5EFE4}
+.kt-status{font-size:14.5px;line-height:1.5;margin:6px 0 0;color:#D8CFA9}
+.kt-meta{font-size:13px;line-height:1.45;margin:6px 0 0;color:#9A927E;word-break:break-all}
+</style>
+<script>
+(function(){
+  function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+  fetch('/api/integrated-tech').then(function(r){return r.ok?r.json():null;}).then(function(d){
+    if(!d||!d.kept) return;
+    var host=document.getElementById('ktGrid'); if(!host) return;
+    var labels={'PIPELINE-INTEGRATE':'Pipeline stage','REGISTRY-INTEGRATE':'Model registry','CATALOGUE-ONLY':'Catalogued','NOT-A-TECHNOLOGY':'Not a technology'};
+    var accents={'PIPELINE-INTEGRATE':'#2FA37C','REGISTRY-INTEGRATE':'#F8BB3C','CATALOGUE-ONLY':'#E8A0B4','NOT-A-TECHNOLOGY':'#B2012D'};
+    var order={'PIPELINE-INTEGRATE':0,'REGISTRY-INTEGRATE':1,'CATALOGUE-ONLY':2,'NOT-A-TECHNOLOGY':3};
+    var items=d.kept.items.slice().sort(function(a,b){return order[a.class]-order[b.class];});
+    host.innerHTML=items.map(function(it){
+      return '<article class="kt-card" style="border-left:3px solid '+accents[it.class]+'">'
+      +'<div class="kt-row"><span class="kt-name">'+esc(it.name)+'</span>'
+      +'<span class="kt-class" style="color:'+accents[it.class]+'">'+labels[it.class]+'</span></div>'
+      +'<p class="kt-role">'+esc(it.role)+'</p><p class="kt-status">'+esc(it.status)+'</p>'
+      +'<p class="kt-meta">'+esc(it.integrated_into)+'</p><p class="kt-meta">'+esc(it.seat)+'</p></article>';
+    }).join('');
+    var stamp=document.getElementById('ktStamp');
+    if(stamp) stamp.textContent='Live record · integrated '+d.kept.integrated+' · '+d.kept.items.length+' kept technologies';
+  }).catch(function(){});
+})();
 </script>
 </body>
 </html>
