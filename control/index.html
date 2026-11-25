@@ -1,10 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
-<head><script>window.__SB_SURFACE="control";</script><script src="../bridge-pages.js"></script>
+<head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Spandana Control</title>
+<link rel="stylesheet" href="living-light.css">
 <link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="surface-kit.css">
+<link rel="stylesheet" href="chat-panel.css">
+
 </head>
 <body>
 <div class="page-wash" aria-hidden="true"></div>
@@ -23,6 +27,7 @@
       <span class="live-dot" id="liveDot" aria-hidden="true"></span>
       <span id="liveText">connecting&hellip;</span>
       <span class="updated" id="updatedText"></span>
+      <span class="rung-age" id="staleAge" hidden></span>
     </div>
     <div class="cascade-chip-wrap" id="cascadeWrap" hidden>
       <span class="chip chip-cascade" id="cascadeChip">cascade</span>
@@ -44,7 +49,7 @@
   </section>
 
   <!-- DESKS -->
-  <section class="panel" aria-labelledby="desksHeading">
+  <section class="panel ll-panel" aria-labelledby="desksHeading">
     <div class="section-head">
       <h2 id="desksHeading">Desks</h2>
       <span class="source-line" id="desksSource"></span>
@@ -53,7 +58,7 @@
   </section>
 
   <!-- JOBS -->
-  <section class="panel" aria-labelledby="jobsHeading">
+  <section class="panel ll-panel" aria-labelledby="jobsHeading">
     <div class="section-head">
       <h2 id="jobsHeading">Jobs</h2>
       <span class="source-line" id="jobsSource"></span>
@@ -62,7 +67,7 @@
   </section>
 
   <!-- REGISTRY -->
-  <section class="panel" aria-labelledby="registryHeading">
+  <section class="panel ll-panel" aria-labelledby="registryHeading">
     <div class="section-head">
       <h2 id="registryHeading">Delegation Registry</h2>
       <span class="source-line" id="registrySource"></span>
@@ -71,7 +76,7 @@
   </section>
 
   <!-- QUOTAS -->
-  <section class="panel" aria-labelledby="quotasHeading">
+  <section class="panel ll-panel" aria-labelledby="quotasHeading">
     <div class="section-head">
       <h2 id="quotasHeading">Quotas</h2>
       <span class="source-line" id="quotasSource"></span>
@@ -80,12 +85,13 @@
   </section>
 
   <!-- CONTROL CHAT -->
-  <section class="panel control-panel" aria-labelledby="controlHeading">
+  <section class="panel ll-panel ll-shine control-panel" id="controlPanel" aria-labelledby="controlHeading">
     <div class="section-head">
       <h2 id="controlHeading">Control Chat</h2>
       <span class="source-line" id="controlSource">control-inbox.jsonl</span>
     </div>
     <p class="honest-line">Instructions are logged to the control inbox for the backend to consume &mdash; logging is not execution.</p>
+    <p class="actor-line" id="actorLine">Maṇipūra station — execution + master clock. Actor attribution: each log row shows who logged it (the <i>via</i> field the server records); who <i>executed</i> a logged instruction is not recorded in the inbox — that spot is HOLLOW until the backend records an executor.</p>
     <div class="control-log" id="controlLog" aria-live="polite">
       <p class="empty-note">No instructions logged yet.</p>
     </div>
@@ -97,12 +103,36 @@
     </form>
     <p class="control-note">Enter sends. Messages appear above once the server confirms they were logged.</p>
   </section>
+  <!-- GATE STRIP (cycle #3, G-30): display-only; rulings ride the ruling path -->
+  <section class="panel ll-panel" aria-labelledby="gateStripHeading">
+    <div class="section-head"><h2 id="gateStripHeading">Open Decisions</h2></div>
+    <div id="gateStrip"></div>
+  </section>
+
+  <!-- ASK BUDDHI (cycle #3, G-23): a conversation lane, visibly distinct
+       from Control Chat above — logging an instruction is NOT asking a
+       question, and neither is execution. -->
+  <section class="panel ll-panel" aria-labelledby="askBuddhiHeading">
+    <div class="section-head"><h2 id="askBuddhiHeading">Ask Buddhi <span class="h2sub">— conversation, not a log</span></h2></div>
+    <p class="honest-line">This lane answers questions from the live record. It logs nothing and executes nothing — for instructions, use Control Chat above.</p>
+    <div id="voiceListenMount"></div>
+    <div id="buddhi-chat-mount"></div>
+  </section>
 </main>
 
 <footer class="foot">
   <span>Spandana Control &middot; same-origin feed &middot; polls every 2 seconds</span>
 </footer>
 
+<script src="motion.js"></script>
 <script src="app.js"></script>
+<script src="surface-kit.js"></script>
+<script src="chat-panel.js"></script>
+<script>
+(function(){ if (window.SurfaceKit) {
+  SurfaceKit.gateStrip(document.getElementById("gateStrip"));
+  SurfaceKit.voiceListen(document.getElementById("voiceListenMount"));
+} })();
+</script>
 </body>
 </html>

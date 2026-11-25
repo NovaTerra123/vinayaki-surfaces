@@ -1,14 +1,82 @@
 "use strict";
-/* Spandana Control — polls GET /api/state every 2s, POSTs chat to /api/control.
+/* Spandana Control — Living Light regen.
+   Polls GET /api/state every 2s, POSTs chat to /api/control.
    All server-provided text is inserted via textContent (never innerHTML),
    so control-inbox text and roster data cannot inject markup.
    Any section may be available:false or missing — render the honest state.
    On poll failure the last good render stays visible; only the LIVE
-   indicator changes. */
+   indicator changes.
+   Honest motion (design system §5, §8 — dense surface): a section is
+   re-rendered ONLY when its payload actually changed, and only then do
+   its new items get faint-arrival. Numbers roll only on a real change.
+   Shine fires only on a server-confirmed control POST; errors shake
+   and carry the word. Durations: micro/std only (see style.css). */
 
 var POLL_MS = 2000;
 var lastGood = null;
 var postInFlight = false;
+var LL = window.LivingLight || null;
+
+/* ---------- UI v2: grading ladder + honest staleness ----------
+   Rungs (living-light.css): idle / live / stale / diverged /
+   awaiting-ruling / delivered. A rung is applied ONLY from a
+   real state field (status string, by_state key, quota usage,
+   feed timestamp) — never decoratively (§5 honest-motion law).
+   STALE threshold, stated: the feed polls every 2s; data whose
+   generated_at (or last successful poll) is older than 15s is
+   graded STALE and shown with its computed age. */
+var STALE_MS = 15000;
+var lastSuccessAt = null;   /* client time of last good poll */
+var lastGeneratedAt = null; /* parsed state.generated_at */
+var RUNGS = ["ll-rung-idle", "ll-rung-live", "ll-rung-stale", "ll-rung-diverged", "ll-rung-awaiting-ruling", "ll-rung-delivered"];
+function setRung(node, rung) {
+  if (!node) return;
+  RUNGS.forEach(function (r) { node.classList.remove(r); });
+  if (rung) node.classList.add(rung);
+}
+function rungForState(s) {
+  var u = str(s).toLowerCase();
+  if (u.indexOf("awaiting") !== -1 || u.indexOf("ruling") !== -1) return "ll-rung-awaiting-ruling";
+  if (u.indexOf("fail") !== -1 || u.indexOf("diverg") !== -1 || u.indexOf("error") !== -1) return "ll-rung-diverged";
+  if (u.indexOf("deliver") !== -1 || u.indexOf("released") !== -1 || u.indexOf("complete") !== -1) return "ll-rung-delivered";
+  if (u.indexOf("verified") !== -1 || u.indexOf("wired") !== -1 || u.indexOf("ruled") !== -1 ||
+      u.indexOf("approved") !== -1 || u.indexOf("active") !== -1 || u.indexOf("running") !== -1 || u.indexOf("live") !== -1) return "ll-rung-live";
+  return "ll-rung-idle"; /* requested / queued / spec / not-* — a real state, graded as resting */
+}
+function fmtAge(ms) {
+  var sec = Math.max(0, Math.round(ms / 1000));
+  if (sec < 60) return sec + "s";
+  var min = Math.floor(sec / 60);
+  if (min < 60) return min + "m " + (sec % 60) + "s";
+  var hr = Math.floor(min / 60);
+  return hr + "h " + (min % 60) + "m";
+}
+/* Kāla-phase ambient — DECLARED client-clock grammar only.
+   Computed from the CLIENT clock; it is NOT the measured Kāla
+   register (8794/8791) and claims nothing about it. It sets
+   html[data-kala-phase], which tints the ambient wash alone. */
+function applyKalaPhase() {
+  var h = new Date().getHours();
+  var phase = (h >= 5 && h < 8) ? "dawn" : (h >= 8 && h < 17) ? "day" : (h >= 17 && h < 20) ? "dusk" : "night";
+  document.documentElement.setAttribute("data-kala-phase", phase);
+}
+applyKalaPhase();
+setInterval(applyKalaPhase, 60000);
+
+/* ---------- change detection (motion may only celebrate real change) ---------- */
+var sectionSigs = {};
+function changed(key, value) {
+  var sig;
+  try { sig = JSON.stringify(value === undefined ? null : value); } catch (e) { sig = null; }
+  if (sig !== null && sectionSigs[key] === sig) return false;
+  sectionSigs[key] = sig;
+  return true;
+}
+function arrive(container, selector) {
+  if (!LL || !container) return;
+  var nodes = selector ? container.querySelectorAll(selector) : container.children;
+  if (nodes && nodes.length) LL.staggerIn(nodes, 40);
+}
 
 /* ---------- tiny DOM helpers (textContent only) ---------- */
 function el(tag, cls, text) {
@@ -36,7 +104,8 @@ function statusChip(status) {
   else if (u.indexOf("SPEC") !== -1) cls = "chip-spec";
   else if (u.indexOf("WIRED") !== -1 && u.indexOf("NOT") === -1) cls = "chip-wired";
   else if (u.indexOf("NOT") !== -1) cls = "chip-not";
-  return chip(s, cls);
+  /* v2: the same real status string also grades the chip's rung. */
+  return chip(s, (cls ? cls + " " : "") + rungForState(s));
 }
 function setSource(id, section) {
   var n = document.getElementById(id);
@@ -64,23 +133,25 @@ function formatTs(ts) {
 }
 
 /* ---------- stations ---------- */
+/* hue = pre-regen spectral hue (preserved); color = Living Light chakra
+   line-light for the same station, root→crown (design system §2). */
 var STATION_ORDER = [
-  { match: ["muladhara", "mūlādhāra"], hue: 25 },
-  { match: ["svadhisthana", "svādhiṣṭhāna"], hue: 55 },
-  { match: ["manipura", "maṇipūra"], hue: 95 },
-  { match: ["anahata", "anāhata"], hue: 150 },
-  { match: ["vishuddha", "viśuddha"], hue: 215 },
-  { match: ["ajna", "ājñā"], hue: 275 },
-  { match: ["sahasrara", "sahasrāra"], hue: 310 }
+  { match: ["muladhara", "mūlādhāra"], hue: 25, color: "#FF3B30" },
+  { match: ["svadhisthana", "svādhiṣṭhāna"], hue: 55, color: "#FF9500" },
+  { match: ["manipura", "maṇipūra"], hue: 95, color: "#FFCC00" },
+  { match: ["anahata", "anāhata"], hue: 150, color: "#34C759" },
+  { match: ["vishuddha", "viśuddha"], hue: 215, color: "#32ADE6" },
+  { match: ["ajna", "ājñā"], hue: 275, color: "#5856D6" },
+  { match: ["sahasrara", "sahasrāra"], hue: 310, color: "#AF52DE" }
 ];
 function stationInfo(name) {
   var key = str(name).toLowerCase();
   for (var i = 0; i < STATION_ORDER.length; i++) {
     for (var j = 0; j < STATION_ORDER[i].match.length; j++) {
-      if (key.indexOf(STATION_ORDER[i].match[j]) !== -1) return { idx: i, hue: STATION_ORDER[i].hue };
+      if (key.indexOf(STATION_ORDER[i].match[j]) !== -1) return { idx: i, hue: STATION_ORDER[i].hue, color: STATION_ORDER[i].color };
     }
   }
-  return { idx: 90, hue: 260 };
+  return { idx: 90, hue: 260, color: "#C77DFF" };
 }
 
 /* Cascade: defensive summary only. We never assume its inner shape;
@@ -115,9 +186,10 @@ function seatTierLabel(cascade, seatId) {
   return null;
 }
 
-function seatCard(seat, hue, cascade) {
+function seatCard(seat, info, cascade) {
   var card = el("div", "seat-card");
-  card.style.setProperty("--hue", String(hue));
+  card.style.setProperty("--hue", String(info.hue));
+  card.style.setProperty("--sc", info.color);
   var top = el("div", "seat-top");
   var left = el("div");
   left.appendChild(el("div", "seat-name", str(seat.name || seat.id, "unnamed seat")));
@@ -135,16 +207,29 @@ function seatCard(seat, hue, cascade) {
   return card;
 }
 
-function stationPanel(name, seats, hue, cascade) {
+function stationPanel(name, seats, info, cascade) {
   var panel = el("section", "station-panel");
-  panel.style.setProperty("--hue", String(hue));
+  /* v2 aggregate rung: the panel is graded by the strongest real
+     condition among its seats' own status strings (diverged >
+     awaiting-ruling > live > idle). No seats → idle. */
+  var agg = "ll-rung-idle";
+  seats.forEach(function (s) {
+    var r = rungForState(s && s.status);
+    if (r === "ll-rung-diverged") agg = r;
+    else if (r === "ll-rung-awaiting-ruling" && agg !== "ll-rung-diverged") agg = r;
+    else if (r === "ll-rung-live" && agg === "ll-rung-idle") agg = r;
+    else if (r === "ll-rung-delivered" && agg === "ll-rung-idle") agg = r;
+  });
+  panel.classList.add(agg);
+  panel.style.setProperty("--hue", String(info.hue));
+  panel.style.setProperty("--sc", info.color);
   var head = el("div", "station-head");
   head.appendChild(el("h3", "station-name", name));
   head.appendChild(el("span", "station-count", seats.length + (seats.length === 1 ? " seat" : " seats")));
   panel.appendChild(head);
   var list = el("div", "seat-list");
   if (!seats.length) list.appendChild(el("p", "empty-note", "No seats recorded for this station."));
-  seats.forEach(function (s) { list.appendChild(seatCard(s || {}, hue, cascade)); });
+  seats.forEach(function (s) { list.appendChild(seatCard(s || {}, info, cascade)); });
   panel.appendChild(list);
   return panel;
 }
@@ -173,16 +258,16 @@ function renderStations(state) {
     if (!st) return;
     var seats = Array.isArray(st.seats) ? st.seats : [];
     totalSeats += seats.length;
-    var info = stationInfo(st.station);
-    grid.appendChild(stationPanel(str(st.station, "Station"), seats, info.hue, state.cascade));
+    grid.appendChild(stationPanel(str(st.station, "Station"), seats, stationInfo(st.station), state.cascade));
   });
   var stationless = Array.isArray(roster.stationless) ? roster.stationless : [];
   totalSeats += stationless.length;
-  grid.appendChild(stationPanel("Stationless / Axis", stationless, 310, state.cascade));
+  grid.appendChild(stationPanel("Stationless / Axis", stationless, { idx: 91, hue: 310, color: "#AF52DE" }, state.cascade));
   if (!stations.length && !stationless.length) {
     clear(grid);
     grid.appendChild(el("p", "empty-note", "Roster feed is live but lists no seats yet."));
   }
+  arrive(grid, ".station-panel");
   if (meta) {
     var count = roster.count !== undefined ? num(roster.count, totalSeats) : totalSeats;
     meta.textContent = "— " + count + " seat" + (count === 1 ? "" : "s");
@@ -231,9 +316,11 @@ function renderDesks(state) {
     rows.appendChild(row);
   });
   body.appendChild(rows);
+  arrive(rows, ".row");
 }
 
 /* ---------- jobs ---------- */
+var prevJobTotal = null;
 function renderJobs(state) {
   var body = document.getElementById("jobsBody");
   var jobs = state.jobs || {};
@@ -244,6 +331,7 @@ function renderJobs(state) {
     line.appendChild(chip("NOT INTEGRATED", "chip-not"));
     body.appendChild(line);
     if (jobs.note) body.appendChild(el("p", "state-line", str(jobs.note)));
+    prevJobTotal = null;
     return;
   }
   var total = num(jobs.total, 0);
@@ -251,17 +339,23 @@ function renderJobs(state) {
   if (total === 0) {
     /* Honest zero state: the server's note verbatim, and NO bar. */
     body.appendChild(el("p", "state-line", str(jobs.note, "no packets recorded yet")));
+    prevJobTotal = 0;
     return;
   }
   var summary = el("div", "job-summary");
-  summary.appendChild(el("span", "job-total", String(total)));
+  var totalNode = el("span", "job-total num", String(total));
+  /* Odometer of record: roll only when the total genuinely changed
+     since the last render; a first sighting lands still. */
+  if (LL && prevJobTotal !== null && prevJobTotal !== total) LL.renderOdo(totalNode, total);
+  prevJobTotal = total;
+  summary.appendChild(totalNode);
   summary.appendChild(el("span", "job-total-label", total === 1 ? "job packet recorded" : "job packets recorded"));
   body.appendChild(summary);
   var byState = jobs.by_state && typeof jobs.by_state === "object" ? jobs.by_state : {};
   var keys = Object.keys(byState);
   if (keys.length) {
     var row = el("div", "chip-row");
-    keys.sort().forEach(function (k) { row.appendChild(chip(k + ": " + num(byState[k], 0), "chip-count")); });
+    keys.sort().forEach(function (k) { row.appendChild(chip(k + ": " + num(byState[k], 0), "chip-count " + rungForState(k))); });
     body.appendChild(row);
   }
   if (jobs.note) body.appendChild(el("p", "state-line", str(jobs.note)));
@@ -359,6 +453,10 @@ function renderQuotas(state) {
       lineages.sort().forEach(function (lin) {
         var used = num(usage[lin], 0);
         var wrap = el("div", "lineage");
+        /* v2 rung from real usage vs the item's own limit: a lineage
+           AT its limit holds at the gate (the next attempt awaits a
+           ruling); partial use is live; zero use is idle. */
+        wrap.classList.add(used >= limit && limit > 0 ? "ll-rung-awaiting-ruling" : (used > 0 ? "ll-rung-live" : "ll-rung-idle"));
         var lab = el("div", "lineage-label");
         lab.appendChild(el("span", null, lin));
         lab.appendChild(el("span", null, used + " / " + limit));
@@ -378,6 +476,7 @@ function renderQuotas(state) {
     }
     body.appendChild(box);
   });
+  arrive(body, ".quota-item");
 }
 
 /* ---------- control chat ---------- */
@@ -391,23 +490,33 @@ function renderControl(state) {
   if (!recent.length) { log.appendChild(el("p", "empty-note", "No instructions logged yet.")); return; }
   recent.forEach(function (entry) {
     entry = entry || {};
-    var row = el("div", "control-msg");
+    var row = el("div", "control-msg ll-rung-idle");
     row.appendChild(el("span", "control-ts", formatTs(entry.ts)));
     row.appendChild(el("span", "control-text", str(entry.text)));
     row.appendChild(chip("logged", "chip-not control-tag"));
+    /* Maṇipūra actor attribution, from the entry's own fields:
+       the server records `via` on every inbox entry (the logging
+       actor). No executor field exists in the entry — the row
+       says so instead of inventing one (REQUESTED ≠ EXECUTED). */
+    row.appendChild(el("span", "actor-line", entry.via
+      ? "logged via " + str(entry.via) + " · executed by: not recorded — logged only"
+      : "logged · executed by: not recorded — logged only"));
     log.appendChild(row);
   });
+  arrive(log, ".control-msg");
   log.scrollTop = log.scrollHeight;
 }
 
 function render(state) {
   lastGood = state;
-  renderStations(state);
-  renderDesks(state);
-  renderJobs(state);
-  renderRegistry(state);
-  renderQuotas(state);
-  renderControl(state);
+  /* Each section re-renders only on a real payload change — unchanged
+     sections keep their existing DOM (and never re-animate). */
+  if (changed("stations", [state.roster, state.cascade])) renderStations(state);
+  if (changed("desks", state.desks)) renderDesks(state);
+  if (changed("jobs", state.jobs)) renderJobs(state);
+  if (changed("registry", state.registry)) renderRegistry(state);
+  if (changed("quotas", state.quotas)) renderQuotas(state);
+  if (changed("control", state.control)) renderControl(state);
   var summary = cascadeSummary(state.cascade);
   var wrap = document.getElementById("cascadeWrap");
   var chipNode = document.getElementById("cascadeChip");
@@ -420,6 +529,21 @@ function render(state) {
   document.getElementById("liveText").textContent = "LIVE";
   document.getElementById("updatedText").textContent =
     "updated " + (formatTime(state.generated_at) || new Date().toLocaleTimeString());
+  /* v2 feed rung: LIVE only while the payload's own generated_at
+     is fresh against the stated 15s threshold; older payload =
+     STALE, graded and labelled with its computed age. */
+  lastSuccessAt = Date.now();
+  var gen = state.generated_at ? new Date(state.generated_at) : null;
+  lastGeneratedAt = (gen && !isNaN(gen.getTime())) ? gen : null;
+  var ageMs = lastGeneratedAt ? (Date.now() - lastGeneratedAt.getTime()) : 0;
+  var staleEl = document.getElementById("staleAge");
+  if (lastGeneratedAt && ageMs > STALE_MS) {
+    setRung(box, "ll-rung-stale");
+    if (staleEl) { staleEl.textContent = "stale — data " + fmtAge(ageMs) + " old"; staleEl.hidden = false; }
+  } else {
+    setRung(box, "ll-rung-live");
+    if (staleEl) { staleEl.textContent = ""; staleEl.hidden = true; }
+  }
 }
 
 function markFeedDown() {
@@ -428,6 +552,18 @@ function markFeedDown() {
   box.classList.add("is-down");
   document.getElementById("liveText").textContent = "feed interrupted — retrying";
   if (!lastGood) document.getElementById("updatedText").textContent = "no successful poll yet";
+  /* v2: a down feed with a last-good render older than the stated
+     15s threshold is STALE — graded, with its age shown. A down
+     feed that is still fresh keeps the idle grade (no claim). */
+  var staleEl = document.getElementById("staleAge");
+  var sinceMs = lastSuccessAt ? (Date.now() - lastSuccessAt) : null;
+  if (lastGood && sinceMs !== null && sinceMs > STALE_MS) {
+    setRung(box, "ll-rung-stale");
+    if (staleEl) { staleEl.textContent = "stale — last good feed " + fmtAge(sinceMs) + " ago"; staleEl.hidden = false; }
+  } else {
+    setRung(box, "ll-rung-idle");
+    if (staleEl) { staleEl.textContent = ""; staleEl.hidden = true; }
+  }
 }
 
 function poll() {
@@ -453,10 +589,16 @@ function sendControl(text) {
     return r.json();
   }).then(function (res) {
     if (!res || res.ok !== true) throw new Error("control POST was not confirmed by the server");
+    /* Spectral shine on the confirmed action only — paired with the
+       re-fetched log row and its "logged" chip (colour + word). */
+    var panel = document.getElementById("controlPanel");
+    if (LL && panel) LL.shine(panel, "#3DFFA2");
     poll(); /* re-poll so the entry appears only from server state */
   }).catch(function (err) {
     errBox.textContent = "Could not log instruction: " + (err && err.message ? err.message : "request failed") + ". Nothing was added.";
     errBox.hidden = false;
+    /* Shake + the word, always the word. */
+    if (LL) LL.shake(errBox);
   }).then(function () {
     postInFlight = false;
     btn.disabled = false;
