@@ -1,80 +1,200 @@
 <!DOCTYPE html>
 <html lang="en">
-<head><script>window.__SB_SURFACE="avatar";</script><script src="../bridge-pages.js"></script>
+<head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Siddhi Vinayaki — Live Avatar</title>
 <style>
+  /* ===== LIVING LIGHT — inlined kit (server root is live-avatar/ only;
+     ../live-dashboard/shared/ is NOT servable by server.py, so the needed
+     tokens/keyframes from shared/living-light.css are inlined verbatim
+     in value, per UI-DESIGN-SYSTEM §7 "function over purity") ===== */
   :root{
-    --bg:#05070f; --panel:#0a0e1acc; --line:#1e2a44; --ink:#e8eefc;
-    --muted:#93a4c4; --gold:#d4af37; --cyan:#57d7f2; --violet:#a78bfa;
+    --void:#0A0614; --abyss:#150C26; --abyss2:#1D1136;
+    --smoke:#6E6390; --smoke-violet:#9A8BB8;
+    --moon:#F4EEFF; --throne:#6D28D9; --throne-hi:#7C3AED;
+    --rose:#FF5C7A; --amber:#FFC857; --mint:#3DFFA2;
+    --blue:#5B8CFF; --cyan:#33E0FF; --ultra:#C77DFF;
+    --b-rose:#FF8FA3; --b-mint:#7CFFC4; --b-gold:#FFD97A;
+    --b-blue:#8FB0FF; --b-violet:#E0A6FF; --b-cyan:#8FF2FF;
+    --gold:#D4AF37;
+    --font-display:"Fraunces","Playfair Display",Georgia,serif;
+    --font-head:"Space Grotesk",system-ui,sans-serif;
+    --font-body:"Inter",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+    --font-mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+    --d-micro:160ms; --d-std:280ms; --d-panel:420ms; --d-hero:640ms;
+    --d-exposure:1800ms; --d-breath:12s;
+    --spring-smooth:cubic-bezier(.22,1,.36,1);
+    --spring-snappy:cubic-bezier(.28,.84,.42,1);
+    --spring-controlled:cubic-bezier(.34,1.3,.64,1);
+    --r-panel:20px; --r-card:16px;
+    /* legacy aliases used by preserved markup logic */
+    --bg:var(--void); --panel:var(--abyss); --line:#2A2145; --ink:var(--moon);
+    --muted:var(--smoke-violet); --violet:var(--b-violet);
   }
+  @keyframes ll-exposure{from{filter:brightness(0)} to{filter:brightness(1)}}
+  @keyframes ll-arrive{from{opacity:.2; transform:translateY(12px)} to{opacity:1; transform:translateY(0)}}
+  @keyframes ll-breath{0%{transform:scale(1)} 57.5%{transform:scale(1.013)} 60%{transform:scale(1.013)} 100%{transform:scale(1)}}
+  @keyframes ll-glowpulse{0%,100%{box-shadow:0 0 18px -6px var(--glow-c,var(--mint))} 50%{box-shadow:0 0 50px -4px var(--glow-c,var(--mint))}}
   *{box-sizing:border-box}
-  html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);
-    font:15px/1.5 -apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+  html,body{margin:0;height:100%;background:var(--void);color:var(--moon);
+    font:16px/1.65 var(--font-body); -webkit-font-smoothing:antialiased}
   body{display:flex;flex-direction:column;min-height:100vh;
-    background:radial-gradient(1200px 700px at 30% -10%,#0d1830 0%,var(--bg) 55%)}
-  header{padding:14px 20px 8px;display:flex;flex-wrap:wrap;gap:8px 18px;
-    align-items:baseline;border-bottom:1px solid var(--line)}
-  header h1{font-size:21px;margin:0;font-weight:650;letter-spacing:.3px}
+    background:radial-gradient(1200px 700px at 30% -10%,#150C26 0%,var(--void) 55%)}
+  header{padding:18px 22px 10px;display:flex;flex-wrap:wrap;gap:8px 18px;
+    align-items:baseline;border-bottom:1px solid color-mix(in srgb,var(--smoke) 38%,transparent);
+    animation:ll-arrive var(--d-panel) var(--spring-smooth) both}
+  header h1{font-family:var(--font-display);font-size:26px;margin:0;font-weight:600;letter-spacing:.3px}
   header h1 .gold{color:var(--gold)}
   header .sub{color:var(--muted);font-size:13px}
-  header .pill{margin-left:auto;font-size:12px;color:var(--muted);
-    border:1px solid var(--line);border-radius:999px;padding:3px 11px}
-  header .pill b{color:var(--cyan);font-weight:600}
+  header .pill{margin-left:auto;font-family:var(--font-mono);font-size:11px;color:var(--muted);
+    border:1px solid color-mix(in srgb,var(--smoke) 45%,transparent);border-radius:999px;padding:4px 12px}
+  header .pill b{color:var(--b-cyan);font-weight:600}
   main{flex:1;display:grid;grid-template-columns:minmax(340px,1.15fr) minmax(320px,.85fr);
     gap:14px;padding:14px 16px;min-height:0}
   @media (max-width:900px){main{grid-template-columns:1fr}}
-  .stage{position:relative;border:1px solid var(--line);border-radius:16px;
-    background:radial-gradient(600px 500px at 50% 30%,#0a1428 0%,#05070f 70%);
-    overflow:hidden;min-height:480px}
+  /* presence stage: exposure ramp on appearance; breath-paced ambient glow;
+     listening/speaking glow is label-paired — the word in #stateLabel always
+     names the state, the glow only accompanies it (honest-motion law) */
+  .stage{position:relative;border:1px solid color-mix(in srgb,var(--smoke) 38%,transparent);border-radius:var(--r-panel);
+    background:radial-gradient(600px 500px at 50% 30%,var(--abyss) 0%,var(--void) 70%);
+    overflow:hidden;min-height:480px;
+    animation:ll-exposure var(--d-exposure) ease-in-out both}
+  .stage::after{content:"";position:absolute;inset:0;pointer-events:none;border-radius:inherit;
+    box-shadow:inset 0 0 60px -18px var(--glow-c,transparent);
+    transition:box-shadow var(--d-std) var(--spring-smooth)}
+  .stage[data-mode="listening"]{--glow-c:var(--cyan)}
+  .stage[data-mode="listening"]::after{box-shadow:inset 0 0 70px -10px var(--cyan)}
+  .stage[data-mode="speaking"]{--glow-c:var(--mint)}
+  .stage[data-mode="speaking"]::after{box-shadow:inset 0 0 70px -10px var(--mint); animation:ll-glowpulse 1.5s ease-in-out infinite}
+  .stage[data-mode="thinking"]{--glow-c:var(--ultra)}
+  .stage[data-mode="thinking"]::after{box-shadow:inset 0 0 60px -14px var(--ultra)}
   canvas#stage{position:absolute;inset:0;width:100%;height:100%;display:block}
-  .stagebar{position:absolute;left:0;right:0;bottom:0;display:flex;gap:8px;
-    align-items:center;padding:10px 12px;background:linear-gradient(transparent,#05070fd9)}
+  .stagebar{position:absolute;left:0;right:0;bottom:0;display:flex;gap:8px;flex-wrap:wrap;
+    align-items:center;padding:10px 12px;background:linear-gradient(transparent,#0A0614e6);z-index:2}
   .stagebar .state{font-size:13px;color:var(--muted);margin-right:auto}
-  .stagebar .state b{color:var(--ink);font-weight:600}
-  .stagebar .gazeState{font-size:11.5px;color:var(--muted);border:1px solid var(--line);
-    border-radius:999px;padding:3px 10px;white-space:nowrap}
+  .stagebar .state b{color:var(--moon);font-weight:600}
+  .stagebar .gazeState{font-family:var(--font-mono);font-size:11px;color:var(--muted);
+    border:1px solid color-mix(in srgb,var(--smoke) 45%,transparent);
+    border-radius:999px;padding:4px 10px;white-space:nowrap}
   .stagebar .gazeState.cam{color:#dff7ff;border-color:var(--cyan)}
-  button{cursor:pointer;border:1px solid var(--line);background:#101a30;color:var(--ink);
-    border-radius:10px;padding:8px 13px;font-size:13.5px}
+  button{cursor:pointer;border:1px solid color-mix(in srgb,var(--smoke) 45%,transparent);
+    background:var(--abyss2);color:var(--moon);min-height:44px;
+    border-radius:12px;padding:8px 13px;font-size:13.5px;font-family:var(--font-head);
+    transition:transform var(--d-micro) var(--spring-snappy),border-color var(--d-std) var(--spring-smooth),box-shadow var(--d-std) var(--spring-smooth)}
   button:hover{border-color:var(--cyan)}
+  button:active{transform:translateY(1px) scale(.98)}
   button.on{background:#173a4d;border-color:var(--cyan);color:#dff7ff}
-  button.rec{background:#4d1730;border-color:#f27da5;color:#ffe3ee}
+  button.rec{background:#4d1730;border-color:var(--b-rose);color:#ffe3ee}
   button:disabled{opacity:.45;cursor:default}
-  .panel{display:flex;flex-direction:column;border:1px solid var(--line);
-    border-radius:16px;background:var(--panel);min-height:0;overflow:hidden}
-  .panel h2{font-size:12px;letter-spacing:.12em;text-transform:uppercase;
-    color:var(--muted);margin:0;padding:10px 14px 4px}
+  .panel{display:flex;flex-direction:column;
+    border:1px solid color-mix(in srgb,var(--smoke) 38%,transparent);
+    border-radius:var(--r-panel);
+    background:linear-gradient(180deg,var(--abyss2),var(--abyss));min-height:0;overflow:hidden;
+    animation:ll-arrive var(--d-panel) var(--spring-smooth) both;animation-delay:40ms}
+  .panel h2{font-family:var(--font-mono);font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--muted);margin:0;padding:12px 14px 4px}
   #log{flex:1;overflow-y:auto;padding:8px 14px;display:flex;flex-direction:column;gap:9px;min-height:180px}
-  .msg{max-width:92%;padding:8px 12px;border-radius:13px;white-space:pre-wrap;word-wrap:break-word}
+  .msg{max-width:92%;padding:8px 12px;border-radius:var(--r-card);white-space:pre-wrap;word-wrap:break-word;
+    animation:ll-arrive var(--d-panel) var(--spring-smooth) both}
   .msg.user{align-self:flex-end;background:#14304a;border:1px solid #1f4d73}
-  .msg.her{align-self:flex-start;background:#101a30;border:1px solid var(--line)}
+  .msg.her{align-self:flex-start;background:var(--abyss);border:1px solid color-mix(in srgb,var(--smoke) 30%,transparent)}
   .msg .meta{display:block;margin-top:4px;font-size:11px;color:var(--muted)}
-  .msg .note{font-size:11.5px;color:var(--gold);background:none;border:none;padding:2px 0 0;cursor:pointer}
-  .composer{display:flex;gap:8px;padding:10px 12px;border-top:1px solid var(--line)}
-  .composer textarea{flex:1;resize:none;height:44px;border-radius:10px;
-    border:1px solid var(--line);background:#0a1120;color:var(--ink);padding:10px;font:inherit}
-  .filesbar{display:flex;gap:8px;align-items:center;padding:8px 12px;border-top:1px solid var(--line);flex-wrap:wrap}
-  .filesbar label{cursor:pointer;border:1px solid var(--line);border-radius:10px;
-    padding:7px 12px;font-size:13px;background:#101a30}
+  .msg .note{font-size:11.5px;color:var(--gold);background:none;border:none;padding:2px 0 0;cursor:pointer;min-height:0}
+  .composer{display:flex;gap:8px;padding:10px 12px;border-top:1px solid color-mix(in srgb,var(--smoke) 35%,transparent)}
+  .composer textarea{flex:1;resize:none;height:44px;border-radius:12px;
+    border:1px solid color-mix(in srgb,var(--smoke) 45%,transparent);background:var(--void);color:var(--moon);padding:10px;font:inherit}
+  .composer textarea:focus{outline:2px solid var(--throne-hi);outline-offset:1px}
+  .filesbar{display:flex;gap:8px;align-items:center;padding:8px 12px;border-top:1px solid color-mix(in srgb,var(--smoke) 35%,transparent);flex-wrap:wrap}
+  .filesbar label{cursor:pointer;border:1px solid color-mix(in srgb,var(--smoke) 45%,transparent);border-radius:12px;
+    padding:7px 12px;font-size:13px;background:var(--abyss2);min-height:44px;display:inline-flex;align-items:center}
   .filesbar label:hover{border-color:var(--cyan)}
   .filesbar input{display:none}
   .filesbar .hint{font-size:12px;color:var(--muted)}
   #files,#results{display:flex;flex-direction:column;gap:6px;padding:2px 14px 10px}
-  .chip{display:flex;gap:9px;align-items:center;border:1px solid var(--line);
-    border-radius:10px;padding:6px 9px;font-size:13px;background:#0a1120}
+  .chip{display:flex;gap:9px;align-items:center;border:1px solid color-mix(in srgb,var(--smoke) 30%,transparent);
+    border-radius:12px;padding:6px 9px;font-size:13px;background:var(--void)}
   .chip img{width:38px;height:38px;object-fit:cover;border-radius:7px}
   .chip .nm{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-  .chip a{color:var(--cyan);text-decoration:none;font-size:12.5px}
+  .chip a{color:var(--b-cyan);text-decoration:none;font-size:12.5px}
   .chip .sz{color:var(--muted);font-size:12px}
   .empty{font-size:12.5px;color:var(--muted);padding:0 14px 8px}
+
+  /* ===== UI v2 (2026-11-23) — PRESENCE GRADING LADDER + KĀLA-PHASE AMBIENT =====
+     Ladder rungs (design dossier §1): idle / live / stale / diverged /
+     awaiting / delivered. Colour is ALWAYS paired with the rung word in
+     #presenceRung (signal grammar: never colour alone). The rung is set
+     only by the additive observer script at the end of <body>, which
+     reads states the page already computes (#stateLabel, #lanePill,
+     #gazeState, #log, #results) — it never invents a state.
+     Kāla-phase ambient: DECLARED client-clock grammar — a subtle tint
+     on the ambient ground (.stage background + page wash) chosen from
+     THIS DEVICE's clock hour. It is NOT the measured Kāla register
+     (no register is fetched); it claims nothing about the world. */
+  .stage[data-presence="idle"]{--presence-c:var(--smoke-violet)}
+  .stage[data-presence="live"]{--presence-c:var(--mint)}
+  .stage[data-presence="stale"]{--presence-c:var(--amber)}
+  .stage[data-presence="diverged"]{--presence-c:var(--rose)}
+  .stage[data-presence="awaiting"]{--presence-c:var(--blue)}
+  .stage[data-presence="delivered"]{--presence-c:var(--b-gold)}
+  .stage[data-presence="stale"]::after{box-shadow:inset 0 0 60px -14px var(--amber)}
+  .stage[data-presence="diverged"]::after{box-shadow:inset 0 0 60px -14px var(--rose)}
+  .stage[data-presence="awaiting"]::after{box-shadow:inset 0 0 60px -16px var(--blue)}
+  .stage[data-presence="delivered"]::after{box-shadow:inset 0 0 70px -12px var(--b-gold)}
+  .presenceRung{font-family:var(--font-mono);font-size:11px;color:var(--moon);
+    border:1px solid color-mix(in srgb,var(--presence-c,var(--smoke-violet)) 65%,transparent);
+    border-radius:999px;padding:4px 10px;white-space:nowrap;
+    transition:border-color var(--d-std) var(--spring-smooth)}
+  .presenceRung::before{content:"";display:inline-block;width:7px;height:7px;border-radius:50%;
+    background:var(--presence-c,var(--smoke-violet));margin-right:7px;vertical-align:1px}
+  #lanePill[data-presence="stale"]{border-color:var(--amber);color:var(--amber)}
+  #lanePill[data-presence="diverged"]{border-color:var(--rose)}
+  /* Kāla-phase ambient tint — ambient/halo ground ONLY (.stage + page wash);
+     DECLARED client-clock grammar, see note above. */
+  body[data-kala-phase="dawn"]{background:radial-gradient(1200px 700px at 30% -10%,#1d0f22 0%,var(--void) 55%)}
+  body[data-kala-phase="morning"]{background:radial-gradient(1200px 700px at 30% -10%,#101a30 0%,var(--void) 55%)}
+  body[data-kala-phase="afternoon"]{background:radial-gradient(1200px 700px at 30% -10%,#181430 0%,var(--void) 55%)}
+  body[data-kala-phase="dusk"]{background:radial-gradient(1200px 700px at 30% -10%,#22101e 0%,var(--void) 55%)}
+  body[data-kala-phase="evening"]{background:radial-gradient(1200px 700px at 30% -10%,#170d2c 0%,var(--void) 55%)}
+  .stage[data-kala-phase="dawn"]{background:radial-gradient(600px 500px at 50% 30%,#2b1626 0%,var(--void) 70%)}
+  .stage[data-kala-phase="morning"]{background:radial-gradient(600px 500px at 50% 30%,#132138 0%,var(--void) 70%)}
+  .stage[data-kala-phase="afternoon"]{background:radial-gradient(600px 500px at 50% 30%,#1d1838 0%,var(--void) 70%)}
+  .stage[data-kala-phase="dusk"]{background:radial-gradient(600px 500px at 50% 30%,#2e1424 0%,var(--void) 70%)}
+  .stage[data-kala-phase="evening"]{background:radial-gradient(600px 500px at 50% 30%,#1a0e30 0%,var(--void) 70%)}
+  /* Viśuddha (voice/intelligibility station): plain-English glosses ride
+     in the same breath as technical labels — smaller, body font, no caps. */
+  .plain{font-family:var(--font-body);text-transform:none;letter-spacing:0;font-size:.92em;color:var(--muted)}
+  header .pill .plain, .stagebar .gazeState .plain{color:inherit;opacity:.85}
+  /* ===== UI v2 reduced-motion substitution table (design system §4) =====
+     exposure ramp -> plain opacity fade · faint-arrival -> opacity fade
+     (no rise) · glow pulse -> static glow (existing rule) · breath ->
+     gentler in canvas (draw() uses ±0.8% under `reduced`) · all
+     transitions -> fades/identity (existing universal rule). */
+  @media (prefers-reduced-motion: reduce){
+    @keyframes ll-fade-rm{from{opacity:.2} to{opacity:1}}
+    .stage{animation:ll-fade-rm var(--d-std) ease both !important}
+    header,.panel,.msg{animation:ll-fade-rm var(--d-std) ease both !important;transform:none !important}
+    .stage::after{transition:none !important}
+    button{transition:none !important}
+    button:active{transform:none !important}
+  }
+  @media (prefers-reduced-motion: reduce){
+    *,*::before,*::after{animation-duration:.01ms !important;animation-iteration-count:1 !important;
+      transition-duration:.01ms !important;scroll-behavior:auto !important}
+    .stage{animation:none}
+    .stage[data-mode="speaking"]::after{animation:none !important}
+  }
 </style>
+<link rel="stylesheet" href="surface-kit.css">
+<link rel="stylesheet" href="chat-panel.css">
+<link rel="stylesheet" href="attunement.css">
+<link rel="stylesheet" href="coach.css">
+<link rel="stylesheet" href="studio.css">
 </head>
 <body>
 <header>
   <h1>Goddess <span class="gold">Siddhi Vinayaki</span> — Live Avatar</h1>
-  <span class="sub">An AI avatar of the Spandana / Buddhi programme — synthetic voice, live conversation. She is not a human, and she will tell you so herself.</span>
+  <span class="sub">An AI avatar of the Spandana / Buddhi programme — synthetic voice <span class="plain">(computer-generated, not a recording of a person)</span>, live conversation. She is not a human, and she will tell you so herself.</span>
   <span class="pill" id="lanePill">lanes: <b>checking…</b></span>
 </header>
 <main>
@@ -83,14 +203,16 @@
     <video id="camVideo" playsinline muted aria-hidden="true"
       style="position:absolute;left:0;bottom:0;width:2px;height:2px;opacity:0;pointer-events:none"></video>
     <div class="stagebar">
+      <span class="presenceRung" id="presenceRung" role="status">presence: idle — she is here, waiting</span>
       <span class="state" id="stateLabel">She is <b>present</b></span>
       <span class="gazeState" id="gazeState"
         title="Camera tracking runs on this device only — no frames are sent anywhere, ever.">gaze: pointer</span>
       <button id="cameraBtn"
         title="Eye contact: use your camera (on this device only — frames never leave it) so she can look at you. Off by default.">📷 Eye contact</button>
-      <button id="voiceModeBtn" title="Arm the microphone for talk and barge-in">🎙 Voice mode</button>
-      <button id="micBtn" title="Push to talk">🎤 Talk</button>
-      <button id="voiceBtn" class="on" title="Her spoken voice on/off">🔊 Voice on</button>
+      <button id="voiceModeBtn" title="Voice mode (hands-free): arm the microphone so she stops speaking when you start talking (barge-in)">🎙 Voice mode</button>
+      <button id="micBtn" title="Talk: tap once to record your voice, tap again to send it to her">🎤 Talk</button>
+      <span class="pill" id="micPill" role="status">microphone (mic) off · tap Talk to record · recordings go to this surface's own speech-to-text service on this machine/LAN · the mic stops when recording ends</span>
+      <button id="voiceBtn" class="on" title="Her spoken voice on/off — the voice is synthetic (computer-generated)">🔊 Voice on</button>
     </div>
   </section>
   <aside class="panel" aria-label="Conversation panel">
@@ -102,7 +224,7 @@
     </div>
     <div class="filesbar">
       <label>⬆ Upload<input type="file" id="fileInput" multiple></label>
-      <span class="hint">Files land in her panel; the newest is attached to your next message.</span>
+      <span class="hint">Files land in her panel; the newest is attached to your next message. <span class="plain">(In practice, every file shared since your last message attaches to it.)</span></span>
       <button id="transcriptBtn" style="margin-left:auto">⬇ Transcript</button>
     </div>
     <h2>Shared files</h2>
@@ -111,8 +233,119 @@
     <div id="results"><div class="empty">Her spoken replies arrive here as audio cards.</div></div>
   </aside>
 </main>
+<section id="attunement" class="panel" aria-label="Station Attunement Pass">
+  <h2>Station Attunement <span class="plain">· a breath-paced ascent through the seven stations</span></h2>
+  <p>One slow breath per station — 6.9 s rise, 0.3 s hold, 4.8 s rest; 84 s for the full pass. On natural completion the server times the pass and writes one measured receipt to the swarm bus.</p>
+  <div class="att-spine">
+    <div class="att-light" aria-hidden="true"></div>
+      <div class="att-station" style="color:#ff2a1a"><span class="att-node"></span><span class="att-label">Mūlādhāra <span class="att-gloss">· root</span></span></div>
+      <div class="att-station" style="color:#ff7a00"><span class="att-node"></span><span class="att-label">Svādhiṣṭhāna <span class="att-gloss">· sacral flow</span></span></div>
+      <div class="att-station" style="color:#ffd400"><span class="att-node"></span><span class="att-label">Maṇipūra <span class="att-gloss">· navel fire</span></span></div>
+      <div class="att-station" style="color:#2ee66b"><span class="att-node"></span><span class="att-label">Anāhata <span class="att-gloss">· heart</span></span></div>
+      <div class="att-station" style="color:#1e9bff"><span class="att-node"></span><span class="att-label">Viśuddha <span class="att-gloss">· throat</span></span></div>
+      <div class="att-station" style="color:#5a3dff"><span class="att-node"></span><span class="att-label">Ājñā <span class="att-gloss">· brow insight</span></span></div>
+      <div class="att-station" style="color:#b45cff"><span class="att-node"></span><span class="att-label">Sahasrāra <span class="att-gloss">· crown</span></span></div>
+  </div>
+  <div class="att-scan">
+    <p class="att-scan-q">Before you begin — which one sounds like you lately? (optional — tap one, or none; tapping again deselects)</p>
+    <div class="att-chips">
+      <button class="att-chip" type="button" data-idx="0">Mūlādhāra (root) · "always on edge"</button>
+      <button class="att-chip" type="button" data-idx="1">Svādhiṣṭhāna (sacral) · "no spark, no joy"</button>
+      <button class="att-chip" type="button" data-idx="2">Maṇipūra (solar plexus) · "can't say no"</button>
+      <button class="att-chip" type="button" data-idx="3">Anāhata (heart) · "hard to let people in"</button>
+      <button class="att-chip" type="button" data-idx="4">Viśuddha (throat) · "words get stuck"</button>
+      <button class="att-chip" type="button" data-idx="5">Ājñā (third eye) · "doubting your gut"</button>
+      <button class="att-chip" type="button" data-idx="6">Sahasrāra (crown) · "feeling disconnected"</button>
+    </div>
+    <p class="att-note">Feelings are traditional associations — a mirror for reflection, not a diagnosis.</p>
+  </div>
+  <div class="att-controls">
+    <button class="att-begin" type="button">Begin</button>
+    <button class="att-abort" type="button" disabled>Abort</button>
+  </div>
+  <p class="att-status" role="status">ready — press Begin when you are.</p>
+</section>
+<script src="attunement.js"></script>
+<section id="coach" class="panel" aria-label="Coach Mode">
+  <h2>Coach <span class="plain">· camera rehearsal with live tempo feedback — on this device only</span></h2>
+  <p>Prop the phone up, tap <b>Start session</b>, and move to a beat. The camera is off until you tap Start, and Stop releases it at once. All analysis runs on this device — frames never leave it. The tempo readout is an <b>ESTIMATE</b> from your movement, shown next to a target you set; the target is a rehearsal aid, not a production tempo.</p>
+  <div class="coach-stage">
+    <video class="coach-video" playsinline muted aria-label="Coach camera preview"></video>
+    <div class="coach-light" aria-hidden="true"></div>
+  </div>
+  <div class="coach-target">
+    <label>Target tempo (BPM)
+      <input class="coach-bpm" type="number" min="40" max="220" step="1" value="120">
+    </label>
+    <button class="coach-tap" type="button">Tap tempo</button>
+  </div>
+  <div class="coach-readout" aria-live="polite">
+    <div><span class="coach-est-num">—</span> <span class="coach-est-label">BPM · ESTIMATE</span></div>
+    <div class="coach-drift">press Start session when you are ready.</div>
+  </div>
+  <div class="coach-controls">
+    <button class="coach-start" type="button">Start session</button>
+    <button class="coach-stop" type="button" disabled>Stop session</button>
+  </div>
+  <p class="coach-status" role="status">camera off — nothing is being watched or recorded.</p>
+  <div class="coach-summary" hidden>
+    <h3>Session summary</h3>
+    <pre class="coach-summary-json"></pre>
+    <div class="coach-receipt-btns">
+      <button class="coach-download" type="button">Download session receipt (JSON)</button>
+      <button class="coach-send" type="button">Send receipt to Muse</button>
+    </div>
+    <p class="coach-send-status" role="status"></p>
+  </div>
+</section>
+<script src="coach-estimator.js"></script>
+<script src="coach.js"></script>
+<section id="studio" class="panel" aria-label="Camera Studio">
+  <h2>Camera Studio <span class="plain">· live landmark puppet &amp; record-to-animate — on this device first</span></h2>
+  <p>Tap <b>Start session</b> and dance. Your pose is tracked on this device (MediaPipe Pose, vendored on this surface — nothing is fetched at run time) and drives the luminous figure below, in real time. Choose <b>Full body</b> or <b>Shoulders up</b>. One person is tracked — that is the tracker's honest bound. Nothing leaves this device during a session.</p>
+  <p class="studio-grammar-label">Light follows your measured movement spectrum, rendered through the chakra colour grammar — grammar, not a body scan.</p>
+  <div class="studio-stage">
+    <canvas class="studio-canvas" width="640" height="480" aria-label="Live landmark puppet"></canvas>
+    <div class="studio-bloom" aria-hidden="true"></div>
+    <video class="studio-video" playsinline muted aria-label="Camera Studio camera preview"></video>
+  </div>
+  <div class="studio-framing" role="group" aria-label="Framing">
+    <button class="studio-frame-full" type="button" aria-pressed="true">Full body</button>
+    <button class="studio-frame-shoulders" type="button" aria-pressed="false">Shoulders up</button>
+  </div>
+  <div class="studio-readouts" aria-live="polite">
+    <div>motion spectrum: <span class="studio-dom">—</span> Hz dominant · first-harmonic ratio <span class="studio-harm">—</span><span class="studio-tag">measured</span></div>
+    <div>pulse: <span class="studio-pulse">shoulders-up framing only</span></div>
+    <div>scene light: <span class="studio-light">—</span></div>
+    <div>figure light: <span class="studio-station">—</span><span class="studio-tag">declared grammar</span></div>
+  </div>
+  <label class="studio-record-toggle">
+    <input class="studio-record" type="checkbox">
+    <span>Record this session in the browser — recording stays in this browser and is offered as a download to this device only; it is never uploaded automatically. A recording is the raw material for the film pipeline: pose-track extraction happens later, on files you choose to hand over.</span>
+  </label>
+  <div class="studio-controls">
+    <button class="studio-start" type="button">Start session</button>
+    <button class="studio-stop" type="button" disabled>Stop session</button>
+  </div>
+  <p class="studio-status" role="status">camera off — nothing is being watched or recorded.</p>
+  <div class="studio-download" hidden>
+    <a class="studio-download-link" href="#">Download your recording (WebM) — recorded in this browser; it was never uploaded.</a>
+  </div>
+  <div class="studio-summary" hidden>
+    <h3>Session summary</h3>
+    <pre class="studio-summary-json"></pre>
+    <div class="studio-receipt-btns">
+      <button class="studio-download-receipt" type="button">Download session receipt (JSON)</button>
+      <button class="studio-send" type="button">Send receipt to Muse</button>
+    </div>
+    <p class="studio-send-status" role="status"></p>
+  </div>
+</section>
+<script src="/assets/pose/pose.js"></script>
+<script src="studio-spectral.js"></script>
+<script src="studio.js"></script>
 <audio id="ttsAudio" preload="auto"></audio>
-<script src="../assets/face/face_mesh.js"></script>
+<script src="/assets/face/face_mesh.js"></script>
 <script>
 "use strict";
 /* =============== session & state =============== */
@@ -204,12 +437,23 @@ async function sendMessage(text) {
     addMsg("her", "The connection to my surface failed just now — nothing was sent. Try again in a moment.", "transport error");
   }
 }
-function updateLanePill(out) {
-  if (out && out.source && out.source.startsWith("anthropic"))
-    $("lanePill").innerHTML = "deep lane: <b>Anthropic · live</b> · voice: <b>Aria DragonHD</b> · ears: <b>local Whisper</b>";
-  else if (out)
-    $("lanePill").innerHTML = "deep lane: <b>refused (credit) — local fallback</b> · voice: <b>Aria DragonHD</b> · ears: <b>local Whisper</b>";
+/* G-18: lane wording renders ONLY from the server's lane_state field. */
+function laneText(st) {
+  if (!st) return "checking…";
+  if (st === "removed-by-ruling") return "removed by your ruling of 2026-11-22 — local fallback";
+  if (st === "on") return "live";
+  if (st.indexOf("refused:") === 0) return "refused (" + st.slice(8) + ") — local fallback";
+  return st;
 }
+function renderLanePill(h, out) {
+  var st = (h && h.lane_state) || (out && out.lane_state) ||
+    ((out && out.source && out.source.startsWith("anthropic")) ? "on" :
+     (out ? (out.lane_error ? "removed-by-ruling" : null) : null));
+  var voice = (h && h.azure && h.azure.voice) ? h.azure.voice.split(":")[0].replace("en-US-", "") + " DragonHD" : "Aria DragonHD";
+  var ears = (h && h.asr && h.asr.model) ? h.asr.model : "local Whisper";
+  $("lanePill").innerHTML = "deep lane <span class=\"plain\">(main reasoning service)</span>: <b>" + laneText(st) + "</b> · voice <span class=\"plain\">(synthetic voice)</span>: <b>" + voice + "</b> · ears <span class=\"plain\">(speech-to-text)</span>: <b>" + ears + "</b> · checked <span class=\"plain\">(last health check)</span>: <b>" + new Date().toLocaleTimeString() + "</b>";
+}
+function updateLanePill(out) { renderLanePill(window.__lastHealth || null, out || null); }
 $("sendBtn").onclick = () => { const v = $("input").value; $("input").value = ""; sendMessage(v); };
 $("input").addEventListener("keydown", e => {
   if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); $("sendBtn").click(); }});
@@ -306,8 +550,18 @@ async function startRecording() {
     $("micBtn").classList.add("rec"); $("micBtn").textContent = "⏺ Listening…";
   } catch (e) { setMode("idle", "present — microphone unavailable"); }
 }
+function stopMicIfNotArmed() {
+  /* G-19 mic consent parity: when recording ends and voice mode is not
+     armed, stop every mic track so the browser mic indicator dies with
+     the state. Voice mode keeps the stream only while armed, and its
+     button says so. */
+  if (S.voiceArmed) return;
+  if (micStream) { micStream.getTracks().forEach(function(t){ try { t.stop(); } catch(e){} }); micStream = null; }
+  var mp = $("micPill"); if (mp) mp.textContent = "microphone (mic) off · tap Talk to record · recordings go to this surface's own speech-to-text service on this machine/LAN · the mic stops when recording ends";
+}
 async function onRecordingStop() {
   $("micBtn").classList.remove("rec"); $("micBtn").textContent = "🎤 Talk";
+  stopMicIfNotArmed();
   const blob = new Blob(recChunks, {type: recorder.mimeType || "audio/webm"});
   if (!blob.size) { setMode("idle", "present"); return; }
   setMode("thinking", "hearing you"); excite("ear");
@@ -341,7 +595,7 @@ $("voiceModeBtn").onclick = async () => {
   if (S.voiceArmed) {
     try { await getMic(); startVAD(); $("voiceModeBtn").textContent = "🎙 Voice mode on — she yields when you speak"; }
     catch (e) { S.voiceArmed = false; $("voiceModeBtn").classList.remove("on"); }
-  } else { stopVAD(); $("voiceModeBtn").textContent = "🎙 Voice mode"; }
+  } else { stopVAD(); $("voiceModeBtn").textContent = "🎙 Voice mode"; stopMicIfNotArmed(); }
 };
 function startVAD() {
   // Barge-in: while she speaks, sustained visitor voice stops her and
@@ -392,12 +646,16 @@ function renderFileChip(f) {
 }
 
 /* =============== health =============== */
-fetch("/api/health").then(r => r.json()).then(h => {
-  excite("guard", .7); excite("memory", .6);
-  const lane = h.anthropic.last_error ? "refused (credit) — local fallback" : "Anthropic · configured";
-  $("lanePill").innerHTML = "deep lane: <b>" + lane + "</b> · voice: <b>" + h.azure.voice.split(":")[0].replace("en-US-", "") +
-    " DragonHD</b> · ears: <b>" + h.asr.model + "</b>";
-}).catch(() => { $("lanePill").innerHTML = "lanes: <b>surface offline</b>"; });
+/* G-32: health is re-polled every 30 s (it was fetched once at load);
+   G-18: the pill renders from the server's single lane_state field. */
+function pollHealth() {
+  return fetch("/api/health").then(r => r.json()).then(h => {
+    window.__lastHealth = h; window.__lastHealthOk = Date.now();
+    excite("guard", .7); excite("memory", .6);
+    renderLanePill(h, null);
+  }).catch(() => { $("lanePill").innerHTML = "lanes: <b>surface offline</b> · last good check: <b>" + (window.__lastHealthOk ? Math.round((Date.now()-window.__lastHealthOk)/1000) + "s ago" : "never this session") + "</b>"; });
+}
+pollHealth(); setInterval(pollHealth, 30000);
 
 /* =============== camera eye contact (v1.1, MediaPipe Face Mesh) ===============
    One-time exception (principal, 2026-11-22): the face-mesh library was
@@ -415,7 +673,7 @@ function gazeLabel() {
     Cam.state === "on"    ? "gaze: camera on — no face yet · pointer" :
     Cam.state === "start" ? "gaze: camera starting…" :
     Cam.state === "error" ? "gaze: camera unavailable · pointer" :
-                            "gaze: pointer";
+                            "gaze: pointer — she follows your mouse or touch";
 }
 function onFaceResults(res) {
   const lm = res && res.multiFaceLandmarks && res.multiFaceLandmarks[0];
@@ -534,7 +792,7 @@ function draw(now) {
   // breath: 12 s asymmetric cycle (inhale eased, exhale longer)
   const bp = (t % 12) / 12 * Math.PI * 2;
   const breath = (Math.sin(bp) + .35 * Math.sin(2 * bp)) / 1.35;
-  const bScale = 1 + .013 * breath;
+  const bScale = 1 + (reduced ? .008 : .013) * breath; // reduced motion: breath remains, gentler (±0.8%)
   // gaze: a fresh tracked face wins; otherwise the pointer (never spectrum-driven)
   const faceFresh = Cam.on && S.face.ok && (now - S.face.at < 1200);
   let gx, gy;
@@ -760,7 +1018,7 @@ function draw(now) {
   }
 }
 fit();
-addMsg("her", "Hello, Trishul. I am Siddhi Vinayaki — an AI avatar, here in voice and text. Speak to me, type, or share a file; I will answer aloud. One honesty note: my deep reasoning lane is refused just now (its credit balance is empty), so until it is restored I answer from a small local fallback — greetings, status, your files, the time — and I will say so rather than invent depth I do not have.");
+addMsg("her", "Hello, Trishul. I am Siddhi Vinayaki — an AI avatar, here in voice and text. Speak to me, type, or share a file; I will answer aloud. One honesty note: my deep reasoning lane was removed by Trishul's ruling of 2026-11-22, so I answer from a small local fallback — greetings, status, your files, the time — and I will say so rather than invent depth I do not have.");
 requestAnimationFrame(draw);
 
 /* ---- Buddhi Live bridge: the dashboard on :8794 watches through this.
@@ -770,11 +1028,20 @@ const BRIDGE = { muted: false, speakSig: true, lastSpoke: 0 };
 const BRIDGE_CH = { authority: "guard", command: "memory",
   communication: "chat", creation: "files", execution: "voice",
   integration: "memory", verification: "guard", delivery: "chat" };
+/* G-20 (cycle #3, FIRST): origin-pinned bridge. The only legitimate
+   counterpart is the 8794 Buddhi Live origin on this same host, and
+   only when it is this page's parent frame. Anything else is dropped
+   silently and counted (console-visible, no UI alarm theatre). */
+const PARENT_ORIGIN = location.protocol + "//" + location.hostname + ":8794";
+window.__bridgeDropped = 0;
 function bridgePost(state) {
   try { parent.postMessage({ kind: "avatar-state",
-    state: state || S.mode }, "*"); } catch (e) {}
+    state: state || S.mode }, PARENT_ORIGIN); } catch (e) {}
 }
 window.addEventListener("message", (e) => {
+  if (e.origin !== PARENT_ORIGIN || e.source !== window.parent) {
+    window.__bridgeDropped++; console.debug("[bridge] dropped message from", e.origin); return;
+  }
   const d = e.data || {};
   if (!d.kind || String(d.kind).indexOf("buddhi-") !== 0) return;
   if (d.kind === "buddhi-ping") { bridgePost(); }
@@ -807,6 +1074,184 @@ window.addEventListener("message", (e) => {
 });
 setInterval(bridgePost, 5000);
 bridgePost();
+</script>
+
+<script>
+"use strict";
+/* Living Light presentation hook (additive, read-only): the stage glow
+   follows the exact words of #stateLabel — glow never appears without
+   the label naming the state. No behaviour is altered. */
+(function(){
+  var stage = document.querySelector(".stage");
+  var label = document.getElementById("stateLabel");
+  if(!stage || !label) return;
+  function sync(){
+    var t = label.textContent || "";
+    var m = /speaking/.test(t) ? "speaking" :
+            /listening|hearing you/.test(t) ? "listening" :
+            /thinking/.test(t) ? "thinking" : "present";
+    stage.setAttribute("data-mode", m);
+  }
+  new MutationObserver(sync).observe(label, {childList:true, characterData:true, subtree:true});
+  sync();
+})();
+</script>
+
+<script>
+"use strict";
+/* UI v2 additive presentation layer (read-only observer — no behaviour
+   is altered, no state is created):
+   (a) PRESENCE GRADING LADDER — derives ONE rung from states the page
+       already computes and paints it (colour + word) on #presenceRung,
+       .stage[data-presence] and #lanePill[data-presence]:
+         diverged — a requested path fell back: camera unavailable,
+                    microphone/ears unavailable, or browser-ears fallback
+                    (server speech-to-text failed) — real labels only.
+         stale    — #lanePill reads "surface offline" (the load-time
+                    health fetch failed); the rung shows the REAL age:
+                    seconds/minutes since this page first saw it offline.
+         awaiting — lanes still "checking…", she is "thinking" /
+                    "hearing you", or the camera is "starting…".
+         live     — she is listening or speaking right now.
+         delivered— a reply bubble or a spoken-audio card just arrived
+                    (2.4 s, then the rung recomputes).
+         idle     — present and waiting; the default.
+       Precedence: diverged > stale > awaiting > live > delivered > idle.
+   (b) KĀLA-PHASE AMBIENT — DECLARED client-clock grammar: the phase is
+       read from THIS DEVICE's clock (night/dawn/morning/afternoon/dusk/
+       evening) and tints only the ambient ground. It is NOT the
+       measured Kāla register; nothing is fetched and nothing is claimed.
+*/
+(function(){
+  var stage = document.querySelector(".stage");
+  var rungEl = document.getElementById("presenceRung");
+  var pill = document.getElementById("lanePill");
+  var label = document.getElementById("stateLabel");
+  var gaze = document.getElementById("gazeState");
+  if(!stage || !rungEl || !pill || !label || !gaze) return;
+  var offlineSince = 0, deliveredUntil = 0;
+  function ageText(ms){
+    var s = Math.max(0, Math.round(ms/1000));
+    return s < 60 ? s + "s" : Math.floor(s/60) + "m " + (s%60) + "s";
+  }
+  function compute(){
+    var lt = label.textContent || "", pt = pill.textContent || "", gt = gaze.textContent || "";
+    var rung, word;
+    if(/camera unavailable|microphone unavailable|ears unavailable|browser ears/.test(lt + " " + gt)){
+      rung = "diverged"; word = "presence: diverged — a requested path fell back; see the labels";
+    } else if(/surface offline/.test(pt)){
+      if(!offlineSince) offlineSince = Date.now();
+      rung = "stale"; word = "presence: stale — surface offline for " + ageText(Date.now() - offlineSince);
+    } else if(/checking|thinking|hearing you|camera starting/.test(lt + " " + pt + " " + gt)){
+      rung = "awaiting"; word = "presence: awaiting — waiting for a reply or a service";
+    } else if(/listening|speaking/.test(lt)){
+      rung = "live"; word = /speaking/.test(lt) ? "presence: live — she is speaking" : "presence: live — she is listening";
+    } else if(Date.now() < deliveredUntil){
+      rung = "delivered"; word = "presence: delivered — her reply just arrived";
+    } else {
+      rung = "idle"; word = "presence: idle — she is here, waiting";
+    }
+    if(rung !== "stale") offlineSince = offlineSince && /surface offline/.test(pt) ? offlineSince : 0;
+    stage.setAttribute("data-presence", rung);
+    pill.setAttribute("data-presence", rung);
+    if(rungEl.textContent !== word) rungEl.textContent = word;
+    return rung;
+  }
+  var obs = new MutationObserver(compute);
+  [label, pill, gaze].forEach(function(el){ obs.observe(el, {childList:true, characterData:true, subtree:true}); });
+  var log = document.getElementById("log"), results = document.getElementById("results");
+  function delivered(){ deliveredUntil = Date.now() + 2400; compute(); setTimeout(compute, 2500); }
+  if(log) new MutationObserver(function(muts){
+    muts.forEach(function(m){ m.addedNodes.forEach(function(n){
+      if(n.nodeType === 1 && n.classList && n.classList.contains("her")) delivered();
+    }); });
+  }).observe(log, {childList:true});
+  if(results) new MutationObserver(function(muts){
+    muts.forEach(function(m){ if(m.addedNodes.length) delivered(); });
+  }).observe(results, {childList:true});
+  setInterval(function(){ if(stage.getAttribute("data-presence") === "stale") compute(); }, 1000);
+  function kalaPhase(){
+    var h = new Date().getHours();
+    var ph = h < 5 ? "night" : h < 8 ? "dawn" : h < 12 ? "morning" :
+             h < 17 ? "afternoon" : h < 20 ? "dusk" : "evening";
+    document.body.setAttribute("data-kala-phase", ph);
+    stage.setAttribute("data-kala-phase", ph);
+  }
+  kalaPhase(); setInterval(kalaPhase, 60000);
+  compute();
+})();
+</script>
+<script src="surface-kit.js"></script>
+<script src="chat-panel.js"></script>
+<script>
+/* 8793 conversation coherence: this surface's own conversation is the
+   chat (voice + text, presence-first) — no second panel is mounted, so
+   speaker identity is never confused. The kit still gives it the
+   identity corner, UNSEEN label and freshness dialect. chat-panel.js
+   is present byte-identical but finds no mount here, by design. */
+</script>
+<script>
+/* vinayaki-bridge.js — inlined verbatim (cycle #5 W4): the 8793
+   server serves only its kit filenames, so the external file cannot
+   load here; source of record: live-avatar/vinayaki-bridge.js */
+"use strict";
+/* Vinayaki Chat bridge — cycle #5 W4 (chat-avatar lane), ADDITIVE.
+ * Source of record for the inline copy in live-avatar/index.html (the
+ * 8793 server serves only its kit filenames — see question-proof.md
+ * FAILURE-CLASS FC-A2 — so the identical code is inlined there; this
+ * file is what the inline copy is checked against).
+ *
+ * Receives TantricSync expression drivers from the 8794 chat surface:
+ *   {kind:"vinayaki-expression", question_id, intensity,
+ *    expression:{emotion, glance, gesture, drishti, sattvika, grade}}
+ * Discipline: EXACTLY the existing bridge's pinning — only the 8794
+ * origin on this host, only when it is this page's parent frame
+ * (G-20). Anything else is dropped and counted.
+ * Application: the avatar's own setExpression() rig (emotion/glance/
+ * gesture are its real control vocabulary); the face parameters are
+ * then blended from the calm baseline toward the expression by the
+ * theme intensity (0..1), so intensity 0 = calm face, 1 = full driver.
+ * The drishti/sattvika names are DECLARED_GRAMMAR labels carried in the
+ * record (window.__vinayakiExpression); the rig's compiled targets are
+ * the emotion/glance/gesture triple.
+ * This bridge NEVER touches camera or microphone: the consent law is
+ * untouched (off by default, his tap only, LA-31..LA-36). */
+(function () {
+  var PARENT_ORIGIN = location.protocol + "//" + location.hostname + ":8794";
+  window.__vinayakiBridgeDropped = 0;
+  window.__vinayakiExpression = null;
+  var CALM = [0.92, 0, 0, 0.15]; // lidBase, browRaise, browFurrow, smile
+  window.addEventListener("message", function (e) {
+    if (e.origin !== PARENT_ORIGIN || e.source !== window.parent) {
+      if (e.data && e.data.kind === "vinayaki-expression") {
+        window.__vinayakiBridgeDropped++;
+      }
+      return;
+    }
+    var d = e.data || {};
+    if (d.kind !== "vinayaki-expression") return;
+    var ex = d.expression || {};
+    var k = Math.max(0, Math.min(1, +d.intensity != null && isFinite(+d.intensity) ? +d.intensity : 0.6));
+    window.__vinayakiExpression = { payload: d, applied_at: new Date().toISOString() };
+    try {
+      if (typeof setExpression === "function" && typeof S !== "undefined") {
+        setExpression({ emotion: ex.emotion || "calm",
+                        glance: ex.glance || "center",
+                        gesture: ex.gesture || "rest" });
+        var cur = [S.lidBase, S.browRaise, S.browFurrow, S.smile];
+        S.lidBase    = CALM[0] + (cur[0] - CALM[0]) * k;
+        S.browRaise  = CALM[1] + (cur[1] - CALM[1]) * k;
+        S.browFurrow = CALM[2] + (cur[2] - CALM[2]) * k;
+        S.smile      = CALM[3] + (cur[3] - CALM[3]) * k;
+        if (typeof excite === "function") excite("chat", Math.max(0.15, k));
+      }
+    } catch (err) { /* rig not ready yet: the record above still stands */ }
+    try { parent.postMessage({ kind: "vinayaki-expression-applied",
+      question_id: d.question_id || null, intensity: k }, PARENT_ORIGIN); }
+    catch (err) {}
+  });
+})();
+
 </script>
 </body>
 </html>
