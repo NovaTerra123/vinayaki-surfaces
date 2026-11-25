@@ -1,10 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
-<head><script>window.__SB_SURFACE="dashboard";</script><script src="../bridge-pages.js"></script>
+<head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Śrī Yantra — Dashboard V4</title>
+<link rel="stylesheet" href="living-light.css">
 <link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="observatory.css">
+<link rel="stylesheet" href="surface-kit.css">
+<link rel="stylesheet" href="chat-panel.css">
+
 </head>
 <body>
 <div id="pageGlow" aria-hidden="true"></div>
@@ -28,7 +33,7 @@
 
 <main>
   <!-- ============ THE FIGURE ============ -->
-  <section class="panel hero" id="sec-figure" data-chat="The Yantra">
+  <section class="panel hero ll-panel" id="sec-figure" data-chat="The Yantra">
     <h2>The Yantra <span class="h2sub">— the whole figure</span></h2>
     <p class="glance">Nine interlaced triangles around one still point. Choose a voice, press play, and watch the light climb and return.</p>
 
@@ -67,8 +72,37 @@
     </details>
   </section>
 
+
+  <!-- ============ OPEN GATES (from api/state gates section) ============ -->
+  <section class="panel ll-panel" id="sec-gates">
+    <h2>Open Decisions <span class="h2sub">— gates waiting for your word</span></h2>
+    <p class="glance">These gates are already in the decision record this page reads. A gate is a decision only you can make; until you rule, its default holds. <span class="label">Open now:</span> <span id="gatesOpenCount" class="num">–</span></p>
+    <p id="gatesState" class="state-line">Reading the decision record…</p>
+    <div id="gatesList" class="cards gates-list"></div>
+  </section>
+
+  <!-- ============ THE SWARM AT WORK (UI v2 — compact Observatory panel; full Observatory lives on 8794) ============ -->
+  <section class="panel ll-panel" id="sec-swarm">
+    <h2>The Swarm at Work <span class="h2sub">— Buddhi's live channels</span></h2>
+    <p class="glance">Watch Buddhi's swarm work — every line in the panel below is a real recorded event on the eight TantricSync (light-and-resonance sync — the swarm's shared signal language) channels. Nothing here is simulated.</p>
+    <div id="swarmMount"></div>
+    <p class="state-line">If the feed cannot be reached from this edition, the full Observatory lives on Buddhi Live.</p>
+  </section>
+
+  <!-- ============ KALA (cycle #3, G-29) ============ -->
+  <section class="panel ll-panel" id="sec-kala">
+    <h2>Kala <span class="h2sub">— time, the measured temporal register in brief</span></h2>
+    <div id="kalaStrip"></div>
+  </section>
+
+  <!-- ============ TALK TO BUDDHI (cycle #3 chat contract) ============ -->
+  <section class="panel ll-panel" id="sec-buddhi-chat">
+    <h2>Talk to Buddhi <span class="h2sub">— the conversational door, beside the gates it most often discusses</span></h2>
+    <div id="buddhi-chat-mount"></div>
+  </section>
+
   <!-- ============ NINE VEILS ============ -->
-  <section class="panel" id="sec-v1" data-chat="The Outer Walls">
+  <section class="panel ll-panel" id="sec-v1" data-chat="The Outer Walls">
     <h2>1 · The Outer Walls <span class="h2sub">— bhūpura, the earth square</span></h2>
     <p class="glance">A square wall with four gates — the threshold between the world outside and the world within.</p>
     <details class="deep"><summary>More</summary>
@@ -76,7 +110,7 @@
     </details>
   </section>
 
-  <section class="panel" id="sec-v2" data-chat="The Sixteen Petals">
+  <section class="panel ll-panel" id="sec-v2" data-chat="The Sixteen Petals">
     <h2>2 · The Sixteen Petals <span class="h2sub">— ṣoḍaśadala</span></h2>
     <p class="glance">Sixteen petals carrying the sixteen vowels of Sanskrit, beginning at the east and running counter-clockwise.</p>
     <details class="deep"><summary>More</summary>
@@ -84,7 +118,7 @@
     </details>
   </section>
 
-  <section class="panel" id="sec-v3" data-chat="The Eight Petals">
+  <section class="panel ll-panel" id="sec-v3" data-chat="The Eight Petals">
     <h2>3 · The Eight Petals <span class="h2sub">— aṣṭadala</span></h2>
     <p class="glance">Eight petals, deliberately bare.</p>
     <details class="deep"><summary>Why are they bare?</summary>
@@ -92,7 +126,7 @@
     </details>
   </section>
 
-  <section class="panel" id="sec-v4" data-chat="The Fourteen Points">
+  <section class="panel ll-panel" id="sec-v4" data-chat="The Fourteen Points">
     <h2>4 · The Fourteen Points <span class="h2sub">— caturdaśāra</span></h2>
     <p class="glance">Where the great triangles cross, fourteen small triangles appear — the first woven field.</p>
     <details class="deep"><summary>More</summary>
@@ -100,32 +134,32 @@
     </details>
   </section>
 
-  <section class="panel" id="sec-v5" data-chat="The Outer Ten Points">
+  <section class="panel ll-panel" id="sec-v5" data-chat="The Outer Ten Points">
     <h2>5 · The Outer Ten Points <span class="h2sub">— bahirdaśāra</span></h2>
     <p class="glance">Ten points in the outer ring of the woven field.</p>
     <details class="deep"><summary>More</summary><p>Each veil inward is drawn by the same nine triangles — nothing new is added; the eye simply reads a finer weave. That is the figure's whole method: one construction, many depths.</p></details>
   </section>
 
-  <section class="panel" id="sec-v6" data-chat="The Inner Ten Points">
+  <section class="panel ll-panel" id="sec-v6" data-chat="The Inner Ten Points">
     <h2>6 · The Inner Ten Points <span class="h2sub">— antardaśāra</span></h2>
     <p class="glance">Ten points in the inner ring, one step from the heart of the figure.</p>
     <details class="deep"><summary>More</summary><p>The two ten-point rings together frame the eight-point ring inside them. In the sung cycle, this is roughly where the voice turns from climbing to returning — the descent is drawn at full brightness, never dimmed: the way back is not a fading.</p></details>
   </section>
 
-  <section class="panel" id="sec-v7" data-chat="The Eight Points">
+  <section class="panel ll-panel" id="sec-v7" data-chat="The Eight Points">
     <h2>7 · The Eight Points <span class="h2sub">— aṣṭakoṇa</span></h2>
     <p class="glance">Eight points, the last woven ring before the centre.</p>
     <details class="deep"><summary>More</summary><p>Inside this ring stands a single triangle. Everything outside it is mixture; inside it, the figure becomes one gesture.</p></details>
   </section>
 
-  <section class="panel" id="sec-v8" data-chat="The Central Triangle">
+  <section class="panel ll-panel" id="sec-v8" data-chat="The Central Triangle">
     <h2>8 · The Central Triangle <span class="h2sub">— trikoṇa</span></h2>
     <p class="glance">One downward triangle at the centre — the seat of the point of light.</p>
     <details class="deep"><summary>More</summary><p>The centre glyph you see during a recording lives here: लं वं रं यं हं ॐ — the seed-sound (bīja) of whichever centre is singing. At the crown it gives way to the point alone, and silence.</p></details>
   </section>
 
-  <section class="panel" id="sec-v9" data-chat="The Point of Light">
-    <h2>9 · The Point of Light <span class="h2sub">— bindu</span></h2>
+  <section class="panel ll-panel" id="sec-v9" data-chat="The Point of Light">
+    <h2>9 · The Point of Light <span class="h2sub">— bindu (point)</span></h2>
     <p class="glance">A single point, placed not at the geometric centre but at the triangles' own centre of balance — the incentre, a hair above middle.</p>
     <details class="deep"><summary>More</summary>
       <p>The bindu sits at [0, +0.0055] of the radius — measured from the solver's exact construction, not placed by eye. When a recording reaches the crown, every colour drains, the point turns pearl, one soft flare of rays opens — and there is silence.</p>
@@ -134,7 +168,7 @@
   </section>
 
   <!-- ============ SEVEN CENTRES ============ -->
-  <section class="panel" id="sec-centres" data-chat="The Seven Centres">
+  <section class="panel ll-panel" id="sec-centres" data-chat="The Seven Centres">
     <h2>The Seven Centres <span class="h2sub">— the body the sound climbs</span></h2>
     <p class="glance">Six sounding centres and the silent crown. Each card: the seed-sound, the element, the lotus, and what tradition says lives there.</p>
     <div id="stationCards" class="cards"></div>
@@ -147,7 +181,7 @@
   </section>
 
   <!-- ============ KNOTS & SHEATHS ============ -->
-  <section class="panel" id="sec-knots" data-chat="The Three Knots">
+  <section class="panel ll-panel" id="sec-knots" data-chat="The Three Knots">
     <h2>The Three Knots <span class="h2sub">— granthi, where the climb hesitates</span></h2>
     <p class="glance">At the navel, the heart and the brow, the rising energy meets a knot. In the music, the sweep of light pauses there — about a third of a second — on purpose.</p>
     <details class="deep"><summary>More</summary>
@@ -155,7 +189,7 @@
     </details>
   </section>
 
-  <section class="panel" id="sec-sheaths" data-chat="The Five Sheaths">
+  <section class="panel ll-panel" id="sec-sheaths" data-chat="The Five Sheaths">
     <h2>The Five Sheaths <span class="h2sub">— kośa, the layers of a person</span></h2>
     <p class="glance">Tradition wraps the self in five sheaths, food to bliss. The dashboard's layers mirror them: glance, detail, depth.</p>
     <details class="deep"><summary>The five</summary>
@@ -164,7 +198,7 @@
   </section>
 
   <!-- ============ PHYSICS ============ -->
-  <section class="panel" id="sec-physics" data-chat="Sound, Light and Number">
+  <section class="panel ll-panel" id="sec-physics" data-chat="Sound, Light and Number">
     <h2>Sound, Light and Number <span class="h2sub">— the physics under the figure</span></h2>
     <p class="glance">The tonic bands of the chant — 82, 164, 246, 328 hertz — shape the rays through Bessel patterns, the mathematics of vibrating circles.</p>
     <div class="band-readout" aria-label="Live spectral bands">
@@ -179,7 +213,7 @@
   </section>
 
   <!-- ============ BREATH ============ -->
-  <section class="panel" id="sec-breath" data-chat="The Breath">
+  <section class="panel ll-panel" id="sec-breath" data-chat="The Breath">
     <h2>The Breath <span class="h2sub">— twelve seconds, in and out</span></h2>
     <p class="glance">At rest the figure breathes: in for about seven seconds, a held moment, out for about five — and the glow breathes with it, on the same envelope.</p>
     <details class="deep"><summary>More</summary>
@@ -192,10 +226,37 @@
     <p>Panel titles are a PROPOSED set (decision point DP-1): the five-second test at delivery ranks the candidate sets, and Trishul's pick is final.</p>
     <p id="buildState" class="state-line"></p>
   </footer>
+
+  <section class="panel ll-panel" id="sec-voice-observatory" data-chat="Voice Observatory">
+    <h2>TantricSync Voice Observatory <span style="font-size:12px;opacity:.75">(panel — full observatory on Buddhi Live, port 8794)</span></h2>
+    <p style="font-size:13px">The swarm's live traffic on the sheath map: station lights are <b>declared grammar</b>, spectral values <b>measured</b>, bhāva (emotional tone) <b>synthesis by published rule</b>. Listening itself lives on the 8794 stage.</p>
+    <div id="voiceListenMount"></div>
+    <div id="voPanelStations" style="display:flex;gap:10px;flex-wrap:wrap;margin:6px 0"></div>
+    <div id="voPanelStream" style="font-size:13px"></div>
+    <p id="voPanelFresh" style="font-size:12px;opacity:.75"></p>
+  </section>
 </main>
 
 <script src="data.js"></script>
 <script src="engine-core.js"></script>
+<script src="motion.js"></script>
+<script src="observatory.js"></script>
 <script src="app.js"></script>
+<script src="surface-kit.js"></script>
+<script src="chat-panel.js"></script>
+<script>
+(function(){ if (window.SurfaceKit) {
+  SurfaceKit.kalaStrip(document.getElementById("kalaStrip"));
+  SurfaceKit.voiceListen(document.getElementById("voiceListenMount"));
+} })();
+</script>
+<script>
+(function () {
+  var el = document.getElementById("swarmMount");
+  if (el && window.SwarmObservatory) {
+    window.__swarmPanel = SwarmObservatory.mount(el, { compact: true, commissionId: "pkt-buddhi-ui-design-2026-11-23", base: location.protocol + "//" + location.hostname + ":8794" });
+  }
+})();
+</script>
 </body>
 </html>
